@@ -1,13 +1,11 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/Accordion"
-import { Button } from "@/components/ui/Button"
+import { buttonVariants } from "@/components/ui/Button"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/Carousel"
 import { FacebookIcon, InstagramIcon, NextArrowIcon, PrevArrowIcon, QuoteIcon, TikTokIcon } from "@/icons"
+import { cn } from "@/lib/utils"
 import heroImage from "@/public/hero-img.png"
 import headerLogo from "@/public/logo-main.svg"
 import mainImage from "@/public/main-1.png"
@@ -132,9 +130,7 @@ const recommendations = [
   },
 ]
 
-const HomePage = () => {
-  const router = useRouter()
-
+export default async function HomePage() {
   return (
     <>
       <header className="mx-auto flex max-w-12xl items-center justify-between border-b border-grey-400 px-4 py-5 lg:border-none lg:px-18 lg:py-6 2xl:px-42">
@@ -143,22 +139,21 @@ const HomePage = () => {
         </Link>
 
         <div className="flex gap-2 lg:gap-3">
-          <Button
-            variant="primary-outline"
-            size="auto"
-            className="px-4 py-2.5 text-primary-900 lg:px-6 lg:py-4"
-            onClick={() => router.push("/sign-in")}
+          <Link
+            href="/sign-in"
+            className={cn(
+              "px-4 py-2.5 text-primary-900 lg:px-6 lg:py-4",
+              buttonVariants({ variant: "primary-outline", size: "auto" })
+            )}
           >
             Log in
-          </Button>
-          <Button
-            variant="primary"
-            size="auto"
-            className="px-4 py-2.5 lg:px-6 lg:py-4"
-            onClick={() => router.push("/sign-up")}
+          </Link>
+          <Link
+            href="/sign-up"
+            className={cn("px-4 py-2.5 lg:px-6 lg:py-4", buttonVariants({ variant: "primary", size: "auto" }))}
           >
             Sign up
-          </Button>
+          </Link>
         </div>
       </header>
 
@@ -173,22 +168,24 @@ const HomePage = () => {
               From the #1 dermatologist-recommended hair growth supplement brand.*
             </p>
             <div className="flex gap-2 lg:gap-4 2xl:gap-5">
-              <Button
-                variant="primary-outline"
-                size="auto"
-                className="px-4 py-2.5 text-primary-900 lg:px-16 lg:py-3.5 lg:text-2xl 2xl:px-20 2xl:py-6 2xl:text-4xl"
-                onClick={() => router.push("/sign-in")}
+              <Link
+                className={cn(
+                  "px-4 py-2.5 text-primary-900 lg:px-16 lg:py-3.5 lg:text-2xl 2xl:px-20 2xl:py-6 2xl:text-4xl",
+                  buttonVariants({ variant: "primary-outline", size: "auto" })
+                )}
+                href="/sign-in"
               >
                 Log in
-              </Button>
-              <Button
-                variant="primary"
-                size="auto"
-                className="px-4 py-2.5 lg:px-16 lg:py-3.5 lg:text-2xl 2xl:px-20 2xl:py-6 2xl:text-4xl"
-                onClick={() => router.push("/sign-up")}
+              </Link>
+              <Link
+                className={cn(
+                  "px-4 py-2.5 lg:px-16 lg:py-3.5 lg:text-2xl 2xl:px-20 2xl:py-6 2xl:text-4xl",
+                  buttonVariants({ variant: "primary", size: "auto" })
+                )}
+                href="/sign-up"
               >
                 Sign up
-              </Button>
+              </Link>
             </div>
           </div>
           <div className="relative h-[306px] w-[342px] overflow-hidden rounded-2xl lg:h-[493px] lg:w-full lg:max-w-[451px] lg:shrink-0 2xl:h-[670px] 2xl:w-[612px]">
@@ -321,14 +318,15 @@ const HomePage = () => {
           <p className="mt-4 text-sm font-medium lg:mt-6 lg:text-2xl 2xl:mt-12 2xl:text-4xl">
             Complete this form and we will contact you shortly.
           </p>
-          <Button
-            variant="primary"
-            size="auto"
-            onClick={() => router.push("/sign-up")}
-            className="mt-6 px-4 py-2.5 lg:mt-10 lg:px-16 lg:py-3.5 lg:text-2xl 2xl:px-20 2xl:py-6 2xl:text-4xl"
+          <Link
+            href="/sign-up"
+            className={cn(
+              "mt-6 px-4 py-2.5 lg:mt-10 lg:px-16 lg:py-3.5 lg:text-2xl 2xl:px-20 2xl:py-6 2xl:text-4xl",
+              buttonVariants({ variant: "primary", size: "auto" })
+            )}
           >
             Sign up
-          </Button>
+          </Link>
         </section>
       </main>
 
@@ -352,5 +350,3 @@ const HomePage = () => {
     </>
   )
 }
-
-export default HomePage
