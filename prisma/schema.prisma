@@ -1,0 +1,189 @@
+// prisma/schema.prisma
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  ADMIN 
+  USER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name     String?
+  lastName      String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  telephone      String?
+  type_proffesion String?
+  place_work    String? 
+  practical_size String?
+  role          UserRole @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  isTwoFactorEnable Boolean @default(false)
+  TwoFactorConfimation TwoFactorConfimation?
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String  @map("user_id")
+  type               String
+  provider           String
+  providerAccountId  String  @map("provider_account_id")
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model VerificationToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+
+  @@unique([email, token])
+
+}
+
+model PasswordResetToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+
+  @@unique([email, token])
+} 
+
+model TwoFactorToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+
+  @@unique([email, token])
+} 
+
+model TwoFactorConfimation {
+  id String @id @default(cuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+}
+
+model Topic {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  createdAt     DateTime @default(now())
+  parentId      String?  // just a foreign key without explicit relation definition
+  parent        Topic?   @relation("ParentChild", fields: [parentId], references: [id])
+  children      Topic[]  @relation("ParentChild")
+  selected      String
+  likes         Int      @default(0)  // Added field likes with type Int and default value 0
+  userId        String
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  comment   String
+  createdAt DateTime @default(now())
+  parentId  String?  // just a foreign key without explicit relation definition
+  topicId   String
+  likes     Int      @default(0)  // Added field likes with type Int and default value 0
+  userId    String
+  replies   Comment[]  @relation("Replies")
+  parent    Comment?   @relation("Replies", fields: [parentId], references: [id]) // Add this line to define the relation
+}
+
+
+model CartOrder {
+  id            Int       @id @default(dbgenerated("floor(random() * 900000 + 100000)::int"))
+  userId String
+  createdAt DateTime @default(now())
+  email String
+  shippingAddress Json
+  shippingMethod Json
+  billingAddress Json
+  paymentMethod String
+  products Json
+  totalPrice Int
+  status String
+}
+
+model Recommendation {
+  id String @id @default(cuid())
+  userId String
+  basicInfo Json
+  clients Json
+  created DateTime @default(now())
+  discount Int
+  selectedProducts Json
+  status String
+}
+
+model Template {
+  id String @id @default(cuid())
+  userId String
+  basicInfo Json
+  created DateTime @default(now())
+  discount Int
+  selectedProducts Json
+  status String
+}
+
+model Ambassador {
+  id String @id @default(cuid())
+  userId String
+  selectedTitles Json
+  ambassadorLinks Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status String @default("no-active")
+}
+
+model MarketingAssets {
+  id String @id @default(cuid())
+  imageUrl String
+  createdAt DateTime @default(now())
+  format String
+  type String
+  title String
+}
+
+model SocialAssets {
+  id String @id @default(cuid())
+  imageUrl String
+  createdAt DateTime @default(now())
+  type String
+  title String
+}
+
+model Affiliate  {
+  id String @id @default(cuid())
+  userId String
+  discountCode String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

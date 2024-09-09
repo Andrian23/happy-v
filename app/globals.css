@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Colors */
+    --primary-100: 229 243 255; /* primary outline button hover bg color */
+    --primary-500: 108 180 218; /* primary button bg color */
+    --primary-600: 93 165 203; /* primary button hover bg color */
+    --primary-800: 124 142 158; /* placeholder font color */
+    --primary-900: 37 66 93; /* font color */
+
+    /* Grey Colors */
+    --grey-100: 252 252 252; /* disabled input bg color */
+    --grey-200: 251 248 247; /* card bg color */
+    --grey-300: 247 247 247; /* disabled input border color */
+    --grey-400: 231 230 230; /* input border color */
+    --grey-600: 188 196 204; /* disabled input font color */
+    --grey-700: 171 176 197; /* radio button border color */
+    --grey-800: 124 142 158; /* placeholder font color */
+
+    --error-500: 255 106 106; /* error color */
+
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 201, 60%, 64%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 201, 60%, 64%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  body.no-scroll {
+    overflow: hidden;
+  }
+}
+
+/* styles.css */
+.vertical-line::before {
+  content: "";
+  transform: translateX(-50%);
+  width: 3px;
+  height: 100%;
+  background-color: #ccc;
+  @apply absolute left-1/2 h-full w-1 -translate-x-1/2 bg-gray-400;
+}
