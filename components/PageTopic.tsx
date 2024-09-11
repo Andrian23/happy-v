@@ -7,7 +7,7 @@ import { Cart } from "@/icons/Cart"
 import type { CartItem } from "@/interfaces/cart"
 import { cn } from "@/lib/utils"
 
-import { Badge } from "./ui/badge"
+import { Badge } from "./ui/Badge"
 
 interface PageTopicProps {
   name: string
