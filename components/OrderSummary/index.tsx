@@ -11,7 +11,7 @@ import Promo from "./Promo"
 import ProtectPackage from "./ProtectPackage"
 
 interface OrderSummaryProps {
-  className: string
+  className?: string
   totalCount: number
   cartContent: string | null
   productData: Product[]
@@ -40,8 +40,8 @@ const OrderSummary = ({
   const toggleDetails = () => setIsDetailsVisible(!isDetailsVisible)
 
   return (
-    <div className={`w-[35%] rounded-xl bg-white max-lg:mt-6 max-lg:w-full ${className}`}>
-      <div className="h-[70%] w-full border-b border-grey-400 p-4">
+    <div className={`rounded-xl bg-white max-lg:mt-6 max-lg:w-full ${className}`}>
+      <div className="w-full border-b border-grey-400 p-4">
         <div className="pb-4 text-lg font-semibold">Order Summary</div>
         <div className="w-full border-b border-[#d3dadf] pb-4">
           <div className="flex items-center justify-between">
