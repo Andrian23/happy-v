@@ -1,11 +1,11 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React from "react"
 import Link from "next/link"
 
 import { Cart } from "@/icons/Cart"
-import type { CartItem } from "@/interfaces/cart"
 import { cn } from "@/lib/utils"
+import { useCartStore } from "@/stores/cart"
 
 import { Badge } from "./ui/Badge"
 
@@ -17,19 +17,7 @@ interface PageTopicProps {
 }
 
 const PageTopic: React.FC<PageTopicProps> = ({ name, description, children, sticky = false }) => {
-  const [totalItemCount, setTotalItemCount] = useState(0)
-
-  useEffect(() => {
-    const cartData = localStorage.getItem("cart")
-    if (cartData) {
-      const cartItems: CartItem[] = JSON.parse(cartData)
-
-      const totalCount = cartItems.reduce((total, item) => total + item.count, 0)
-      setTotalItemCount(totalCount)
-    } else {
-      setTotalItemCount(0)
-    }
-  }, [])
+  const count = useCartStore((state) => state.products.reduce((acc, product) => acc + product.amount, 0))
 
   return (
     <div className={cn("bg-white pb-3 pt-4", sticky && "lg:sticky lg:top-0 lg:z-10")}>
@@ -38,8 +26,8 @@ const PageTopic: React.FC<PageTopicProps> = ({ name, description, children, stic
         {children}
         <Link href="/cart" className="relative ml-auto max-lg:hidden">
           <Cart className="h-6 w-6 text-primary-900" />
-          <Badge className="absolute -right-1 -top-1 flex h-3 w-3 justify-center p-0 text-[10px]">
-            {totalItemCount}
+          <Badge className="absolute -right-1 -top-1 flex aspect-square justify-center rounded-full p-0.5 text-[10px] leading-none">
+            {count}
           </Badge>
         </Link>
       </div>
