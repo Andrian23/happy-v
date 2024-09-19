@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useAddToCart } from "@/hooks/useAddToCart"
 import { cn } from "@/lib/utils"
 import type { Product } from "@/models/product"
+import { useCartStore } from "@/stores/cart"
 
 import { Button } from "./ui/Button"
 import { ProductCounter } from "./ProductCounter"
@@ -24,7 +25,8 @@ const ProductGridItem: React.FC<ProductGridItemProps> = ({
   isSelected,
   price,
 }) => {
-  const { setCount, addToCart } = useAddToCart()
+  const addProduct = useCartStore((state) => state.addProduct)
+  const { count, setCount } = useAddToCart()
   const [isAdded, setIsAdded] = useState(isSelected)
 
   useEffect(() => {
@@ -83,7 +85,7 @@ const ProductGridItem: React.FC<ProductGridItemProps> = ({
               {quantity ? (
                 <div className="mt-4 flex items-start justify-between gap-2">
                   <ProductCounter onCountChange={setCount} />
-                  <Button size="md" variant="primary-outline" onClick={() => addToCart(product)}>
+                  <Button size="md" variant="primary-outline" onClick={() => addProduct(product, count)}>
                     Add to Cart
                   </Button>
                 </div>
