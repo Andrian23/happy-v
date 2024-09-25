@@ -4,7 +4,7 @@ import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 
-import { signOut } from "@/actions/signOut"
+import { signOut } from "@/auth"
 import communityIcon from "@/public/Community-mobile.svg"
 import dialogIcon from "@/public/Dialog-mobile.svg"
 import faqIcon from "@/public/FAQ-mobile.svg"
@@ -131,15 +131,14 @@ const SidebarMobile: React.FC = () => {
                   {item.name}
                 </Link>
               ))}
-              <form action={signOut}>
-                <button
-                  className="mb-[10px] flex cursor-pointer items-center rounded-[0.5rem] p-[0.5rem] hover:bg-white/15"
-                  key="Log out"
-                >
-                  <Image src={logOutIcon} className="mr-[0.4rem] h-[18px] w-[18px]" alt="Dollar Icon" />
-                  Log out
-                </button>
-              </form>
+              <button
+                className="mb-[10px] flex cursor-pointer items-center rounded-[0.5rem] p-[0.5rem] hover:bg-white/15"
+                key="Log out"
+                onClick={() => signOut()}
+              >
+                <Image src={logOutIcon} className="mr-[0.4rem] h-[18px] w-[18px]" alt="Dollar Icon" />
+                Log out
+              </button>
             </div>
           </div>
         </div>
