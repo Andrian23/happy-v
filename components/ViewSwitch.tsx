@@ -19,7 +19,7 @@ const thumbs = [
 
 export const ViewSwitch: React.FC<SwitchLayoutProps> = ({ onChange, state, className }) => {
   return (
-    <div className={cn("flex h-10 w-full shrink-0 rounded-xl border border-grey-400 p-0.5", className)}>
+    <div className={cn("flex h-10 shrink-0 rounded-xl border border-grey-400 p-0.5", className)}>
       {thumbs.map(({ icon, id }) => (
         <button
           key={id}
