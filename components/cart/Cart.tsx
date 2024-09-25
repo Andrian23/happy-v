@@ -15,6 +15,7 @@ import { useCartStore } from "@/stores/cart"
 
 export const Cart = () => {
   const products = useCartStore((state) => state.products)
+  const total = useCartStore((state) => state.products.reduce((acc, product) => acc + product.amount, 0))
   const router = useRouter()
   const [totalPrice, setTotalPrice] = useState(0)
   const [isProtected, setIsProtected] = useState(false)
@@ -108,7 +109,7 @@ export const Cart = () => {
         <div className="p-4">
           <div className="flex justify-between pt-4 text-xl font-semibold">
             <div>Total</div>
-            <div>${(totalPrice + (isProtected ? 1.99 : 0)).toFixed(2)}</div>
+            <div>${(total + (isProtected ? 1.99 : 0)).toFixed(2)}</div>
           </div>
 
           <Button variant="primary" className="mt-5 w-full" disabled={products.length === 0} onClick={handleCheckout}>
