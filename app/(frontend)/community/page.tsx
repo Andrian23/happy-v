@@ -14,8 +14,8 @@ import { TopicCard } from "@/components/TopicCard"
 import TopicEditorModal from "@/components/TopicEditorModal"
 import { Button } from "@/components/ui/Button"
 import type { Topic } from "@/models/topic"
-import com1Image from "@/public/Com1.svg"
-import com2Image from "@/public/Com2.svg"
+import com1Image from "@/public/Comment1.svg"
+import com2Image from "@/public/Comment2.svg"
 import communityFlyIcon from "@/public/CommunityFly.svg"
 import communityNewsIcon from "@/public/CommunityNews.svg"
 import communityQuestionIcon from "@/public/CommunityQuestion.svg"
@@ -99,8 +99,8 @@ const CommunityPage = () => {
           </div>
           <CustomSearchInput value={searchTerm} placeholder="Search for topic..." onChange={handleSearchChange} />
         </div>
-        <Image src={com1Image} alt="Com1" className="absolute bottom-0 left-0 h-[190px] w-[135px]" />
-        <Image src={com2Image} alt="Com2" className="absolute bottom-0 right-0 h-[190px] w-[151px]" />
+        <Image src={com1Image} alt="Comment1" className="absolute bottom-0 left-0 h-[190px] w-[135px]" />
+        <Image src={com2Image} alt="Comment2" className="absolute bottom-0 right-0 h-[190px] w-[151px]" />
       </div>
 
       <div className="mt-8 flex flex-col gap-4 lg:flex-row">
