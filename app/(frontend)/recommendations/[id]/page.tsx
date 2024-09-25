@@ -122,9 +122,9 @@ const RecommendationPage = () => {
     let sorted = []
 
     if (select === "low-to-high") {
-      sorted = productsToSort.sort((a, b) => a.price - b.price)
+      sorted = productsToSort.sort((a, b) => parseFloat(a.variants[0].price) - parseFloat(b.variants[0].price))
     } else if (select === "high-to-low") {
-      sorted = productsToSort.sort((a, b) => b.price - a.price)
+      sorted = productsToSort.sort((a, b) => parseFloat(b.variants[0].price) - parseFloat(a.variants[0].price))
     } else {
       sorted = productsToSort.sort((a) => (a.status === "active" ? -1 : 1))
     }
@@ -137,9 +137,9 @@ const RecommendationPage = () => {
     let sorted = []
 
     if (select === "low-to-high") {
-      sorted = productsToSort.sort((a, b) => a.price - b.price)
+      sorted = productsToSort.sort((a, b) => parseFloat(a.variants[0].price) - parseFloat(b.variants[0].price))
     } else if (select === "high-to-low") {
-      sorted = productsToSort.sort((a, b) => b.price - a.price)
+      sorted = productsToSort.sort((a, b) => parseFloat(b.variants[0].price) - parseFloat(a.variants[0].price))
     } else {
       sorted = productsToSort.sort((a) => (a.status === "active" ? -1 : 1))
     }
