@@ -53,3 +53,25 @@ export const getTemplateById = async (id: string): Promise<Template> => {
 
   return template as unknown as Template
 }
+
+export const deleteRecommendation = async (id: string): Promise<void> => {
+  try {
+    await db.recommendation.delete({
+      where: { id },
+    })
+  } catch (error) {
+    console.error("Error deleting recommendation:", error)
+    throw new Error("Failed to delete recommendation")
+  }
+}
+
+export const deleteTemplate = async (id: string): Promise<void> => {
+  try {
+    await db.template.delete({
+      where: { id },
+    })
+  } catch (error) {
+    console.error("Error deleting template:", error)
+    throw new Error("Failed to delete template")
+  }
+}

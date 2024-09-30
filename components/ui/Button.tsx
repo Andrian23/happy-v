@@ -18,9 +18,11 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         "primary-outline": "border border-solid border-primary-500 text-primary-500 hover:bg-primary-100",
         primary: "bg-primary-500 text-white hover:bg-primary-600",
+        "destructive-secondary": "bg-error-600/0 text-white hover:bg-error-600",
       },
       size: {
         default: "h-10 px-4 py-2",
+        sm: "h-9 px-3 py-2 rounded-xl",
         md: "h-9 px-4 py-2",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",

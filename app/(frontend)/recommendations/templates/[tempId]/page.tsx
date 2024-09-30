@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
@@ -10,9 +10,11 @@ import { getAllProducts } from "@/actions/productsShopify"
 import { getTemplateById } from "@/actions/recommendation"
 import PageTopic from "@/components/PageTopic"
 import ProductGridItem from "@/components/ProductItemGrid"
+import ConfirmationModal from "@/components/Recommendations/components/ConfirmationModal"
 import { Tabs } from "@/components/Tabs"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { Textarea } from "@/components/ui/Textarea"
 import { BackArrowIcon, CloseIcon, CrossIcon, MenuIcon, PlusIcon, TriangleDownIcon } from "@/icons"
@@ -42,6 +44,8 @@ const RecommendationsTemplatePage = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [discount, setDiscount] = useState(percentages[1])
   const [showMoreInfo, setShowMoreInfo] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | number | null>(null)
+
   const [formData, setFormData] = useState<TemplateData>({
     id: "",
     basicInfo: {
@@ -54,6 +58,10 @@ const RecommendationsTemplatePage = () => {
     created: "",
     clients: [],
   })
+
+  const handleOpenDeletingModal = (clientId: string | number | null) => {
+    setDeletingId(clientId)
+  }
 
   useEffect(() => {
     const fetchRecommendation = async () => {
@@ -299,9 +307,25 @@ const RecommendationsTemplatePage = () => {
                   className="relative mb-4 grid grid-cols-[24%_72%] gap-6 rounded-xl bg-white p-5 last-of-type:mb-0"
                   key={product?.id}
                 >
-                  <MenuIcon
-                    className="absolute right-[18px] top-3 cursor-pointer"
-                    onClick={() => handleRemoveProduct(product?.id)}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <MenuIcon className="absolute right-[18px] top-3 cursor-pointer" />
+                    </PopoverTrigger>
+                    <PopoverContent className="w- w-39 gap-0 p-0">
+                      <button
+                        className="flex h-12 cursor-pointer items-center self-stretch rounded-lg px-4 py-4 text-sm font-normal text-[#eb5757] hover:bg-[rgba(220,221,222,0.43)] focus:outline-none"
+                        onClick={() => handleOpenDeletingModal(product?.id)}
+                      >
+                        Delete
+                      </button>
+                    </PopoverContent>
+                  </Popover>
+
+                  <ConfirmationModal
+                    isOpen={deletingId === product?.id}
+                    onClose={() => setDeletingId(null)}
+                    onConfirm={() => handleRemoveProduct(product?.id)}
+                    message="Are you sure you want to delete this template?"
                   />
 
                   <div>
@@ -454,7 +478,7 @@ const RecommendationsTemplatePage = () => {
               </div>
             </div>
 
-            <div className="h-full overflow-y-auto px-6 pb-6 pt-3">
+            <div className="relative h-full overflow-y-auto px-6 pb-6 pt-3">
               <div className="main-products mt-4">
                 <div className="flex w-full items-center justify-between max-md:block">
                   <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
@@ -489,6 +513,7 @@ const RecommendationsTemplatePage = () => {
                       quantity={false}
                       onAddToCart={handleAddToCart}
                       isSelected={formData.selectedProducts.some((p) => p?.id === product?.id)}
+                      addLabel="Add to template"
                     />
                   ))}
                 </div>

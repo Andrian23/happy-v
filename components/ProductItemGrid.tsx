@@ -15,6 +15,7 @@ interface ProductGridItemProps {
   onAddToCart?: (product: Product) => void
   isSelected?: boolean
   price?: number // Updated to make price a required prop
+  addLabel?: string
 }
 
 const ProductGridItem: React.FC<ProductGridItemProps> = ({
@@ -23,6 +24,7 @@ const ProductGridItem: React.FC<ProductGridItemProps> = ({
   onAddToCart,
   isSelected,
   price,
+  addLabel = "Add to Cart",
 }) => {
   const { setCount, addToCart } = useAddToCart()
   const [isAdded, setIsAdded] = useState(isSelected)
@@ -96,7 +98,7 @@ const ProductGridItem: React.FC<ProductGridItemProps> = ({
                     )}
                     onClick={handleClick}
                   >
-                    {isAdded ? "Remove" : "Add to Cart"}
+                    {isAdded ? "Remove" : addLabel}
                   </div>
                 </div>
               )}
