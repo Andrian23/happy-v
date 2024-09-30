@@ -9,7 +9,7 @@ import { type View, ViewSwitch } from "@/components/ViewSwitch"
 import { useProductFilters } from "@/hooks/useProductFilters"
 import type { Product } from "@/models/product"
 
-import { ProductsLayout } from "./ProductsLayout"
+import { ProductsLayout } from "../../../components/products/ProductsLayout"
 
 type ProductsProps = {
   products: Product[]
@@ -34,10 +34,10 @@ export const ProductsList: React.FC<ProductsProps> = ({ products }) => {
       <PageTopic name="Wholesale products" description="Buy all available products at wholesale prices" sticky />
 
       <div className="mt-5">
-        <div className="flex w-full items-center justify-between gap-3">
+        <div className="flex w-full items-center justify-between gap-3 max-lg:flex-wrap">
           <Tabs tabs={tabs} activeTab={category} onChange={setCategory} />
 
-          <ViewSwitch onChange={setView} state={view} className="ml-auto" />
+          <ViewSwitch onChange={setView} state={view} className="ml-auto max-lg:hidden" />
 
           <Select value={sort} onValueChange={setSort}>
             <SelectTrigger className="min-w-44 rounded-xl max-lg:w-full lg:max-w-44">

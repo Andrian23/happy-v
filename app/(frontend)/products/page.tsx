@@ -1,5 +1,5 @@
 import { getAllProducts } from "@/actions/productsShopify"
-import { ProductsList } from "@/components/products/ProductsList"
+import { ProductsList } from "@/app/features/products/ProductsList"
 
 export default async function ProductsPage() {
   const { products } = await getAllProducts()

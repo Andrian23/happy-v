@@ -1,5 +1,5 @@
 import { getProductById } from "@/actions/productsShopify"
-import { ProductDetails } from "@/components/products/ProductDetails"
+import { ProductDetails } from "@/app/features/products/ProductDetails"
 
 type Params = {
   params: { productId: number }

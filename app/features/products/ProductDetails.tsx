@@ -3,19 +3,19 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Ellipsis } from "lucide-react"
 
 import { IngredientsCard } from "@/components/IngredientsCard"
 import { ProductCounter } from "@/components/ProductCounter"
 import { Button } from "@/components/ui/Button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/DropdownMenu"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { Check } from "@/icons/Check"
 import type { Product } from "@/models/product"
-import dotsIcon from "@/public/Dots.svg"
 import productAvailableImage from "@/public/Product-available.svg"
 import { useCartStore } from "@/stores/cart"
 
-import PageTopic from "../PageTopic"
+import PageTopic from "../../../components/PageTopic"
 
 const ingredients = [
   {
@@ -69,11 +69,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const addToCart = useCartStore((state) => state.addProduct)
   const [count, setCount] = useState(1)
   const [notify, setNotify] = useState(false)
-  const [showOptions, setShowOptions] = useState(false)
-
-  const toggleOptions = () => {
-    setShowOptions(!showOptions)
-  }
 
   return (
     <div className="my-2.5 block h-screen w-full lg:px-4">
@@ -86,17 +81,11 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         </Button>
       </PageTopic>
 
-      <div className="mt-4 flex justify-between max-md:block">
-        <div className="image flex w-[30%] items-center justify-center rounded-2xl bg-grey-200 max-md:w-full">
-          <Image
-            src={product?.image?.src || productAvailableImage}
-            alt="ProductImage"
-            className="h-[150px] w-[150px]"
-            width={150}
-            height={150}
-          />
+      <div className="mt-4 flex flex-col gap-4 border-b border-grey-400 pb-6 lg:flex-row lg:gap-10 lg:pb-8">
+        <div className="flex aspect-square h-full max-h-64 w-full max-w-80 shrink-0 grow items-center justify-center justify-self-center rounded-2xl bg-grey-200 max-lg:order-1 max-lg:mx-auto">
+          <Image src={product?.image?.src || productAvailableImage} alt="ProductImage" width={150} height={150} />
         </div>
-        <div className="ml-2 flex w-[30%] items-center max-md:w-full">
+        <div className="flex items-center max-lg:order-2 max-lg:w-full">
           <div className="w-full">
             <div className="text-xl font-semibold text-primary-900">{product.title}</div>
             <div className="mt-2 text-sm text-primary-900">Servings: {product.variants[0].grams} grams</div>
@@ -109,7 +98,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
               <div className="ml-2 mt-4 text-xs text-grey-800">Wholesale</div>
             </div>
 
-            <div className="mt-6 flex">
+            <div className="flex">
               {product && product.status === "active" ? (
                 <div className="mt-2 flex w-full gap-2">
                   <ProductCounter onCountChange={setCount} />
@@ -119,12 +108,11 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 </div>
               ) : (
                 <div className="mt-2 block w-full">
-                  {!notify && (
+                  {!notify ? (
                     <Button size="md" variant="primary" onClick={() => setNotify(true)}>
                       Notify when it appears
                     </Button>
-                  )}
-                  {notify && (
+                  ) : (
                     <div className="notify flex items-center gap-2 text-sm text-primary-900">
                       <Check />
                       We will notify you of availability
@@ -135,20 +123,19 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             </div>
           </div>
         </div>
-        <div className="share mr-1 mt-4 flex h-6 w-[30%] justify-end max-md:hidden">
-          <div className="relative block">
-            <Image src={dotsIcon} className="h-6 w-6" alt="dots" onClick={toggleOptions} />
-            {showOptions && (
-              <div
-                className="z-1 absolute right-0 top-5 h-auto w-[15rem] rounded-xl p-4 text-primary-900"
-                style={{ boxShadow: "0px 8px 24px 0px rgba(42, 50, 52, 0.08)" }}
-              >
-                <div className="pointer my-2 text-sm">Download product one-pager</div>
-                <div className="pointer text-sm">Copy affiliate link</div>
-              </div>
-            )}
-          </div>
-        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            asChild
+            className="-mt-12 ml-auto h-6 w-6 cursor-pointer text-primary-900 lg:mt-4 lg:h-8 lg:w-8"
+          >
+            <Ellipsis />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Download product one-pager</DropdownMenuItem>
+            <DropdownMenuItem>Copy affiliate link</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="my-6 grid gap-6 pb-6 lg:grid-cols-3 lg:gap-x-20">
