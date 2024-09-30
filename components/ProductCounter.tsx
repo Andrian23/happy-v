@@ -5,10 +5,11 @@ import Plus from "@/icons/Plus"
 
 interface ProductCounterProps {
   onCountChange: (count: number) => void
+  defaultCount?: number
 }
 
-export const ProductCounter: React.FC<ProductCounterProps> = ({ onCountChange }) => {
-  const [count, setCount] = useState(1)
+export const ProductCounter: React.FC<ProductCounterProps> = ({ onCountChange, defaultCount = 1 }) => {
+  const [count, setCount] = useState(defaultCount)
 
   const handleIncrement = useCallback(() => {
     setCount((prev) => prev + 1)
