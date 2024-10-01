@@ -24,7 +24,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
   }
 
   return (
-    <div className="fixed left-0 top-0 z-[2] h-screen w-screen bg-black/50">
+    <div className="fixed left-0 top-0 z-[55] h-screen w-screen bg-black/50">
       <div
         ref={modalRef}
         className="relative left-1/2 top-1/2 z-[1] inline-flex h-[15%] w-full max-w-[383px] -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-5 rounded-xl border-b border-grey-400 bg-white p-6"

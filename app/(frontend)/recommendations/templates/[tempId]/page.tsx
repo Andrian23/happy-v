@@ -460,7 +460,7 @@ const RecommendationsTemplatePage = () => {
           </div>
 
           <Button variant="primary" disabled={isDisabled} className="mt-6 w-full" onClick={handleSubmit}>
-            Send
+            Save template
           </Button>
         </div>
       </div>

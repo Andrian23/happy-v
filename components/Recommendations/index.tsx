@@ -42,7 +42,7 @@ const Recommendations = () => {
   const router = useRouter()
   const { handleDeleteRecommendation } = useDeleteRecommendation()
   const { handleDeleteTemplate } = useDeleteTemplate()
-  const { recommendations, templates } = useFetchRecommendationsAndTemplates()
+  const { recommendations, templates, refetchData } = useFetchRecommendationsAndTemplates()
   const { clearTemplate } = useTemplateStore()
 
   const sortedRecommendations = useSort(
@@ -63,7 +63,7 @@ const Recommendations = () => {
       clearTemplate()
     }
 
-    const path = recommendationTypeTemplate ? "/Recommendations/templates/new" : "/Recommendations/new"
+    const path = recommendationTypeTemplate ? "/recommendations/templates/new" : "/recommendations/new"
     router.push(path)
   }
 
@@ -78,6 +78,16 @@ const Recommendations = () => {
   const handleOpenDeletingRecommendationModal = (clientId: string | null) => {
     setDeletingRecommendationId(clientId)
     setContextMenuIndex(null)
+  }
+
+  const handleDeleteRecommendationClick = async (recommendationId: string) => {
+    await handleDeleteRecommendation(recommendationId)
+    refetchData()
+  }
+
+  const handleDeleteTemplateClick = async (templateId: string) => {
+    await handleDeleteTemplate(templateId)
+    refetchData()
   }
 
   /* Search */
@@ -230,7 +240,7 @@ const Recommendations = () => {
               showMoreInfo={showMoreInfo}
               contextMenuIndex={contextMenuIndex as number}
               handleOpenDeletingRecommendationModal={handleOpenDeletingRecommendationModal}
-              handleDeleteClick={() => handleDeleteTemplate(template.id)}
+              handleDeleteClick={() => handleDeleteTemplateClick(template.id)}
               deletingRecommendationId={deletingRecommendationId}
               isTemplate
             />
@@ -256,7 +266,7 @@ const Recommendations = () => {
             showMoreInfo={showMoreInfo}
             contextMenuIndex={contextMenuIndex as number}
             handleOpenDeletingRecommendationModal={handleOpenDeletingRecommendationModal}
-            handleDeleteClick={() => handleDeleteRecommendation(recommendation.id)}
+            handleDeleteClick={() => handleDeleteRecommendationClick(recommendation.id)}
             deletingRecommendationId={deletingRecommendationId}
           />
         ))
