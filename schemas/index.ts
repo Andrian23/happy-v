@@ -124,3 +124,10 @@ export const SocialAssetsSchema = z.object({
     message: "Title is required",
   }),
 })
+
+export const CooperationSchema = z.object({
+  selectedTitles: z.array(z.string()),
+  isConfirmed: z.boolean().refine((value) => value, {
+    message: "Please confirm the terms to proceed.",
+  }),
+})

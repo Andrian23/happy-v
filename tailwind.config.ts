@@ -14,11 +14,14 @@ const config = {
     },
     extend: {
       height: {
+        4.5: "1.125rem",
         13: "3.25rem",
       },
       width: {
+        4.5: "1.125rem",
         13: "3.25rem",
         39: "9.75rem",
+        120: "30rem",
       },
       maxWidth: {
         90: "22.5rem",
