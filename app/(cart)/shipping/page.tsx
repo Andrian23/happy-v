@@ -1,4 +1,4 @@
-import { Shipping } from "@/components/cart/Shipping"
+import { Shipping } from "@/app/features/cart/Shipping"
 
 export default function ShippingPage() {
   return <Shipping />
