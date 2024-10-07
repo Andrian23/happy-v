@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useCallback } from "react"
 import Image from "next/image"
 
 import { Trash } from "@/icons/Trash"
@@ -13,7 +13,14 @@ type ProductCartItemProps = {
 
 export const ProductCartItem: React.FC<ProductCartItemProps> = ({ product }) => {
   const removeFromCart = useCartStore((state) => state.removeProduct)
-  const [count, setCount] = useState(product.amount)
+  const updateCount = useCartStore((state) => state.updateCount)
+
+  const handleUpdateProductCount = useCallback(
+    (count: number) => {
+      updateCount(product.id, count)
+    },
+    [product.id, updateCount]
+  )
 
   return (
     <div className="flex items-center rounded-2xl bg-white p-4 lg:py-5">
@@ -27,7 +34,7 @@ export const ProductCartItem: React.FC<ProductCartItemProps> = ({ product }) => 
 
       <div className="ml-auto flex items-center gap-4">
         <p className="text-sm font-semibold text-primary-900">${product.variants[0].price}</p>
-        <ProductCounter onCountChange={setCount} defaultCount={count} />
+        <ProductCounter onCountChange={handleUpdateProductCount} defaultCount={product.amount} />
         <Trash className="cursor-pointer text-primary-800" onClick={() => removeFromCart(product.id)} />
       </div>
     </div>
