@@ -6,6 +6,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
 
+import { Elements } from "@stripe/react-stripe-js"
+import { type Appearance, loadStripe } from "@stripe/stripe-js"
+
 import BillingModal from "@/components/BillingModal"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import OrderSummary from "@/components/OrderSummary"
@@ -27,13 +30,43 @@ import radioButtonIcon from "@/public/Radio_button.svg"
 import shopPayLogo from "@/public/Shop_Pay.svg"
 import visaLogo from "@/public/Visa.svg"
 
+const appearance = {
+  variables: {
+    fontFamily: '"Hanken Grotesk", sans-serif',
+  },
+  rules: {
+    ".Input": {
+      padding: "8px 12px",
+      borderRadius: "12px",
+      boxShadow: "none",
+      fontSize: "14px",
+      lineHeight: "24px",
+      color: "#25425d",
+      fontWeight: "500",
+    },
+    ".Input::placeholder": {
+      color: "#7C8E9E",
+    },
+    ".Label": {
+      fontWeight: "600",
+      color: "#25425d",
+      marginBottom: "8px",
+      fontSize: "14px",
+    },
+  },
+} satisfies Appearance
+
 const paymentMethods = [
   { name: "shopPay", icon: <Image src={shopPayLogo} alt="ShopPay logo" className="h-[18px] w-20" /> },
   { name: "paypal", icon: <Image src={payPalLogo} alt="PayPal logo" className="h-5 w-[79px]" /> },
   { name: "amazonPay", icon: <Image src={amazonPayLogo} alt="Amazon logo" className="h-[18px] w-[94px]" /> },
 ]
 
-export const Payment = () => {
+type PaymentProps = {
+  clientSecret?: string
+}
+
+export const Payment: React.FC<PaymentProps> = ({ clientSecret }) => {
   const router = useRouter()
 
   const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false)
@@ -134,7 +167,14 @@ export const Payment = () => {
 
   return (
     <>
-      {isPaymentModalVisible && <PaymentModal />}
+      {isPaymentModalVisible && (
+        <Elements
+          stripe={loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string)}
+          options={{ appearance, clientSecret }}
+        >
+          <PaymentModal />
+        </Elements>
+      )}
       {isBillingModalVisible && <BillingModal />}
       <section className="lg:col-span-3">
         <Breadcrumbs currentStep="payment" />

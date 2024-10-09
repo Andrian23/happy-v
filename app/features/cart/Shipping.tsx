@@ -5,9 +5,6 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
 
-import { Elements } from "@stripe/react-stripe-js"
-import { Appearance, loadStripe } from "@stripe/stripe-js"
-
 import Breadcrumbs from "@/components/Breadcrumbs"
 import OrderSummary from "@/components/OrderSummary"
 import ShippingModal from "@/components/ShippingModal"
@@ -18,34 +15,6 @@ import type { CartItem } from "@/interfaces/cart"
 import { handleCartItemsChange } from "@/lib"
 import type { ShippingAddress } from "@/models/shipping"
 import radioButtonIcon from "@/public/Radio_button.svg"
-
-import { ShippingAddress as Address } from "./ShippingAddress"
-
-const appearance = {
-  variables: {
-    fontFamily: '"Hanken Grotesk", sans-serif',
-  },
-  rules: {
-    ".Input": {
-      padding: "8px 12px",
-      borderRadius: "12px",
-      boxShadow: "none",
-      fontSize: "14px",
-      lineHeight: "24px",
-      color: "#25425d",
-      fontWeight: "500",
-    },
-    ".Input::placeholder": {
-      color: "#7C8E9E",
-    },
-    ".Label": {
-      fontWeight: "600",
-      color: "#25425d",
-      marginBottom: "8px",
-      fontSize: "14px",
-    },
-  },
-} satisfies Appearance
 
 export const Shipping = () => {
   const router = useRouter()
@@ -102,13 +71,6 @@ export const Shipping = () => {
         <Breadcrumbs currentStep="shipping" />
 
         <div className="text-2xl font-semibold text-primary-900">Shipping address</div>
-
-        <Elements
-          stripe={loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string)}
-          options={{ appearance }}
-        >
-          <Address />
-        </Elements>
 
         {shippingAddress && (
           <div className="my-4 flex h-auto w-full items-start justify-start rounded-xl bg-white p-4">
