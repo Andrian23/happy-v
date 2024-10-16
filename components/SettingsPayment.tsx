@@ -72,13 +72,13 @@ const SettingsPayment = () => {
           </div>
           <div className="my-2 text-sm">**** **** **** {paymentMethod.card?.last4}</div>
           <div className="flex items-center justify-start text-sm">
-            <Button
+            {/* <Button
               variant="destructive-outline"
               className="cursor-pointer rounded-full border border-grey-400 px-3 py-2 text-[#FF3C3C]"
               onClick={() => console.log("Delete payment method")}
             >
               Delete
-            </Button>
+            </Button> */}
           </div>
         </div>
       )
