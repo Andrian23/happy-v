@@ -2,7 +2,7 @@ export interface User {
   id: string
   name: string | null
   lastName: string | null
-  email: string | null
+  email: string
   emailVerified: Date | null
   image: string | null
   telephone: string | null
@@ -13,4 +13,5 @@ export interface User {
   createdAt: Date | null
   updatedAt: Date | null
   isTwoFactorEnable: boolean
+  stripeCustomerId?: string | null
 }

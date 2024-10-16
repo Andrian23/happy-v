@@ -17,7 +17,7 @@ export interface Product {
   images: ProductImage[]
   name: string
   variants: ProductVariant[]
-  count: number
+  amount: number
   status: "active" | "archived" | "draft"
   body_html: string
   tags: string
