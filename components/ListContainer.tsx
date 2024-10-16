@@ -1,6 +1,5 @@
 import React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 
@@ -10,6 +9,7 @@ interface ListContainerProps {
   title: string
   description: string
   href: string
+  innerHref?: string
   linkLabel: string
   buttonLabel: string
   children?: React.ReactNode
@@ -20,13 +20,12 @@ export const ListContainer: React.FC<ListContainerProps> = ({
   title,
   description,
   href,
+  innerHref,
   linkLabel,
   buttonLabel,
   children,
   className,
 }) => {
-  const router = useRouter()
-
   return (
     <div className={cn("flex flex-col gap-4 rounded-2xl bg-grey-200 p-4 text-primary-900 lg:p-6", className)}>
       <div className="flex flex-col gap-1 lg:flex-row lg:justify-between">
@@ -41,8 +40,8 @@ export const ListContainer: React.FC<ListContainerProps> = ({
             <h4 className="text-[16px] font-bold">It&apos;s still empty here</h4>
             <p className="text-[14px] font-medium text-primary-900/60">{description}</p>
           </div>
-          <Button variant="primary" onClick={() => router.push(href)} className="font-semibold">
-            {buttonLabel}
+          <Button asChild variant="primary" className="font-semibold">
+            <Link href={innerHref ?? href}>{buttonLabel}</Link>
           </Button>
         </div>
       )}
