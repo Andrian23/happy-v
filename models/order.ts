@@ -1,3 +1,5 @@
+import { BillingAddress } from "@/models/billing"
+
 import type { Product } from "./product"
 import type { ShippingAddress, ShippingMethod } from "./shipping"
 
@@ -9,13 +11,15 @@ interface Fulfillments {
 
 export interface Order {
   id: number
-  products?: Product[]
+  userId: string
+  email: string
+  products: Product[]
   createdAt: Date
-  totalPrice: string
+  totalPrice: number
   shippingMethod: ShippingMethod
   shippingAddress: ShippingAddress
-  billingAddress: ShippingAddress
-  paymentMethod: "creditCard" | "shopPay" | "paypal" | "amazonPay"
+  billingAddress: BillingAddress
+  paymentMethod: string
   financialStatus?: "paid"
   fulfillmentStatus?: string | null
   fulfillments?: Fulfillments[]

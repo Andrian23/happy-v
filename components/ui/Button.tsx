@@ -18,6 +18,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         "primary-outline": "border border-solid border-primary-500 text-primary-500 hover:bg-primary-100",
         primary: "bg-primary-500 text-white hover:bg-primary-600",
+        "destructive-outline": "border border-solid border-grey-400 text-error-500 hover:bg-destructive-100",
         "destructive-secondary": "bg-error-600/0 text-white hover:bg-error-600",
       },
       size: {

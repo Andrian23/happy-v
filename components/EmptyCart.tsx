@@ -11,7 +11,7 @@ import { Button } from "./ui/Button"
 const EmptyCart: React.FC = () => {
   const router = useRouter()
   return (
-    <div className="mt-[16px] h-[94%] w-full rounded-xl bg-white">
+    <div className="mt-4 w-full rounded-xl bg-white px-2.5 py-10 lg:py-24">
       <div className="flex h-full w-full items-center justify-center">
         <div className="text-center text-sm">
           <div className="m-auto flex h-[80px] w-[80px] items-center justify-center rounded-full bg-grey-200 p-4">

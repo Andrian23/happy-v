@@ -3,17 +3,20 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 model User {
   id                   String                @id @default(cuid())
+  name                 String?
   lastName             String?
   email                String?               @unique
   emailVerified        DateTime?
   image                String?
   password             String?
+  telephone            String?
   type_proffesion      String?
   place_work           String?
   practical_size       String?
@@ -21,10 +24,9 @@ model User {
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   isTwoFactorEnable    Boolean               @default(false)
-  name                 String?
-  telephone            String?
   TwoFactorConfimation TwoFactorConfimation?
   accounts             Account[]
+  stripeCustomerId     String?
   shippingAddresses    ShippingAddress[]
   defaultShippingAddress   Int?
 }
@@ -112,12 +114,12 @@ model CartOrder {
   createdAt       DateTime @default(now())
   email           String
   shippingAddress Json
+  shippingMethod  Json
   billingAddress  Json
   paymentMethod   String
   products        Json
-  totalPrice      Int
+  totalPrice      Float
   status          String
-  shippingMethod  Json
 }
 
 model Recommendation {

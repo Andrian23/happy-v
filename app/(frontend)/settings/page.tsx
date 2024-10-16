@@ -1,7 +1,5 @@
 import Settings from "@/components/Settings"
 
-const SettingsPage = () => {
-  return <Settings />
-}
+const SettingsPage = () => <Settings />
 
 export default SettingsPage

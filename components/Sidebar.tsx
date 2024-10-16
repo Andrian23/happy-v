@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-import { signOut } from "@/actions/signOut"
+import { logOut } from "@/actions/signOut"
 import { getSuperAdmin } from "@/actions/superAdmin"
 import ambassadorIcon from "@/public/Ambassador.svg"
 import communityIcon from "@/public/Community.svg"
@@ -149,15 +149,13 @@ const Sidebar = () => {
                   {item.name}
                 </Link>
               ))}
-              <form action={signOut}>
-                <button
-                  className="mb-[10px] flex w-[100%] cursor-pointer items-center rounded-[0.5rem] p-[0.5rem] text-sm hover:bg-white/15"
-                  key="Log out"
-                >
-                  <Image src={logOutIcon} className="mr-[0.4rem] h-[18px] w-[18px]" alt="Dollar Icon" />
-                  Log out
-                </button>
-              </form>
+              <button
+                className="mb-[10px] flex w-[100%] cursor-pointer items-center rounded-[0.5rem] p-[0.5rem] text-sm hover:bg-white/15"
+                onClick={() => logOut()}
+              >
+                <Image src={logOutIcon} className="mr-[0.4rem] h-[18px] w-[18px]" alt="Dollar Icon" />
+                Log out
+              </button>
             </div>
           </div>
         </div>

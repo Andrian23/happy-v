@@ -47,5 +47,5 @@ export const useAddToCart = () => {
     [count, toast]
   )
 
-  return { setCount, addToCart }
+  return { count, setCount, addToCart }
 }

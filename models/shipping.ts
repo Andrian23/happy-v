@@ -1,6 +1,6 @@
 export interface ShippingMethod {
   type: string
-  price: string
+  price: number
 }
 
 export interface ShippingAddress {

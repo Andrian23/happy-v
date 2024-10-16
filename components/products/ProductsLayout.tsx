@@ -2,10 +2,10 @@ import React from "react"
 
 import type { Product } from "@/models/product"
 
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "./ui/Table"
-import ProductGridItem from "./ProductItemGrid"
-import { ProductTableRow } from "./ProductTableRow"
-import type { View } from "./ViewSwitch"
+import ProductGridItem from "../ProductItemGrid"
+import { ProductTableRow } from "../ProductTableRow"
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "../ui/Table"
+import type { View } from "../ViewSwitch"
 
 interface ProductItemProps {
   view?: View
