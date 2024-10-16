@@ -124,3 +124,44 @@ export const SocialAssetsSchema = z.object({
     message: "Title is required",
   }),
 })
+
+export const CooperationSchema = z.object({
+  selectedTitles: z.array(z.string()),
+  isConfirmed: z.boolean().refine((value) => value, {
+    message: "Please confirm the terms to proceed.",
+  }),
+})
+
+export const ShippingAddressSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, { message: "First name is required" })
+    .max(50, { message: "First name must be less than 50 characters" }),
+  lastName: z
+    .string()
+    .min(1, { message: "Last name is required" })
+    .max(50, { message: "Last name must be less than 50 characters" }),
+  address: z
+    .string()
+    .min(1, { message: "Address is required" })
+    .max(100, { message: "Address must be less than 100 characters" }),
+  apartmentSuite: z.string().optional(),
+  city: z.string().min(1, { message: "City is required" }).max(50, { message: "City must be less than 50 characters" }),
+  country: z
+    .string()
+    .min(1, { message: "Country is required" })
+    .max(50, { message: "Country must be less than 50 characters" }),
+  postalZipCode: z
+    .string()
+    .min(5, { message: "Postal code must be at least 5 characters" })
+    .max(10, { message: "Postal code must be less than 10 characters" })
+    .regex(/^\d{5}(?:[-\s]\d{4})?$/, { message: "Invalid postal code format" }),
+  stateProvince: z.string().min(1, { message: "Province is required" }),
+  phone: z
+    .string()
+    .min(10, { message: "Phone must be at least 10 digits" })
+    .max(15, { message: "Phone must be less than 15 digits" })
+    .regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
+  email: z.string().min(1, { message: "Email is required" }).email({ message: "Invalid email format" }),
+  isDefault: z.boolean(),
+})

@@ -24,9 +24,33 @@ export const {
         data: { emailVerified: new Date() },
       })
     },
+    async createUser({ user }) {
+      const fullName = user?.name || ""
+      const [firstName, lastName] = fullName.split(" ")
+
+      await db.user.update({
+        where: { id: user.id },
+        data: {
+          name: firstName || null,
+          lastName: lastName || null,
+          emailVerified: new Date(),
+          role: UserRole.USER,
+        },
+      })
+    },
   },
   callbacks: {
     async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const existingUser = await db.user.findUnique({
+          where: { email: user.email || "" },
+        })
+
+        if (!existingUser) {
+          return true
+        }
+      }
+
       if (account?.provider !== "credentials") return true
 
       if (!user.id) {
@@ -44,6 +68,10 @@ export const {
         session.user.role = token.role as UserRole
       }
 
+      if (typeof token.defaultShippingAddress === "number" && session.user) {
+        session.user.defaultShippingAddress = token.defaultShippingAddress || null
+      }
+
       return session
     },
     async jwt({ token }) {
@@ -54,6 +82,8 @@ export const {
       if (!existingUser) return token
 
       token.role = existingUser.role
+
+      token.defaultShippingAddress = existingUser.defaultShippingAddress || null
 
       return token
     },

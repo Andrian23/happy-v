@@ -8,16 +8,19 @@ import { BeatLoader } from "react-spinners"
 import { getAllProducts } from "@/actions/productsShopify"
 import PageTopic from "@/components/PageTopic"
 import ProductGridItem from "@/components/ProductItemGrid"
+import ConfirmationModal from "@/components/Recommendations/components/ConfirmationModal"
 import { Tabs } from "@/components/Tabs"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { Textarea } from "@/components/ui/Textarea"
-import { BackArrowIcon, CloseIcon, CrossIcon, PlusIcon, RemoveIcon, TriangleDownIcon } from "@/icons"
+import { BackArrowIcon, CloseIcon, CrossIcon, MenuIcon, PlusIcon, RemoveIcon, TriangleDownIcon } from "@/icons"
 import { cn } from "@/lib/utils"
 import type { Product } from "@/models/product"
 import { Recommendation } from "@/models/recommendation"
 import pills from "@/public/pills.png"
+import { useTemplateStore } from "@/stores/template"
 
 const percentages = [0, 3, 8, 10, 12]
 const tabs = ["All", "Vaginal Health", "Gut Health", "Everyday Wellness", "Accessories"]
@@ -37,17 +40,25 @@ const NewRecommendationPage = () => {
   const [discount, setDiscount] = useState(percentages[1])
   const [showMoreInfo, setShowMoreInfo] = useState(false)
   const [hoveredProductId, setHoveredProductId] = useState<number | null>(null)
+  const [deletingId, setDeletingId] = useState<string | number | null>(null)
+
+  const { selectedTemplate } = useTemplateStore()
+
   const [formData, setFormData] = useState<Omit<Recommendation, "id" | "userId">>({
     clients: [{ id: Date.now(), firstName: "", lastName: "", email: "" }],
-    basicInfo: {
+    basicInfo: selectedTemplate?.basicInfo || {
       recommendationName: "",
       recommendationDetails: "",
     },
-    discount: percentages[1],
-    selectedProducts: [],
+    discount: selectedTemplate?.discount || percentages[1],
+    selectedProducts: selectedTemplate?.selectedProducts || [],
     status: "not-ordered",
     created: "",
   })
+
+  const handleOpenDeletingModal = (clientId: string | number | null) => {
+    setDeletingId(clientId)
+  }
 
   const handleOpenProductRecommendationModal = () => {
     setProductRecommendationModal(true)
@@ -336,6 +347,7 @@ const NewRecommendationPage = () => {
               <Input
                 type="text"
                 placeholder="Enter recommendation name"
+                value={formData.basicInfo.recommendationName}
                 id="recommendation-name"
                 onChange={(e) => handleBasicInfoChange("recommendationName", e.target.value)}
               />
@@ -347,6 +359,7 @@ const NewRecommendationPage = () => {
               </label>
               <Textarea
                 placeholder="Enter recommendation details"
+                value={formData.basicInfo.recommendationDetails}
                 id="recommendation-details"
                 onChange={(e) => handleBasicInfoChange("recommendationDetails", e.target.value)}
               />
@@ -356,68 +369,95 @@ const NewRecommendationPage = () => {
           <div className="flex flex-col items-start gap-2.5 self-stretch rounded-[20px] bg-grey-200 p-6">
             <h2 className="mb-5 text-xl font-bold leading-normal text-primary-900">Products</h2>
 
-            {formData.selectedProducts.map((product, index) => (
-              <div
-                className="relative mb-4 grid grid-cols-[24%_72%] gap-6 rounded-xl bg-white p-5 last-of-type:mb-0"
-                key={product?.id}
-              >
-                {/* <MenuIcon className="cursor-pointer absolute top-3 right-[18px]" onClick={() => handleRemoveProduct(product?.id)} /> */}
-
-                <div>
-                  <Image src={product?.image.src} alt={product?.image.src} width={70} height={70} />
-
-                  <p className="mt-4 text-sm font-semibold text-primary-900">
-                    {product?.title.length > 35 ? `${product?.title.substring(0, 35)}...` : product?.title}
-                  </p>
-                  <p className="mx-0 mb-1.5 mt-0.5 text-xs font-medium leading-normal text-grey-800">
-                    Servings: {product?.variants[0].inventory_quantity}
-                  </p>
-                  <p className="text-xs font-medium leading-normal text-grey-800">
-                    <span className="mr-1.5 line-through">${product?.variants[0].price}</span>
-                    <span className="text-sm font-semibold text-primary-900">${product?.variants[0].price}</span>
-                  </p>
-                </div>
-
-                <div>
-                  <div className="grid w-full grid-cols-2 items-center justify-between gap-5">
-                    <div>
-                      <label className="mb-2.5 text-sm font-semibold text-primary-900" htmlFor={`amount-${index + 1}`}>
-                        Amount *
-                      </label>
-                      <Input
-                        type="text"
-                        placeholder="Enter amount"
-                        id={`amount-${index + 1}`}
-                        onChange={(e) => handleInputChange(index, "amount", e.target.value, "selectedProducts")}
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        className="mb-2.5 text-sm font-semibold text-primary-900"
-                        htmlFor={`frequency-${index + 1}`}
+            <div className="w-full">
+              {formData.selectedProducts.map((product, index) => (
+                <div
+                  className="relative mb-4 grid grid-cols-[24%_72%] gap-6 rounded-xl bg-white p-5 last-of-type:mb-0"
+                  key={product?.id}
+                >
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <MenuIcon className="absolute right-[18px] top-3 cursor-pointer" />
+                    </PopoverTrigger>
+                    <PopoverContent className="w- w-39 gap-0 p-0">
+                      <button
+                        className="flex h-12 cursor-pointer items-center self-stretch rounded-lg px-4 py-4 text-sm font-normal text-[#eb5757] hover:bg-[rgba(220,221,222,0.43)] focus:outline-none"
+                        onClick={() => handleOpenDeletingModal(product?.id)}
                       >
-                        Frequency *
-                      </label>
-                      <Input
-                        type="text"
-                        placeholder="Enter frequency"
-                        id={`frequency-${index + 1}`}
-                        onChange={(e) => handleInputChange(index, "frequency", e.target.value, "selectedProducts")}
+                        Delete
+                      </button>
+                    </PopoverContent>
+                  </Popover>
+
+                  <ConfirmationModal
+                    isOpen={deletingId === product?.id}
+                    onClose={() => setDeletingId(null)}
+                    onConfirm={() => handleRemoveProduct(product?.id)}
+                    message="Are you sure you want to delete this template?"
+                  />
+
+                  <div>
+                    <Image src={product?.image.src} alt={product?.image.src} width={70} height={70} />
+
+                    <p className="mt-4 text-sm font-semibold text-primary-900">
+                      {product?.title.length > 35 ? `${product?.title.substring(0, 35)}...` : product?.title}
+                    </p>
+                    <p className="mx-0 mb-1.5 mt-0.5 text-xs font-medium leading-normal text-grey-800">
+                      Servings: {product?.variants[0].inventory_quantity}
+                    </p>
+                    <p className="text-xs font-medium leading-normal text-grey-800">
+                      <span className="mr-1.5 line-through">${product?.variants[0].price}</span>
+                      <span className="text-sm font-semibold text-primary-900">${product?.variants[0].price}</span>
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="grid w-full grid-cols-2 items-center justify-between gap-5">
+                      <div>
+                        <label
+                          className="mb-2.5 text-sm font-semibold text-primary-900"
+                          htmlFor={`amount-${index + 1}`}
+                        >
+                          Amount *
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="Enter amount"
+                          value={product?.amount}
+                          id={`amount-${index + 1}`}
+                          onChange={(e) => handleInputChange(index, "amount", e.target.value, "selectedProducts")}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          className="mb-2.5 text-sm font-semibold text-primary-900"
+                          htmlFor={`frequency-${index + 1}`}
+                        >
+                          Frequency *
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="Enter frequency"
+                          value={product?.frequency}
+                          id={`frequency-${index + 1}`}
+                          onChange={(e) => handleInputChange(index, "frequency", e.target.value, "selectedProducts")}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid w-full items-center" style={{ marginTop: 16 }}>
+                      <Textarea
+                        placeholder="Details"
+                        value={product?.details}
+                        id={`details-${index + 1}`}
+                        onChange={(e) => handleInputChange(index, "details", e.target.value, "selectedProducts")}
                       />
                     </div>
                   </div>
-
-                  <div className="grid w-full items-center" style={{ marginTop: 16 }}>
-                    <Textarea
-                      placeholder="Details"
-                      id={`details-${index + 1}`}
-                      onChange={(e) => handleInputChange(index, "details", e.target.value, "selectedProducts")}
-                    />
-                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
             {formData.selectedProducts.length > 0 ? (
               <Button
@@ -505,7 +545,7 @@ const NewRecommendationPage = () => {
               </div>
             </div>
 
-            <div className="h-full overflow-y-auto px-6 pb-6 pt-3">
+            <div className="relative h-full overflow-y-auto px-6 pb-6 pt-3">
               <div className="main-products mt-4">
                 <div className="flex w-full items-center justify-between max-md:block">
                   <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
@@ -540,6 +580,7 @@ const NewRecommendationPage = () => {
                       quantity={false}
                       onAddToCart={handleAddToCart}
                       isSelected={formData.selectedProducts.some((p) => p?.id === product?.id)}
+                      addLabel="Add to Recommendation"
                     />
                   ))}
                 </div>

@@ -1,6 +1,7 @@
 import React from "react"
 import type { Metadata } from "next"
 import { Hanken_Grotesk } from "next/font/google"
+import { SessionProvider } from "next-auth/react"
 
 import { Toaster } from "@/components/ui/Toaster"
 
@@ -17,7 +18,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={hankenGrotesk.className}>
-        {children}
+        <SessionProvider>{children}</SessionProvider>
         <Toaster />
       </body>
     </html>

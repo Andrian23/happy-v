@@ -4,14 +4,16 @@ export interface ShippingMethod {
 }
 
 export interface ShippingAddress {
+  id: number
+  userId: string
   firstName: string
   lastName: string
   address: string
-  apartment: string
-  city: string
-  province: string
-  postalCode: string
+  apartmentSuite?: string
   country: string
+  stateProvince: string
+  city: string
+  postalZipCode: string
   phone: string
   email: string
 }

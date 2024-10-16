@@ -2,7 +2,7 @@ import { forwardRef } from "react"
 
 interface ContextMenuProps {
   className: string
-  onClick: () => void
+  onClick?: () => void
   contextMenuIndex: number | null
   index: number
 }

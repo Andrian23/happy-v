@@ -14,13 +14,19 @@ const config = {
     },
     extend: {
       height: {
+        4.5: "1.125rem",
         13: "3.25rem",
       },
       width: {
+        4.5: "1.125rem",
         13: "3.25rem",
+        39: "9.75rem",
+        120: "30rem",
+        160: "40rem",
       },
       maxWidth: {
         90: "22.5rem",
+        145: "36.25rem",
         "12xl": "120rem",
       },
       padding: {
@@ -115,6 +121,9 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      boxShadow: {
+        soft: "0 8px 24px rgba(42, 50, 52, 0.08)",
       },
     },
   },

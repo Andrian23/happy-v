@@ -1,4 +1,5 @@
-import type { BillingAddress } from "./billing"
+import { BillingAddress } from "@/models/billing"
+
 import type { Product } from "./product"
 import type { ShippingAddress, ShippingMethod } from "./shipping"
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,19 +11,19 @@ import { type Appearance, loadStripe, type PaymentMethod } from "@stripe/stripe-
 
 import { placeOrder } from "@/actions/order"
 import { getPaymentMethods } from "@/actions/paymentIntent"
-import BillingModal from "@/components/BillingModal"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import { OrderSummary, shippingMethods } from "@/components/cart/OrderSummary"
 import PaymentModal from "@/components/PaymentModal"
+import SettingsShippingModal from "@/components/SettingsShippingModal"
 import { Button } from "@/components/ui/Button"
 import { useLocalStorage } from "@/hooks"
 import { cn } from "@/lib/utils"
-import type { ShippingAddress } from "@/models/shipping"
 import americanExpress from "@/public/american-express.webp"
 import cardIcon from "@/public/Card.svg"
 import mastercard from "@/public/mastercard.webp"
 import radioButtonIcon from "@/public/Radio_button.svg"
 import visa from "@/public/visa.webp"
+import { useAddressStore } from "@/stores/address"
 import { useCartStore } from "@/stores/cart"
 
 const appearance = {
@@ -103,7 +103,7 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
 
   const products = useCartStore((state) => state.products)
   const shippingMethod = useCartStore((state) => state.shippingMethod)
-  const [shippingAddress] = useLocalStorage<ShippingAddress | null>("shippingAddress", null)
+  const { selectedShippingAddress, billingAddress, setBillingAddress } = useAddressStore()
   const [email] = useLocalStorage<string>("shippingAddress", "", "email")
 
   const handleBillingModal = () => setIsBillingModalVisible(!isBillingModalVisible)
@@ -120,7 +120,7 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
 
   const handlePlaceOrder = useCallback(
     async (totalPrice: number) => {
-      if (!selectedPaymentMethod || !shippingMethod || !shippingAddress) return
+      if (!selectedPaymentMethod || !shippingMethod || !billingAddress || !selectedShippingAddress) return
 
       try {
         const order = await placeOrder({
@@ -131,8 +131,8 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
           products,
           totalPrice,
           paymentMethod: selectedPaymentMethod,
-          shippingAddress,
-          billingAddress: shippingAddress,
+          shippingAddress: selectedShippingAddress,
+          billingAddress: billingAddress,
         })
 
         router.push(`/confirmed/${order.id}`)
@@ -140,12 +140,24 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
         console.error("Error uploading order:")
       }
     },
-    [router, selectedPaymentMethod, shippingMethod, shippingAddress, products]
+    [router, selectedPaymentMethod, shippingMethod, selectedShippingAddress, billingAddress, products]
   )
+
+  useEffect(() => {
+    if (!billingAddress && selectedShippingAddress) {
+      setBillingAddress(selectedShippingAddress)
+    }
+  }, [billingAddress, selectedShippingAddress, setBillingAddress])
 
   return (
     <>
-      {isBillingModalVisible && <BillingModal />}
+      {selectedShippingAddress && isBillingModalVisible && (
+        <SettingsShippingModal
+          shippingData={selectedShippingAddress}
+          onClose={handleBillingModal}
+          addressType="billing"
+        />
+      )}
       <section className="lg:col-span-3">
         <Breadcrumbs currentStep="payment" />
         <div className="h-auto w-full rounded-2xl bg-white p-4">
@@ -156,13 +168,14 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
           <div className="border-b border-gray-200 pt-2">
             <div className="my-1 text-sm text-grey-800">Ship to</div>
             <div className="flex items-start justify-between">
-              {shippingAddress ? (
+              {selectedShippingAddress ? (
                 <div className="pb-4 text-sm font-medium text-primary-900">
                   <div>
-                    {shippingAddress.address}, {shippingAddress.apartment}, {shippingAddress.city},{" "}
-                    {shippingAddress.province} {shippingAddress.postalCode}
+                    {selectedShippingAddress.address}, {selectedShippingAddress.apartmentSuite},{" "}
+                    {selectedShippingAddress.city}, {selectedShippingAddress.stateProvince}{" "}
+                    {selectedShippingAddress.postalZipCode}
                   </div>
-                  <div>{shippingAddress.country}</div>
+                  <div>{selectedShippingAddress.country}</div>
                 </div>
               ) : null}
               <Link href="/shipping">
@@ -258,16 +271,16 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
           <div className="text-xl font-semibold text-primary-900">Billing Address</div>
           <div className="mt-4 rounded-2xl bg-white p-4">
             <div className="flex items-center justify-between">
-              {shippingAddress ? (
+              {billingAddress ? (
                 <div className="text-sm font-medium text-primary-900">
                   <div>
-                    {shippingAddress.firstName} {shippingAddress.lastName}
+                    {billingAddress.firstName} {billingAddress.lastName}
                   </div>
                   <div>
-                    {shippingAddress.address}, {shippingAddress.apartment}, {shippingAddress.city},{" "}
-                    {shippingAddress.province} {shippingAddress.postalCode}
+                    {billingAddress.address}, {billingAddress.apartmentSuite}, {billingAddress.city},{" "}
+                    {billingAddress.stateProvince} {billingAddress.postalZipCode}
                   </div>
-                  <div>{shippingAddress.country}</div>
+                  <div>{billingAddress.country}</div>
                 </div>
               ) : null}
               <div className="cursor-pointer text-sm font-medium text-primary-500" onClick={handleBillingModal}>
@@ -281,7 +294,7 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
       <OrderSummary
         onSubmit={handlePlaceOrder}
         buttonLabel="Place order"
-        disabled={!selectedPaymentMethod || !shippingAddress || !shippingMethod}
+        disabled={!selectedPaymentMethod || !selectedShippingAddress || !shippingMethod || !billingAddress}
       />
     </>
   )

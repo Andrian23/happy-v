@@ -1,18 +1,20 @@
 "use client"
 
-import { useCallback, useState } from "react"
-import Image from "next/image"
+import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { Plus } from "lucide-react"
 
+import { getShippingAddresses } from "@/actions/shippingAddress"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import { OrderSummary, shippingMethods } from "@/components/cart/OrderSummary"
-import ShippingModal from "@/components/ShippingModal"
+import SettingsShippingModal from "@/components/SettingsShippingModal"
 import ShippingVariant from "@/components/ShippingVariant"
 import { Button } from "@/components/ui/Button"
-import { useLocalStorage } from "@/hooks"
+import { Label } from "@/components/ui/Label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/RadioGroup"
 import type { ShippingAddress } from "@/models/shipping"
-import radioButtonIcon from "@/public/Radio_button.svg"
+import { useAddressStore } from "@/stores/address"
 import { useCartStore } from "@/stores/cart"
 
 export const Shipping = () => {
@@ -21,44 +23,85 @@ export const Shipping = () => {
   const setShippingMethod = useCartStore((state) => state.setShippingMethod)
 
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const [shippingAddress] = useLocalStorage<ShippingAddress | null>("shippingAddress", null)
+  const [shippingAddresses, setShippingAddresses] = useState<ShippingAddress[]>([])
+  const { selectedShippingAddress, setShippingAddress } = useAddressStore()
+
+  const { data } = useSession()
 
   const handleModalToggle = () => setIsModalVisible(!isModalVisible)
 
   const handleShipping = useCallback(() => {
-    if (!shippingAddress || !shippingMethod) return
+    if (!selectedShippingAddress || !shippingMethod) return
 
     router.push("/payment")
-  }, [router, shippingAddress, shippingMethod])
+  }, [router, selectedShippingAddress, shippingMethod])
 
   const handleShippingChange = (id: "standard" | "express") => {
     setShippingMethod(id)
   }
 
+  useEffect(() => {
+    const fetchShippingAddresses = async () => {
+      try {
+        const addresses = await getShippingAddresses()
+        if (addresses.length > 0) {
+          setShippingAddresses(addresses)
+          setShippingAddress(addresses.find(({ id }) => id === data?.user.defaultShippingAddress) || addresses[0])
+        }
+      } catch (error) {
+        console.error("Failed to fetch shipping addresses:", error)
+      }
+    }
+
+    fetchShippingAddresses()
+  }, [])
+
   return (
     <>
-      {isModalVisible && <ShippingModal />}
+      {isModalVisible && <SettingsShippingModal onClose={handleModalToggle} setShippingData={setShippingAddresses} />}
       <section className="lg:col-span-3">
         <Breadcrumbs currentStep="shipping" />
 
         <div className="text-2xl font-semibold text-primary-900">Shipping address</div>
 
-        {shippingAddress && (
-          <div className="my-4 flex h-auto w-full items-start justify-start rounded-xl bg-white p-4">
-            <Image src={radioButtonIcon} alt="Shipping" className="h-5 w-5" />
-            <div className="ml-2 text-sm font-medium text-primary-900">
-              <div>
-                {shippingAddress.firstName} {shippingAddress.lastName}
-              </div>
-              <div className="mt-1">
-                {shippingAddress.address}, {shippingAddress.apartment}, {shippingAddress.city},{" "}
-                {shippingAddress.province} {shippingAddress.postalCode}
-              </div>
-              <div className="mt-1">{shippingAddress.country}</div>
-              <div className="mt-1">{shippingAddress.phone}</div>
-            </div>
-          </div>
-        )}
+        <RadioGroup
+          value={selectedShippingAddress?.id?.toString()}
+          onValueChange={(value) =>
+            setShippingAddress(shippingAddresses.find(({ id }) => id.toString() === value) as ShippingAddress)
+          }
+        >
+          {!!shippingAddresses.length &&
+            shippingAddresses.map(
+              ({
+                id,
+                firstName,
+                lastName,
+                address,
+                apartmentSuite,
+                stateProvince,
+                country,
+                city,
+                postalZipCode,
+                phone,
+              }) => (
+                <div className="my-4 flex h-auto w-full items-start justify-start rounded-xl bg-white p-4" key={id}>
+                  <RadioGroupItem value={id.toString()} id={`address-${id}`} />
+                  <Label htmlFor={`address-${id}`}>
+                    <div className="ml-3 text-sm font-medium text-primary-900">
+                      <div>
+                        {firstName} {lastName}
+                      </div>
+                      <div className="mt-1">
+                        {address}, {apartmentSuite}, {city}, {stateProvince} {postalZipCode}
+                      </div>
+                      <div className="mt-1">{country}</div>
+                      <div className="mt-1">{phone}</div>
+                    </div>
+                  </Label>
+                </div>
+              )
+            )}
+        </RadioGroup>
         <Button variant="primary-outline" className="w-full gap-2" onClick={handleModalToggle}>
           <Plus />
           Add shipping address
@@ -82,7 +125,7 @@ export const Shipping = () => {
 
       <OrderSummary
         onSubmit={handleShipping}
-        disabled={!shippingAddress || !shippingMethod}
+        disabled={!selectedShippingAddress || !shippingMethod}
         buttonLabel="To shipping"
       />
     </>

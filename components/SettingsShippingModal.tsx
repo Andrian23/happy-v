@@ -1,220 +1,322 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
-import { City, Country, ICity, ICountry } from "country-state-city"
+import React, { Dispatch, SetStateAction, useMemo, useState } from "react"
+import { useSession } from "next-auth/react"
+import { City, Country, ICity, ICountry, IState, State } from "country-state-city"
 import { X } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
+import { zodResolver } from "@hookform/resolvers/zod"
+
+import { addShippingAddress, editShippingAddress } from "@/actions/shippingAddress"
+import SearchableSelect from "@/components/SearchableSelect"
+import { Button } from "@/components/ui/Button"
 import { Checkbox } from "@/components/ui/Checkbox"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
 import { Input } from "@/components/ui/Input"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select"
+import type { ShippingAddress } from "@/models/shipping"
+import { ShippingAddressSchema } from "@/schemas"
+import { useAddressStore } from "@/stores/address"
 
 interface SettingsShippingModalProps {
   onClose: () => void
+  shippingData?: ShippingAddress
+  addressType?: "shipping" | "billing"
+  setShippingData?: Dispatch<SetStateAction<ShippingAddress[]>>
 }
 
-const SettingsShippingModal: React.FC<SettingsShippingModalProps> = ({ onClose }) => {
-  const [isVisible, setIsVisible] = useState(true)
-  const [country, setCountry] = useState<ICountry | null>(null)
-  const [city, setCity] = useState<ICity | null>(null)
+const SettingsShippingModal: React.FC<SettingsShippingModalProps> = ({
+  onClose,
+  shippingData,
+  addressType = "shipping",
+  setShippingData,
+}) => {
+  const [formState, setFormState] = useState({
+    country: null as ICountry | null,
+    state: null as IState | null,
+    city: null as ICity | null,
+  })
+  const { setBillingAddress } = useAddressStore()
+  const { data } = useSession()
+
+  const form = useForm<z.infer<typeof ShippingAddressSchema>>({
+    resolver: zodResolver(ShippingAddressSchema),
+    defaultValues: {
+      firstName: shippingData?.firstName || "",
+      lastName: shippingData?.lastName || "",
+      address: shippingData?.address || "",
+      apartmentSuite: shippingData?.apartmentSuite || "",
+      country: shippingData?.country || "",
+      city: shippingData?.city || "",
+      postalZipCode: shippingData?.postalZipCode || "",
+      stateProvince: shippingData?.stateProvince || "",
+      phone: shippingData?.phone || "",
+      isDefault: shippingData?.id === data?.user.defaultShippingAddress || false,
+      email: shippingData?.email || "",
+    },
+  })
 
   const handleClose = () => {
-    setIsVisible(false)
     onClose()
   }
 
   const countryData = useMemo(() => Country.getAllCountries(), [])
-  const cityData = useMemo(() => (country ? (City.getCitiesOfCountry(country?.isoCode) ?? []) : []), [country])
+  const stateData = useMemo(
+    () => (formState.country ? (State.getStatesOfCountry(formState.country.isoCode) ?? []) : []),
+    [formState.country]
+  )
+  const cityData = useMemo(
+    () =>
+      formState.state && formState.country
+        ? (City.getCitiesOfState(formState.country.isoCode, formState.state.isoCode) ?? [])
+        : [],
+    [formState.state, formState.country]
+  )
 
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [address, setAddress] = useState("")
-  const [apartment, setApartment] = useState("")
-  const [postalCode, setPostalCode] = useState("")
-  const [province, setProvince] = useState("")
-  const [phone, setPhone] = useState("")
-  const [email, setEmail] = useState("")
+  const handleFormStateChange = (key: keyof typeof formState, value: ICountry | IState | ICity | null) => {
+    setFormState((prev) => ({ ...prev, [key]: value }))
+  }
 
-  const handleAddAddress = () => {
-    const addressData = {
-      firstName,
-      lastName,
-      address,
-      apartment,
-      email,
-      country: country?.name,
-      city: city?.name,
-      postalCode,
-      province,
-      phone,
+  const onSubmitValues = async (values: z.infer<typeof ShippingAddressSchema>) => {
+    try {
+      const { isDefault, ...addressData } = values
+
+      if (addressType === "shipping") {
+        if (shippingData) {
+          await editShippingAddress(shippingData.id, addressData, isDefault)
+
+          if (setShippingData) {
+            setShippingData((prev) =>
+              prev.map((address) => (address.id === shippingData.id ? { ...address, ...addressData } : address))
+            )
+          }
+        } else {
+          const newAddress = await addShippingAddress(addressData, isDefault)
+
+          if (setShippingData) {
+            setShippingData((prev) => [
+              ...prev,
+              {
+                ...newAddress,
+              },
+            ])
+          }
+        }
+      }
+
+      if (addressType === "billing" && shippingData) {
+        setBillingAddress(values)
+      }
+
+      handleClose()
+    } catch (error) {
+      console.error("Error saving shipping address:", error)
     }
-    localStorage.setItem("shippingAddress", JSON.stringify(addressData))
-    handleClose()
   }
 
   return (
-    <div className={`fixed inset-0 z-[5] flex items-center justify-center bg-black/70 ${!isVisible ? "hidden" : ""}`}>
-      <div className="w-[40rem] rounded-2xl bg-white shadow-lg max-md:w-full">
-        <div className="flex w-full items-center justify-between border-b border-grey-400 p-[24px] max-md:p-[1.3rem]">
+    <div className="fixed inset-0 z-50 overflow-auto bg-black/70">
+      <div className="mx-auto my-8 w-160 max-w-full rounded-2xl bg-white shadow-lg max-md:w-full">
+        <div className="flex w-full items-center justify-between border-b border-grey-400 p-4 md:p-6">
           <div className="text-2xl font-semibold text-primary-900">New address</div>
-          <X color="#25425D" onClick={handleClose} />
+          <Button onClick={handleClose} variant="ghost" size="smallIcon">
+            <X className="text-primary-900" />
+          </Button>
         </div>
-        <div className="h-auto w-full p-[24px] max-md:p-[1.3rem]">
-          <div className="flex items-center justify-between">
-            <div className="w-[48%]">
-              <div className="mb-2 text-sm font-medium text-primary-900">First Name</div>
-              <Input
-                type="text"
-                placeholder="Enter your first name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="rounded-[12px]"
-              />
-            </div>
-            <div className="w-[48%]">
-              <div className="mb-2 text-sm font-medium text-primary-900">Last Name</div>
-              <Input
-                type="text"
-                placeholder="Enter your last name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="rounded-[12px]"
-              />
-            </div>
-          </div>
-          <div className="my-4 h-auto w-full">
-            <div className="mb-2 text-sm font-medium text-primary-900">Address</div>
-            <Input
-              type="text"
-              placeholder="Enter your address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="rounded-[12px]"
-            />
-          </div>
-          <div className="my-4 h-auto w-full">
-            <div className="mb-2 text-sm font-medium text-primary-900">Apartment, suite, etc.</div>
-            <Input
-              type="text"
-              placeholder="Enter your apartment, suite, etc."
-              value={apartment}
-              onChange={(e) => setApartment(e.target.value)}
-              className="rounded-[12px]"
-            />
-          </div>
-          <div className="my-2 flex items-center justify-between max-md:block">
-            <div className="w-[31%] max-md:w-full">
-              <div className="mb-2 text-sm font-medium text-primary-900">Country</div>
-              <Select
-                onValueChange={(value) => {
-                  const selectedCountry = countryData.find((country) => country.name === value)
-                  if (selectedCountry) {
-                    setCountry(selectedCountry)
-                  }
-                }}
-              >
-                <SelectTrigger className="w-full rounded-[12px]">
-                  <SelectValue placeholder="Choose your country" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Choose your country</SelectLabel>
-                    {countryData.length > 0 &&
-                      countryData.map((country) => (
-                        <SelectItem key={country.isoCode} value={country.name}>
-                          {country.name}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-[31%] max-md:w-full">
-              <div className="mb-2 text-sm font-medium text-primary-900">State</div>
-              <Select
-                onValueChange={(value) => {
-                  const selectedCity = cityData.find((city) => city.name === value)
-                  if (selectedCity) {
-                    setCity(selectedCity)
-                  }
-                }}
-              >
-                <SelectTrigger className="w-full rounded-[12px]">
-                  <SelectValue placeholder="Select a city" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Choose your city</SelectLabel>
-                    {cityData.length > 0 &&
-                      cityData.map((city, index) => (
-                        <SelectItem key={index} value={city.name}>
-                          {city.name}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-[31%] max-md:w-full">
-              <div className="mb-2 text-sm font-medium text-primary-900">Postal/Zip Code</div>
-              <Input
-                type="text"
-                placeholder="Enter postal / Zip code"
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-                className="rounded-[12px]"
-              />
-            </div>
-          </div>
-          <div className="my-4 h-auto w-full">
-            <div className="mb-2 text-sm font-medium text-primary-900">Province</div>
-            <Input
-              type="text"
-              placeholder="Enter your province"
-              value={province}
-              onChange={(e) => setProvince(e.target.value)}
-              className="rounded-[12px]"
-            />
-          </div>
-          <div className="my-4 h-auto w-full">
-            <div className="mb-2 text-sm font-medium text-primary-900">Phone</div>
-            <Input
-              type="text"
-              placeholder="Enter your phone number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="rounded-[12px]"
-            />
-          </div>
-          <div className="my-4 h-auto w-full">
-            <div className="mb-2 text-sm font-medium text-primary-900">Email</div>
-            <Input
-              type="text"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="rounded-[12px]"
-            />
-          </div>
-          <div className="flex items-center">
-            <Checkbox id="terms" />
-            <div className="ml-4 text-sm font-semibold text-primary-900">Set as a default address</div>
-          </div>
-          <div className="flex items-center justify-end">
-            <div
-              className="cursor-pointer rounded-full bg-primary-500 px-4 py-2 text-sm text-white"
-              onClick={handleAddAddress}
-            >
-              Add address
-            </div>
-          </div>
+        <div className="px-4 py-5 md:p-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmitValues)}>
+              <div className="flex w-full flex-col gap-5">
+                <div className="flex flex-col items-center gap-6 md:flex-row">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-sm text-primary-900">First Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter your first name" type="text" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-sm text-primary-900">Last Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter your last name" type="text" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel className="text-sm text-primary-900">Address</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter your address" type="text" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="apartmentSuite"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel className="text-sm text-primary-900">Apartment, suite, etc.</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter your apartment, suite, etc." type="text" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex flex-col items-center gap-5 md:flex-row md:gap-6">
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <SearchableSelect
+                            options={countryData.map((country) => ({ label: country.name, value: country.name }))}
+                            onValueChange={(value) => {
+                              field.onChange(value)
+                              const selectedCountry = countryData.find((country) => country.name === value)
+                              handleFormStateChange("country", selectedCountry || null)
+                            }}
+                            defaultValue={field.value}
+                            placeholder="Choose your country"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="stateProvince"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>State/Province</FormLabel>
+                        <FormControl>
+                          <SearchableSelect
+                            options={stateData.map((state) => ({ label: state.name, value: state.name }))}
+                            onValueChange={(value) => {
+                              field.onChange(value)
+                              const selectedState = stateData.find((state) => state.name === value)
+                              handleFormStateChange("state", selectedState || null)
+                            }}
+                            defaultValue={field.value}
+                            placeholder="Select a state"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex items-center gap-6">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <SearchableSelect
+                            options={cityData.map((city) => ({ label: city.name, value: city.name }))}
+                            onValueChange={(value) => {
+                              field.onChange(value)
+                              const selectedCity = cityData.find((city) => city.name === value)
+                              handleFormStateChange("city", selectedCity || null)
+                            }}
+                            defaultValue={field.value}
+                            placeholder="Select a city"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="postalZipCode"
+                    render={({ field }) => (
+                      <FormItem className="w-9/12 md:w-full">
+                        <FormLabel className="text-sm text-primary-900">Postal/Zip Code</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter postal / Zip code" type="text" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel className="text-sm text-primary-900">Phone</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter your phone number" type="text" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel className="text-sm text-primary-900">Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter your email" type="text" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isDefault"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full items-center justify-start space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          id="confirmCheckbox"
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(!!checked)}
+                        />
+                      </FormControl>
+                      <FormLabel className="ml-4 text-sm font-semibold text-primary-900">
+                        Set as a default address
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+                <div className="flex items-center justify-end">
+                  <Button type="submit" variant="primary">
+                    {shippingData ? "Save address" : "Add address"}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </Form>
         </div>
       </div>
     </div>

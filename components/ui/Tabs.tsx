@@ -17,7 +17,7 @@ type TabsProps = {
 
 export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange }) => {
   return (
-    <ul className="m-0 flex gap-1.5 overflow-x-auto p-0">
+    <ul className="m-0 flex gap-1.5 p-0">
       {tabs.map(({ label, value }) => (
         <li
           key={value}

@@ -1,20 +1,25 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { BeatLoader } from "react-spinners"
 
+import { Prisma } from "@prisma/client"
+
 import { getAllProducts } from "@/actions/productsShopify"
-import { getTemplateById } from "@/actions/recommendation"
+import { getTemplateById, updateTemplate } from "@/actions/recommendation"
 import PageTopic from "@/components/PageTopic"
 import ProductGridItem from "@/components/ProductItemGrid"
+import ConfirmationModal from "@/components/Recommendations/components/ConfirmationModal"
 import { Tabs } from "@/components/Tabs"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { Textarea } from "@/components/ui/Textarea"
+import { useToast } from "@/components/ui/useToast"
 import { BackArrowIcon, CloseIcon, CrossIcon, MenuIcon, PlusIcon, TriangleDownIcon } from "@/icons"
 import { cn } from "@/lib/utils"
 import type { Product } from "@/models/product"
@@ -42,6 +47,8 @@ const RecommendationsTemplatePage = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [discount, setDiscount] = useState(percentages[1])
   const [showMoreInfo, setShowMoreInfo] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | number | null>(null)
+
   const [formData, setFormData] = useState<TemplateData>({
     id: "",
     basicInfo: {
@@ -54,6 +61,12 @@ const RecommendationsTemplatePage = () => {
     created: "",
     clients: [],
   })
+
+  const { toast } = useToast()
+
+  const handleOpenDeletingModal = (clientId: string | number | null) => {
+    setDeletingId(clientId)
+  }
 
   useEffect(() => {
     const fetchRecommendation = async () => {
@@ -225,20 +238,26 @@ const RecommendationsTemplatePage = () => {
 
   // <pre>{JSON.stringify(formData, null, 2)}</pre>
 
-  const handleSubmit = () => {
-    const newRecommendation = {
+  const handleSubmit = async () => {
+    const updatedData: Prisma.RecommendationUpdateInput = {
       ...formData,
-      created: new Date().toLocaleDateString("en-GB"),
+      created: new Date().toISOString(),
+      clients: formData.clients as unknown as Prisma.InputJsonObject[],
+      selectedProducts: formData.selectedProducts as unknown as Prisma.InputJsonObject[],
     }
 
-    // Updating the recommendation in local storage
-    const recommendationsData = localStorage.getItem("recommendations")
-    const currentRecommendations: Template[] = recommendationsData ? JSON.parse(recommendationsData) : []
-    const updatedRecommendations: TemplateData[] = [...currentRecommendations, newRecommendation]
-
-    localStorage.setItem("recommendations", JSON.stringify(updatedRecommendations))
-
-    router.push("/recommendations")
+    if (tempId) {
+      try {
+        await updateTemplate(tempId, updatedData)
+        router.push("/recommendations")
+        toast({ title: "Template updated successfully", position: "bottom-right" })
+      } catch (error) {
+        console.error("Failed to update template:", error)
+        toast({ title: "Failed to update template", position: "bottom-right" })
+      }
+    } else {
+      console.error("Template ID is null. Cannot update template.")
+    }
   }
 
   const calculateTotalPrice = () => {
@@ -299,9 +318,25 @@ const RecommendationsTemplatePage = () => {
                   className="relative mb-4 grid grid-cols-[24%_72%] gap-6 rounded-xl bg-white p-5 last-of-type:mb-0"
                   key={product?.id}
                 >
-                  <MenuIcon
-                    className="absolute right-[18px] top-3 cursor-pointer"
-                    onClick={() => handleRemoveProduct(product?.id)}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <MenuIcon className="absolute right-[18px] top-3 cursor-pointer" />
+                    </PopoverTrigger>
+                    <PopoverContent className="w- w-39 gap-0 p-0">
+                      <button
+                        className="flex h-12 cursor-pointer items-center self-stretch rounded-lg px-4 py-4 text-sm font-normal text-[#eb5757] hover:bg-[rgba(220,221,222,0.43)] focus:outline-none"
+                        onClick={() => handleOpenDeletingModal(product?.id)}
+                      >
+                        Delete
+                      </button>
+                    </PopoverContent>
+                  </Popover>
+
+                  <ConfirmationModal
+                    isOpen={deletingId === product?.id}
+                    onClose={() => setDeletingId(null)}
+                    onConfirm={() => handleRemoveProduct(product?.id)}
+                    message="Are you sure you want to delete this template?"
                   />
 
                   <div>
@@ -436,7 +471,7 @@ const RecommendationsTemplatePage = () => {
           </div>
 
           <Button variant="primary" disabled={isDisabled} className="mt-6 w-full" onClick={handleSubmit}>
-            Send
+            Save template
           </Button>
         </div>
       </div>
@@ -454,7 +489,7 @@ const RecommendationsTemplatePage = () => {
               </div>
             </div>
 
-            <div className="h-full overflow-y-auto px-6 pb-6 pt-3">
+            <div className="relative h-full overflow-y-auto px-6 pb-6 pt-3">
               <div className="main-products mt-4">
                 <div className="flex w-full items-center justify-between max-md:block">
                   <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
@@ -489,6 +524,7 @@ const RecommendationsTemplatePage = () => {
                       quantity={false}
                       onAddToCart={handleAddToCart}
                       isSelected={formData.selectedProducts.some((p) => p?.id === product?.id)}
+                      addLabel="Add to template"
                     />
                   ))}
                 </div>

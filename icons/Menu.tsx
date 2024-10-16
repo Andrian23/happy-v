@@ -1,7 +1,15 @@
-const Menu = ({ className, onClick }: { className: string; onClick: () => void }) => (
+import { forwardRef } from "react"
+
+interface MenuProps {
+  className: string
+  onClick?: () => void
+}
+
+const Menu = forwardRef<SVGSVGElement, MenuProps>(({ className, onClick }, ref) => (
   <svg
     className={className}
     onClick={onClick}
+    ref={ref}
     xmlns="http://www.w3.org/2000/svg"
     width="20"
     height="20"
@@ -20,6 +28,8 @@ const Menu = ({ className, onClick }: { className: string; onClick: () => void }
       </clipPath>
     </defs>
   </svg>
-)
+))
+
+Menu.displayName = "Menu"
 
 export default Menu

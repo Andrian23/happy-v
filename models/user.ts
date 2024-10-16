@@ -1,3 +1,5 @@
+import type { ShippingAddress } from "./shipping"
+
 export interface User {
   id: string
   name: string | null
@@ -14,4 +16,6 @@ export interface User {
   updatedAt: Date | null
   isTwoFactorEnable: boolean
   stripeCustomerId?: string | null
+  shippingAddresses?: ShippingAddress[]
+  defaultShippingAddress: number | null
 }

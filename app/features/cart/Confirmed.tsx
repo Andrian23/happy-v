@@ -9,7 +9,6 @@ import AddressBlock from "@/components/AddressBlock"
 import ConfirmOrderItem from "@/components/ConfirmOrderItem"
 import SummaryItem from "@/components/SummaryItem"
 import { Button } from "@/components/ui/Button"
-import type { BillingAddress } from "@/models/billing"
 import type { Order } from "@/models/order"
 import { Product } from "@/models/product"
 import type { ShippingAddress, ShippingMethod } from "@/models/shipping"
@@ -32,7 +31,7 @@ export const Confirmed: React.FC<ConfirmedProps> = ({ order }) => {
   const shippingMethod = JSON.parse(order?.shippingMethod as unknown as string) as ShippingMethod
   const shippingAddress = JSON.parse(order?.shippingAddress as unknown as string) as ShippingAddress
   const products = JSON.parse(order?.products as unknown as string) as Product[]
-  const billingAddress = JSON.parse(order?.billingAddress as unknown as string) as BillingAddress
+  const billingAddress = JSON.parse(order?.billingAddress as unknown as string) as ShippingAddress
 
   return (
     <div className="h-full w-full bg-grey-200">
