@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
 
 import Breadcrumbs from "@/components/Breadcrumbs"
-import { OrderSummary } from "@/components/cart/OrderSummary"
+import { OrderSummary, shippingMethods } from "@/components/cart/OrderSummary"
 import ShippingModal from "@/components/ShippingModal"
 import ShippingVariant from "@/components/ShippingVariant"
 import { Button } from "@/components/ui/Button"
@@ -14,11 +14,6 @@ import { useLocalStorage } from "@/hooks"
 import type { ShippingAddress } from "@/models/shipping"
 import radioButtonIcon from "@/public/Radio_button.svg"
 import { useCartStore } from "@/stores/cart"
-
-const shippingMethods = [
-  { id: "standard", label: "Standard (2-6 Days)", price: 8.3 },
-  { id: "express", label: "Express (1-2 Business Days)", price: 12.3 },
-]
 
 export const Shipping = () => {
   const router = useRouter()
@@ -72,7 +67,7 @@ export const Shipping = () => {
         <div className="mt-10">
           <div className="text-2xl font-semibold text-primary-900">Shipping method</div>
           <div className="mt-4 grid gap-y-4">
-            {shippingMethods.map(({ id, label, price }) => (
+            {Object.entries(shippingMethods).map(([id, { label, price }]) => (
               <ShippingVariant
                 key={id}
                 onClick={() => handleShippingChange(id as "standard" | "express")}

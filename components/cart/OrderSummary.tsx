@@ -11,8 +11,14 @@ const STANDARD_SHIPPING_PRICE = 8.3
 const EXPRESS_SHIPPING_PRICE = 12.3
 
 export const shippingMethods = {
-  standard: STANDARD_SHIPPING_PRICE,
-  express: EXPRESS_SHIPPING_PRICE,
+  standard: {
+    label: "Standard (2-6 Days)",
+    price: STANDARD_SHIPPING_PRICE,
+  },
+  express: {
+    label: "Express (1-2 Business Days)",
+    price: EXPRESS_SHIPPING_PRICE,
+  },
 }
 
 type OrderSummaryProps = {
@@ -30,7 +36,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ onSubmit, buttonLabe
   const setIsProtected = useCartStore((state) => state.setProtected)
   const total = useMemo(() => {
     const protectionPrice = isProtected ? PROTECTION_PRICE : 0
-    const shippingPrice = shippingMethod ? shippingMethods[shippingMethod] : 0
+    const shippingPrice = shippingMethod ? shippingMethods[shippingMethod].price : 0
 
     return subtotal + protectionPrice + shippingPrice
   }, [subtotal, isProtected, shippingMethod])
@@ -45,7 +51,9 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ onSubmit, buttonLabe
             <span>Subtotal</span>
             <span>${subtotal.toFixed(2)}</span>
             <span>Shipping</span>
-            <span>{shippingMethod ? `$${shippingMethods[shippingMethod].toFixed(2)}` : "Calculated at checkout"}</span>
+            <span>
+              {shippingMethod ? `$${shippingMethods[shippingMethod].price.toFixed(2)}` : "Calculated at checkout"}
+            </span>
             <span>Taxes</span>
             <span>Calculated at checkout</span>
           </div>

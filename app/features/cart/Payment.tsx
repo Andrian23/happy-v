@@ -13,7 +13,7 @@ import { placeOrder } from "@/actions/order"
 import { getPaymentMethods } from "@/actions/paymentIntent"
 import BillingModal from "@/components/BillingModal"
 import Breadcrumbs from "@/components/Breadcrumbs"
-import { OrderSummary } from "@/components/cart/OrderSummary"
+import { OrderSummary, shippingMethods } from "@/components/cart/OrderSummary"
 import PaymentModal from "@/components/PaymentModal"
 import { Button } from "@/components/ui/Button"
 import { useLocalStorage } from "@/hooks"
@@ -25,17 +25,6 @@ import mastercardLogo from "@/public/Mastercard.svg"
 import radioButtonIcon from "@/public/Radio_button.svg"
 import visaLogo from "@/public/Visa.svg"
 import { useCartStore } from "@/stores/cart"
-
-const shippingMethods = {
-  standard: {
-    label: "Standard (2-6 Days)",
-    price: 8.3,
-  },
-  express: {
-    label: "Express (1-2 Business Days)",
-    price: 12.3,
-  },
-}
 
 const appearance = {
   variables: {
