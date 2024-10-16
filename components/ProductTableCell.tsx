@@ -7,7 +7,7 @@ interface ProductTableCellProps {
   title: string
   sku: string
   image: string
-  count?: number
+  count?: string | number
   place?: number
   className?: string
   fullName?: string

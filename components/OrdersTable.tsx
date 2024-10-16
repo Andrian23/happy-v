@@ -21,7 +21,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ products }) => {
             key={product.id}
             title={product.title}
             sku={product.variants[0].sku}
-            count={product.count}
+            count={product.amount}
             image={product.image.src}
             place={index + 1}
             className="border-b border-grey-400 py-4"
@@ -47,7 +47,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ products }) => {
             <TableCell>
               <ProductTableCell title={product.title} sku={product.variants[0].sku} image={product.image.src} />
             </TableCell>
-            <TableCell className="text-right text-sm font-bold text-primary-900">{product.count}</TableCell>
+            <TableCell className="text-right text-sm font-bold text-primary-900">{product.amount}</TableCell>
           </TableRow>
         ))}
       </TableBody>
