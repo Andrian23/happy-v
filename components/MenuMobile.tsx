@@ -34,9 +34,13 @@ const MenuMobile: React.FC = () => {
   }, [pathname])
 
   return (
-    <div className="header-mobile fixed top-0 h-[70px] w-full border-b border-black/15 bg-white md:hidden">
-      <div className="header-container flex items-center justify-between p-4 max-md:p-[1.125rem]">
-        {isOpen ? <X onClick={() => setIsOpen(false)} /> : <MenuIcon onClick={() => setIsOpen(true)} />}
+    <div className="relative top-0 h-[70px] w-full border-b border-black/15 bg-white md:hidden">
+      <div className="flex items-center justify-between p-4 max-md:p-[1.125rem]">
+        {isOpen ? (
+          <X onClick={() => setIsOpen(false)} className="cursor-pointer" />
+        ) : (
+          <MenuIcon onClick={() => setIsOpen(true)} className="cursor-pointer" />
+        )}
         <div className="logo">
           <Link href="/dashboard">
             <Image src={mobileLogo} alt="Logo" className="h-[50px] w-[120px]" />
@@ -52,7 +56,7 @@ const MenuMobile: React.FC = () => {
           </Link>
         </div>
       </div>
-      {isOpen == true ? (
+      {isOpen ? (
         <div className="absolute top-[70px] z-[99999] w-full">
           <SidebarMobile />
         </div>

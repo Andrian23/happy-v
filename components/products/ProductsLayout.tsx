@@ -15,7 +15,7 @@ interface ProductItemProps {
 export const ProductsLayout: React.FC<ProductItemProps> = ({ products, view = "grid" }) => {
   if (view === "grid") {
     return (
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {products.map((product) => (
           <ProductGridItem key={product.id} product={product} />
         ))}

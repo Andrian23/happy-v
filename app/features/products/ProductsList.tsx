@@ -6,6 +6,7 @@ import PageTopic from "@/components/PageTopic"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from "@/components/ui/Select"
 import { Tabs } from "@/components/ui/Tabs"
 import { type View, ViewSwitch } from "@/components/ViewSwitch"
+import useDraggableScroll from "@/hooks/useDraggableScroll"
 import { useProductFilters } from "@/hooks/useProductFilters"
 import type { Product } from "@/models/product"
 
@@ -28,6 +29,7 @@ export const ProductsList: React.FC<ProductsProps> = ({ products }) => {
   const [sort, setSort] = useState("low-to-high")
   const [category, setCategory] = useState("all")
   const filteredProducts = useProductFilters(products, { category, sort })
+  const { scrollRef, handleMouseDown } = useDraggableScroll()
 
   return (
     <div className="mb-2.5 w-full lg:px-4">
@@ -35,7 +37,14 @@ export const ProductsList: React.FC<ProductsProps> = ({ products }) => {
 
       <div className="mt-5">
         <div className="flex w-full items-center justify-between gap-3 max-lg:flex-wrap">
-          <Tabs tabs={tabs} activeTab={category} onChange={setCategory} />
+          <div
+            ref={scrollRef}
+            style={{ scrollbarWidth: "none" }}
+            className="hide-scrollbar cursor-grab overflow-x-auto whitespace-nowrap"
+            onMouseDown={handleMouseDown}
+          >
+            <Tabs tabs={tabs} activeTab={category} onChange={setCategory} />
+          </div>
 
           <ViewSwitch onChange={setView} state={view} className="ml-auto max-lg:hidden" />
 

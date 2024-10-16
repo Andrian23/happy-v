@@ -59,7 +59,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ defaultValues, onSubmi
 
     const formData = new FormData()
     formData.append("file", file as File)
-    formData.append("upload_preset", "ml_default")
+    formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "")
 
     try {
       const response = await axios.post(

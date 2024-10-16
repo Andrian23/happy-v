@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
-const useDraggableScroll = (initialActiveIndex: number) => {
+const useDraggableScroll = () => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
-  const [activeItem, setActiveItem] = useState(initialActiveIndex)
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -13,10 +12,6 @@ const useDraggableScroll = (initialActiveIndex: number) => {
     setStartX(e.pageX - (scrollRef.current!.offsetLeft || 0))
     setScrollLeft(scrollRef.current!.scrollLeft)
   }
-
-  const handleTabClick = useCallback((index: number) => {
-    setActiveItem(index)
-  }, [])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -38,7 +33,7 @@ const useDraggableScroll = (initialActiveIndex: number) => {
     }
   }, [isDragging, startX, scrollLeft])
 
-  return { scrollRef, handleMouseDown, activeItem, handleTabClick }
+  return { scrollRef, handleMouseDown }
 }
 
 export default useDraggableScroll

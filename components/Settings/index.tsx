@@ -24,6 +24,7 @@ import { User } from "@/models/user"
 const tabs = ["Basic Info", "Change Password", "Notifications", "Shipping Address", "Payment Method"]
 
 const Settings: FC = () => {
+  const [activeItem, setActiveItem] = useState(0)
   const [showShippingModal, setShippingShowModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [user, setUser] = useState<User | null>(null)
@@ -33,7 +34,7 @@ const Settings: FC = () => {
 
   const { data } = useSession()
 
-  const { scrollRef, handleMouseDown, activeItem, handleTabClick } = useDraggableScroll(0)
+  const { scrollRef, handleMouseDown } = useDraggableScroll()
 
   const handleSubmit = useCallback(
     async (data: ProfileFormData) => {
@@ -95,7 +96,7 @@ const Settings: FC = () => {
             className="hide-scrollbar cursor-grab overflow-x-auto whitespace-nowrap"
             onMouseDown={handleMouseDown}
           >
-            <Tabs tabs={tabs} activeTab={activeItem} onTabChange={handleTabClick} />
+            <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
           </div>
 
           {activeItem === 3 && (
