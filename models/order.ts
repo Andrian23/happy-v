@@ -10,13 +10,15 @@ interface Fulfillments {
 
 export interface Order {
   id: number
-  products?: Product[]
+  userId: string
+  email: string
+  products: Product[]
   createdAt: Date
-  totalPrice: string
+  totalPrice: number
   shippingMethod: ShippingMethod
   shippingAddress: ShippingAddress
   billingAddress: BillingAddress
-  paymentMethod: "creditCard" | "shopPay" | "paypal" | "amazonPay"
+  paymentMethod: string
   financialStatus?: "paid"
   fulfillmentStatus?: string | null
   fulfillments?: Fulfillments[]

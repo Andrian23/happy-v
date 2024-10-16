@@ -17,7 +17,7 @@ export interface Recommendation {
   clients: Client[]
   created: string
   discount: number
-  selectedProducts: Array<Product & { amount: string; frequency: string; details: string }>
+  selectedProducts: Array<Omit<Product, "amount"> & { amount: string; frequency: string; details: string }>
   status: "ordered" | "not-ordered"
 }
 

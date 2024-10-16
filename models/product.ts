@@ -13,13 +13,12 @@ export interface Product {
   id: number
   title: string
   description: string
-  price: number
   image: ProductImage
   images: ProductImage[]
   name: string
   variants: ProductVariant[]
-  count: number
-  status: "active"
+  amount: number
+  status: "active" | "archived" | "draft"
   body_html: string
-  tags: string[]
+  tags: string
 }

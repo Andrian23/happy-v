@@ -2,111 +2,105 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Plus } from "lucide-react"
 
-import type { UserCard } from "@/interfaces/payment"
-import type { ShippingAddress } from "@/models/shipping"
-import settingsPaymentIcon from "@/public/SettingsPayment.svg"
-import visaLogo from "@/public/Visa.svg"
+import { PaymentMethod } from "@stripe/stripe-js"
 
-import SettingsPaymentEditModal from "./SettingsPaymentEditModal"
-import SettingsPaymentModal from "./SettingsPaymentModal"
+import { getPaymentMethods } from "@/actions/paymentIntent"
+import americanExpress from "@/public/american-express.webp"
+import mastercard from "@/public/mastercard.webp"
+import settingsPaymentIcon from "@/public/SettingsPayment.svg"
+import visa from "@/public/visa.webp"
+
+import { Button } from "./ui/Button"
+import Loader from "./Loader"
+
+const paymentMethodIcons = {
+  visa: {
+    src: visa,
+    alt: "Visa",
+    width: 40,
+    height: 12,
+  },
+  mastercard: {
+    src: mastercard,
+    alt: "Mastercard",
+    width: 23,
+    height: 14,
+  },
+  amex: {
+    src: americanExpress,
+    alt: "American Express",
+    width: 47,
+    height: 12,
+  },
+}
 
 const SettingsPayment = () => {
-  const [userCard, setUserCard] = useState<UserCard | null>(null)
-  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [defaultPaymentMethod, setDefaultPaymentMethod] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const card = localStorage.getItem("userCard")
-    if (card) {
-      setUserCard(JSON.parse(card))
+    const fetchPaymentMethods = async () => {
+      const { paymentMethods, defaultPaymentMethod } = await getPaymentMethods()
+      setPaymentMethods(paymentMethods)
+      setDefaultPaymentMethod(defaultPaymentMethod)
+      setIsLoading(false)
     }
-
-    const address = localStorage.getItem("shippingAddress")
-    if (address) {
-      setShippingAddress(JSON.parse(address))
-    }
+    fetchPaymentMethods()
   }, [])
 
-  const handleDelete = () => {
-    localStorage.removeItem("userCard")
-    window.location.reload()
+  if (isLoading) {
+    return <Loader />
   }
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
+  if (paymentMethods.length > 0) {
+    return paymentMethods.map((paymentMethod) => {
+      const paymentMethodIcon = paymentMethodIcons[paymentMethod.card?.brand as keyof typeof paymentMethodIcons]
+      return (
+        <div key={paymentMethod.id} className="my-4 h-auto w-[60%] rounded-2xl bg-grey-200 p-4 max-lg:w-full">
+          <div className="flex items-center justify-between text-sm">
+            <Image
+              src={paymentMethodIcon.src}
+              alt={paymentMethodIcon.alt}
+              height={paymentMethodIcon.height}
+              width={paymentMethodIcon.width}
+            />
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-
-  const handleOpenEditModal = () => {
-    setIsEditModalOpen(true)
-  }
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false)
+            {defaultPaymentMethod === paymentMethod.id && (
+              <div className="rounded-full bg-primary-500 px-2 py-1 text-[12px] text-white">Default</div>
+            )}
+          </div>
+          <div className="my-2 text-sm">**** **** **** {paymentMethod.card?.last4}</div>
+          <div className="flex items-center justify-start text-sm">
+            {/* <Button
+              variant="destructive-outline"
+              className="cursor-pointer rounded-full border border-grey-400 px-3 py-2 text-[#FF3C3C]"
+              onClick={() => console.log("Delete payment method")}
+            >
+              Delete
+            </Button> */}
+          </div>
+        </div>
+      )
+    })
   }
 
   return (
-    <>
-      {userCard ? (
-        <div className="my-4 h-auto w-[60%] rounded-2xl bg-grey-200 p-4 max-lg:w-full">
-          <div className="flex items-center justify-between text-sm">
-            <Image src={visaLogo} alt="Visa" className="h-3 w-10" />
-            <div className="rounded-full bg-primary-500 px-2 py-1 text-[12px] text-white">Default</div>
-          </div>
-          <div className="my-2 text-sm">**** **** **** {userCard.cardNumber.slice(-4)}</div>
-          {shippingAddress && (
-            <>
-              <div className="mt-2 text-sm text-grey-800">
-                {shippingAddress.firstName} {shippingAddress.lastName}
-              </div>
-              <div className="mt-2 text-sm text-grey-800">
-                {shippingAddress.address}, Apartment {shippingAddress.apartment}, {shippingAddress.city},{" "}
-                {shippingAddress.province} {shippingAddress.postalCode}, {shippingAddress.country}
-              </div>
-            </>
-          )}
-          <div className="mt-2 flex items-center justify-start text-sm">
-            <div
-              className="cursor-pointer rounded-full border border-grey-400 px-3 py-2 text-primary-900"
-              onClick={handleOpenEditModal}
-            >
-              Edit
-            </div>
-            <div
-              className="ml-2 cursor-pointer rounded-full border border-grey-400 px-3 py-2 text-[#FF3C3C]"
-              onClick={handleDelete}
-            >
-              Delete
-            </div>
-          </div>
+    <div className="flex h-[80vh] w-full items-center justify-center">
+      <div className="text-center">
+        <div className="m-auto w-fit rounded-full bg-grey-200 p-4">
+          <Image src={settingsPaymentIcon} alt="Cart" className="h-[42px] w-[42px]" />
         </div>
-      ) : (
-        <div className="flex h-[80vh] w-full items-center justify-center">
-          <div className="text-center">
-            <div className="m-auto w-fit rounded-full bg-grey-200 p-4">
-              <Image src={settingsPaymentIcon} alt="Cart" className="h-[42px] w-[42px]" />
-            </div>
-            <div className="mt-2 text-sm font-medium text-primary-900">It&apos;s still empty here</div>
-            <div className="mt-2 text-sm text-grey-800">You have not added any payment method yet</div>
-            <div className="flex items-center justify-center">
-              <div
-                className="mt-2 flex w-fit cursor-pointer items-center justify-center rounded-full bg-primary-500 px-4 py-2"
-                onClick={handleOpenModal}
-              >
-                <Plus width={20} height={20} color="#fff" />
-                <div className="ml-2 text-sm text-white">Add payment method</div>
-              </div>
-            </div>
-          </div>
+        <div className="mt-2 text-sm font-medium text-primary-900">It&apos;s still empty here</div>
+        <div className="mt-2 text-sm text-grey-800">You have not added any payment method yet</div>
+        <div className="flex items-center justify-center">
+          <Button variant="primary" className="mt-2 gap-2">
+            <Plus />
+            Add payment method
+          </Button>
         </div>
-      )}
-      {isEditModalOpen && <SettingsPaymentEditModal onClose={handleCloseEditModal} />}
-      {isModalOpen && <SettingsPaymentModal onClose={handleCloseModal} />}
-    </>
+      </div>
+    </div>
   )
 }
 

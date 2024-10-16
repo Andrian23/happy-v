@@ -92,9 +92,9 @@ const DashboardPage = () => {
       data.forEach((order) => {
         order.products?.forEach((product) => {
           if (counts[product.title]) {
-            counts[product.title].count += product.count
+            counts[product.title].amount += product.amount
           } else {
-            counts[product.title] = { ...product, count: product.count }
+            counts[product.title] = { ...product, amount: product.amount }
           }
         })
       })
@@ -114,9 +114,9 @@ const DashboardPage = () => {
       ordersData.forEach((order) => {
         order.products?.forEach((product) => {
           if (counts[product.title]) {
-            counts[product.title].count += product.count
+            counts[product.title].amount += product.amount
           } else {
-            counts[product.title] = { ...product, count: product.count }
+            counts[product.title] = { ...product, amount: product.amount }
           }
         })
       })
