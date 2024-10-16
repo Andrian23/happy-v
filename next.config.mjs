@@ -4,7 +4,7 @@ const nextConfig = {
     missingSuspenseWithCSRBailout: false,
   },
   images: {
-    domains: ["cdn.shopify.com", "s3-alpha-sig.figma.com", "lh3.googleusercontent.com"],
+    domains: ["cdn.shopify.com", "s3-alpha-sig.figma.com", "lh3.googleusercontent.com", "res.cloudinary.com"],
   },
   webpack: (config, { isServer }) => {
     config.module.rules.push({

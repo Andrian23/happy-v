@@ -229,8 +229,8 @@ const OrderPage: React.FC<OrderPageProps> = () => {
                         {order.shippingAddress.firstName} {order.shippingAddress.lastName}
                       </div>
                       <div className="my-[8px] text-primary-900">
-                        {order.shippingAddress.postalCode} {order.shippingAddress.address}, {order.shippingAddress.city}
-                        , {order.shippingAddress.province}
+                        {order.shippingAddress.postalZipCode} {order.shippingAddress.address},{" "}
+                        {order.shippingAddress.city}, {order.shippingAddress.stateProvince}
                       </div>
                       <div className="text-primary-900">{order.shippingAddress.country}</div>
                     </div>
@@ -245,8 +245,8 @@ const OrderPage: React.FC<OrderPageProps> = () => {
                         {order.shippingAddress.firstName} {order.shippingAddress.lastName}
                       </div>
                       <div className="my-[8px] text-primary-900">
-                        {order.shippingAddress.postalCode} {order.shippingAddress.address}, {order.shippingAddress.city}
-                        , {order.shippingAddress.province}
+                        {order.shippingAddress.postalZipCode} {order.shippingAddress.address},{" "}
+                        {order.shippingAddress.city}, {order.shippingAddress.stateProvince}
                       </div>
                       <div className="text-primary-900">{order.shippingAddress.country}</div>
                     </div>

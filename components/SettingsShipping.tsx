@@ -1,49 +1,64 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import Image from "next/image"
 import { Plus } from "lucide-react"
 
+import { deleteShippingAddress } from "@/actions/shippingAddress"
 import type { ShippingAddress } from "@/models/shipping"
 import settingCartIcon from "@/public/SettingsCart.svg"
 
-import SettingsShippingEditModal from "./SettingsShippingEditModal"
 import SettingsShippingModal from "./SettingsShippingModal"
 
-const SettingsShipping: React.FC = () => {
+interface SettingsShippingProps {
+  defaultShippingAddressId?: number | null
+  setShippingData: React.Dispatch<React.SetStateAction<ShippingAddress[]>>
+  shippingData: ShippingAddress[]
+}
+
+const SettingsShipping: React.FC<SettingsShippingProps> = ({
+  defaultShippingAddressId,
+  setShippingData,
+  shippingData,
+}) => {
   const [empty, setEmpty] = useState(false)
-  const [shippingData, setShippingData] = useState<ShippingAddress | null>(null)
-  const [showModal, setShowModal] = useState(false)
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
+  const [isShowModal, setIsShowModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
 
-  useEffect(() => {
-    const shippingAddress = localStorage.getItem("shippingAddress")
-    if (shippingAddress) {
-      setEmpty(false)
-      setShippingData(JSON.parse(shippingAddress))
-    } else {
-      setEmpty(true)
-    }
-  }, [])
-
-  const handleEditClick = () => {
+  const handleEditAddress = (id: number) => {
+    setSelectedAddressId(id)
     setShowEditModal(true)
   }
 
-  const handleDeleteClick = () => {
-    localStorage.removeItem("shippingAddress")
-    window.location.reload()
+  const handleDeleteClick = async (id: number) => {
+    try {
+      await deleteShippingAddress(id)
+      setShippingData((prevData) => prevData.filter((address) => address.id !== id))
+      if (shippingData.length === 1) {
+        setEmpty(true)
+      }
+    } catch (error) {
+      console.error("Failed to delete address:", error)
+    }
   }
 
   const handleAddClick = () => {
-    setShowModal(true)
+    setIsShowModal(true)
   }
 
   return (
     <>
-      {showModal && <SettingsShippingModal onClose={() => setShowModal(false)} />}
-      {showEditModal && (
-        <SettingsShippingEditModal shippingData={shippingData} onClose={() => setShowEditModal(false)} />
+      {isShowModal && <SettingsShippingModal onClose={() => setIsShowModal(false)} setShippingData={setShippingData} />}
+      {showEditModal && shippingData && (
+        <SettingsShippingModal
+          shippingData={shippingData.find((address) => address.id === selectedAddressId)}
+          onClose={() => {
+            setShowEditModal(false)
+            setSelectedAddressId(null)
+          }}
+          setShippingData={setShippingData}
+        />
       )}
-      {empty === true ? (
+      {empty ? (
         <div className="flex h-[80vh] w-full items-center justify-center">
           <div className="text-center">
             <div className="m-auto w-fit rounded-full bg-grey-200 p-4">
@@ -63,35 +78,50 @@ const SettingsShipping: React.FC = () => {
           </div>
         </div>
       ) : (
-        shippingData && (
-          <div className="my-4 h-auto w-[60%] rounded-2xl bg-grey-200 p-4 max-lg:w-full">
-            <div className="flex items-center justify-between text-sm">
-              <div>
-                {shippingData.firstName} {shippingData.lastName}
+        shippingData.length > 0 &&
+        shippingData.map(
+          ({
+            firstName,
+            lastName,
+            address,
+            postalZipCode,
+            apartmentSuite,
+            country,
+            city,
+            stateProvince,
+            phone,
+            id,
+          }) => (
+            <div className="my-4 h-auto w-[60%] rounded-2xl bg-grey-200 p-4 max-lg:w-full" key={id}>
+              <div className="flex items-center justify-between text-sm">
+                <div>
+                  {firstName} {lastName}
+                </div>
+                {defaultShippingAddressId === id && (
+                  <div className="rounded-full bg-primary-500 px-2 py-1 text-[12px] text-white">Default</div>
+                )}
               </div>
-              <div className="rounded-full bg-primary-500 px-2 py-1 text-[12px] text-white">Default</div>
-            </div>
-            <div className="mt-2 text-sm">
-              {shippingData.address}, Apartment {shippingData.apartment}, {shippingData.city}, {shippingData.province}{" "}
-              {shippingData.postalCode}
-            </div>
-            <div className="mt-2 text-sm">{shippingData.country}</div>
-            <div className="mt-2 text-sm">{shippingData.phone}</div>
-            <div className="mt-2 flex items-center justify-start text-sm">
-              <div
-                className="cursor-pointer rounded-full border border-grey-400 px-3 py-2 text-primary-900"
-                onClick={handleEditClick}
-              >
-                Edit
+              <div className="mt-2 text-sm">
+                {address}, Apartment {apartmentSuite}, {city}, {stateProvince} {postalZipCode}
               </div>
-              <div
-                className="ml-2 cursor-pointer rounded-full border border-grey-400 px-3 py-2 text-[#FF3C3C]"
-                onClick={handleDeleteClick}
-              >
-                Delete
+              <div className="mt-2 text-sm">{country}</div>
+              <div className="mt-2 text-sm">{phone}</div>
+              <div className="mt-2 flex items-center justify-start text-sm">
+                <div
+                  className="cursor-pointer rounded-full border border-grey-400 px-3 py-2 text-primary-900"
+                  onClick={() => handleEditAddress(id)}
+                >
+                  Edit
+                </div>
+                <div
+                  className="ml-2 cursor-pointer rounded-full border border-grey-400 px-3 py-2 text-[#FF3C3C]"
+                  onClick={() => handleDeleteClick(id)}
+                >
+                  Delete
+                </div>
               </div>
             </div>
-          </div>
+          )
         )
       )}
     </>

@@ -36,6 +36,8 @@ export type ProfileFormData = z.infer<typeof schema>
 export const ProfileForm: React.FC<ProfileFormProps> = ({ defaultValues, onSubmit }) => {
   const form = useForm<ProfileFormData>({ resolver: zodResolver(schema), defaultValues })
   const [fileName, setFileName] = useState("")
+  const [profileImage, setProfileImage] = useState(defaultValues.image)
+
   const { toast } = useToast()
 
   useEffect(() => {
@@ -50,18 +52,22 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ defaultValues, onSubmi
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        const base64String = reader.result as string
-        localStorage.setItem("profileImage", base64String)
+        setProfileImage(reader.result as string)
       }
       reader.readAsDataURL(file)
     }
 
     const formData = new FormData()
     formData.append("file", file as File)
-    formData.append("upload_preset", "your_upload_preset")
+    formData.append("upload_preset", "ml_default")
 
     try {
-      const response = await axios.post("https://api.cloudinary.com/v1_1/dgndmz9dl/image/upload", formData)
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        formData
+      )
+
+      console.log(response)
       const imageUrl = response.data.secure_url
       form.setValue("image", imageUrl)
       toast({ title: "Image uploaded successfully" })
@@ -75,7 +81,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ defaultValues, onSubmi
       <div className="mt-2 flex items-center justify-start gap-3">
         {defaultValues.image ? (
           <Image
-            src={defaultValues.image}
+            src={profileImage || ""}
             alt="Profile Picture"
             width={56}
             height={56}
@@ -138,7 +144,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ defaultValues, onSubmi
                 <FormItem>
                   <FormLabel>Type of professional</FormLabel>
                   <FormControl>
-                    <Input readOnly placeholder="Enter your type of profession" {...field} />
+                    <Input placeholder="Enter your type of profession" {...field} />
                   </FormControl>
                 </FormItem>
               )}

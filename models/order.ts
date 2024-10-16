@@ -1,4 +1,3 @@
-import type { BillingAddress } from "./billing"
 import type { Product } from "./product"
 import type { ShippingAddress, ShippingMethod } from "./shipping"
 
@@ -15,7 +14,7 @@ export interface Order {
   totalPrice: string
   shippingMethod: ShippingMethod
   shippingAddress: ShippingAddress
-  billingAddress: BillingAddress
+  billingAddress: ShippingAddress
   paymentMethod: "creditCard" | "shopPay" | "paypal" | "amazonPay"
   financialStatus?: "paid"
   fulfillmentStatus?: string | null

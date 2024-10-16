@@ -1,23 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
 
-import BillingModal from "@/components/BillingModal"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import OrderSummary from "@/components/OrderSummary"
 import PaymentMethod from "@/components/PaymentMethod"
 import PaymentModal from "@/components/PaymentModal"
+import SettingsShippingModal from "@/components/SettingsShippingModal"
 import { Button } from "@/components/ui/Button"
 import { useCart, useLocalStorage, useProductData, useStorageChange } from "@/hooks"
 import type { CartItem } from "@/interfaces/cart"
 import type { UserCard } from "@/interfaces/payment"
 import { handleCartItemsChange } from "@/lib"
 import { cn } from "@/lib/utils"
-import type { ShippingAddress, ShippingMethod } from "@/models/shipping"
+import type { ShippingMethod } from "@/models/shipping"
 import amazonPayLogo from "@/public/Amazon_Pay.svg"
 import americanExpressLogo from "@/public/American_express.svg"
 import cardIcon from "@/public/Card.svg"
@@ -26,6 +26,7 @@ import payPalLogo from "@/public/PayPal.svg"
 import radioButtonIcon from "@/public/Radio_button.svg"
 import shopPayLogo from "@/public/Shop_Pay.svg"
 import visaLogo from "@/public/Visa.svg"
+import { useAddressStore } from "@/stores/address"
 
 const paymentMethods = [
   { name: "shopPay", icon: <Image src={shopPayLogo} alt="ShopPay logo" className="h-[18px] w-20" /> },
@@ -53,10 +54,11 @@ const PaymentPage = () => {
   })
 
   const [cart] = useLocalStorage<CartItem[]>("cart", [])
-  const [shippingAddress] = useLocalStorage<ShippingAddress | null>("shippingAddress", null)
   const [shippingMethod] = useLocalStorage<ShippingMethod | null>("shippingMethod", null)
   const [userCard] = useLocalStorage<UserCard | null>("userCard", null)
   const [email] = useLocalStorage<string>("shippingAddress", "", "email")
+
+  const { selectedShippingAddress, billingAddress, setBillingAddress } = useAddressStore()
 
   const { cartContent, listProductsId, totalCount } = useCart(setTotalPrice)
   const [productData] = useProductData(listProductsId, cart)
@@ -91,7 +93,7 @@ const PaymentPage = () => {
         body: JSON.stringify({
           email: orderData.email,
           shippingAddress: orderData.shippingAddress,
-          billingAddress: orderData.shippingAddress,
+          billingAddress: orderData.billingAddress,
           shippingMethod: orderData.shippingMethod,
           paymentMethod: orderData.selectedPaymentMethod,
           products: orderData.productData,
@@ -123,7 +125,8 @@ const PaymentPage = () => {
 
   const orderData = {
     email: email,
-    shippingAddress: shippingAddress,
+    shippingAddress: selectedShippingAddress,
+    billingAddress: billingAddress,
     shippingMethod: shippingMethod,
     selectedPaymentMethod: selectedPaymentMethod,
     userCard: userCard,
@@ -132,10 +135,22 @@ const PaymentPage = () => {
     status: "pending",
   }
 
+  useEffect(() => {
+    if (!billingAddress && selectedShippingAddress) {
+      setBillingAddress(selectedShippingAddress)
+    }
+  }, [billingAddress, selectedShippingAddress, setBillingAddress])
+
   return (
     <div>
       {isPaymentModalVisible && <PaymentModal />}
-      {isBillingModalVisible && <BillingModal />}
+      {selectedShippingAddress && isBillingModalVisible && (
+        <SettingsShippingModal
+          shippingData={selectedShippingAddress}
+          onClose={handleBillingModal}
+          addressType="billing"
+        />
+      )}
       <Breadcrumbs currentStep="payment" />
       <div className="flex h-auto w-full items-center justify-center">
         <div className="flex h-auto w-full justify-between bg-grey-200 px-[10rem] py-[2rem] max-lg:block max-lg:px-[1rem]">
@@ -148,13 +163,14 @@ const PaymentPage = () => {
               <div className="border-b border-gray-200 pt-2">
                 <div className="my-1 text-sm text-grey-800">Ship to</div>
                 <div className="flex items-start justify-between">
-                  {shippingAddress ? (
+                  {selectedShippingAddress ? (
                     <div className="pb-4 text-sm font-medium text-primary-900">
                       <div>
-                        {shippingAddress.address}, {shippingAddress.apartment}, {shippingAddress.city},{" "}
-                        {shippingAddress.province} {shippingAddress.postalCode}
+                        {selectedShippingAddress.address}, {selectedShippingAddress.apartmentSuite},{" "}
+                        {selectedShippingAddress.city}, {selectedShippingAddress.stateProvince}{" "}
+                        {selectedShippingAddress.postalZipCode}
                       </div>
-                      <div>{shippingAddress.country}</div>
+                      <div>{selectedShippingAddress.country}</div>
                     </div>
                   ) : null}
                   <Link href="/shipping">
@@ -243,16 +259,16 @@ const PaymentPage = () => {
               <div className="text-xl font-semibold text-primary-900">Billing Address</div>
               <div className="mt-4 rounded-2xl bg-white p-4">
                 <div className="flex items-center justify-between">
-                  {shippingAddress ? (
+                  {billingAddress ? (
                     <div className="text-sm font-medium text-primary-900">
                       <div>
-                        {shippingAddress.firstName} {shippingAddress.lastName}
+                        {billingAddress.firstName} {billingAddress.lastName}
                       </div>
                       <div>
-                        {shippingAddress.address}, {shippingAddress.apartment}, {shippingAddress.city},{" "}
-                        {shippingAddress.province} {shippingAddress.postalCode}
+                        {billingAddress.address}, {billingAddress.apartmentSuite}, {billingAddress.city},{" "}
+                        {billingAddress.stateProvince} {billingAddress.postalZipCode}
                       </div>
-                      <div>{shippingAddress.country}</div>
+                      <div>{billingAddress.country}</div>
                     </div>
                   ) : null}
                   <div className="cursor-pointer text-sm font-medium text-primary-500" onClick={handleBillingModal}>

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const session = await auth()
   const id = session?.user.id
 
-  const { lastName, type_proffesion, place_work, telephone } = await req.json()
+  const { lastName, type_proffesion, place_work, telephone, image } = await req.json()
 
   if (!lastName || !type_proffesion || !place_work || !telephone) {
     return NextResponse.json({ message: "All fields are required!" }, { status: 400 })
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
         type_proffesion,
         place_work,
         telephone,
+        image,
       },
     })
 

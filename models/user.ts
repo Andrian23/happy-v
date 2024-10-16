@@ -1,3 +1,5 @@
+import type { ShippingAddress } from "./shipping"
+
 export interface User {
   id: string
   name: string | null
@@ -13,4 +15,6 @@ export interface User {
   createdAt: Date | null
   updatedAt: Date | null
   isTwoFactorEnable: boolean
+  shippingAddresses?: ShippingAddress[]
+  defaultShippingAddress: number | null
 }

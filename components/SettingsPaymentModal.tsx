@@ -37,7 +37,7 @@ const AddressSelection: React.FC<AddressSelectionProps> = ({ onClose }) => {
           {shippingAddress && (
             <>
               <div className="font-semibold">{`${shippingAddress.firstName} ${shippingAddress.lastName}`}</div>
-              <div>{`${shippingAddress.address}, Apartment ${shippingAddress.apartment}, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.country}, ${shippingAddress.postalCode}`}</div>
+              <div>{`${shippingAddress.address}, Apartment ${shippingAddress.apartmentSuite}, ${shippingAddress.city}, ${shippingAddress.stateProvince}, ${shippingAddress.country}, ${shippingAddress.postalZipCode}`}</div>
             </>
           )}
         </label>
@@ -154,7 +154,7 @@ const SettingsPaymentModal: React.FC<SettingsPaymentModalProps> = ({ onClose }) 
             {shippingAddress && (
               <div className="mt-4 text-sm">
                 <div>{`${shippingAddress.firstName} ${shippingAddress.lastName}`}</div>
-                <div>{`${shippingAddress.address}, ${shippingAddress.apartment}, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.country}, ${shippingAddress.postalCode}`}</div>
+                <div>{`${shippingAddress.address}, ${shippingAddress.apartmentSuite}, ${shippingAddress.city}, ${shippingAddress.stateProvince}, ${shippingAddress.country}, ${shippingAddress.postalZipCode}`}</div>
                 {!isAddressSelectionVisible && (
                   <div
                     className="mt-2 w-fit cursor-pointer rounded-full border border-gray-300 px-4 py-2 text-sm text-primary-900"

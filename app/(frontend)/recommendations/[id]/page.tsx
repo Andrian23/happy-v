@@ -6,8 +6,11 @@ import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { BeatLoader } from "react-spinners"
 
+import { Prisma } from "@prisma/client"
+
 import { getAllProducts } from "@/actions/productsShopify"
 import { getRecommendationById } from "@/actions/recommendation"
+import { updateRecommendation } from "@/actions/recommendation"
 import PageTopic from "@/components/PageTopic"
 import ProductGridItem from "@/components/ProductItemGrid"
 import ConfirmationModal from "@/components/Recommendations/components/ConfirmationModal"
@@ -17,6 +20,7 @@ import { Input } from "@/components/ui/Input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { Textarea } from "@/components/ui/Textarea"
+import { useToast } from "@/components/ui/useToast"
 import { BackArrowIcon, CloseIcon, CrossIcon, MenuIcon, PlusIcon, TriangleDownIcon } from "@/icons"
 import { cn } from "@/lib/utils"
 import type { Product } from "@/models/product"
@@ -53,6 +57,7 @@ const RecommendationPage = () => {
     created: "",
   })
   const router = useRouter()
+  const { toast } = useToast()
 
   const id = searchParams.get("id")
 
@@ -236,22 +241,30 @@ const RecommendationPage = () => {
 
   // <pre>{JSON.stringify(formData, null, 2)}</pre>
 
-  const handleSubmit = () => {
-    const newRecommendation = {
+  const handleSubmit = async () => {
+    const updatedRecommendation = {
       ...formData,
-      created: new Date().toLocaleDateString("en-GB"),
+      created: new Date().toISOString(),
+      clients: formData.clients as unknown as Prisma.InputJsonObject[],
+      selectedProducts: formData.selectedProducts as unknown as Prisma.InputJsonObject[],
     }
 
-    // Updating the recommendation in local storage
-    const recommendationsData = localStorage.getItem("recommendations")
-    const currentRecommendations: Recommendation[] = recommendationsData ? JSON.parse(recommendationsData) : []
-    const updatedRecommendations = currentRecommendations.map((rec) =>
-      rec.clients.some((client) => client.id.toString() === id) ? newRecommendation : rec
-    )
+    if (id) {
+      try {
+        await updateRecommendation(id, updatedRecommendation)
 
-    localStorage.setItem("recommendations", JSON.stringify(updatedRecommendations))
-
-    router.push("/recommendations")
+        router.push("/recommendations")
+        toast({ title: "Recommendation updated successfully", position: "bottom-right" })
+      } catch (error) {
+        console.error("Failed to update recommendation:", error)
+        toast({
+          title: "Failed to update recommendation",
+          position: "bottom-right",
+        })
+      }
+    } else {
+      console.error("Recommendation ID is null. Cannot update recommendation.")
+    }
   }
 
   const calculateTotalPrice = () => {

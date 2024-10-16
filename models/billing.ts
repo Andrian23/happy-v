@@ -2,10 +2,11 @@ export interface BillingAddress {
   firstName: string
   lastName: string
   address: string
-  apartment: string
-  city: string
-  province: string
-  postalCode: string
+  apartmentSuite?: string
   country: string
+  stateProvince: string
+  city: string
+  postalZipCode: string
   phone: string
+  email: string
 }

@@ -64,8 +64,8 @@ const SettingsPayment = () => {
                 {shippingAddress.firstName} {shippingAddress.lastName}
               </div>
               <div className="mt-2 text-sm text-grey-800">
-                {shippingAddress.address}, Apartment {shippingAddress.apartment}, {shippingAddress.city},{" "}
-                {shippingAddress.province} {shippingAddress.postalCode}, {shippingAddress.country}
+                {shippingAddress.address}, Apartment {shippingAddress.apartmentSuite}, {shippingAddress.city},{" "}
+                {shippingAddress.stateProvince} {shippingAddress.postalZipCode}, {shippingAddress.country}
               </div>
             </>
           )}

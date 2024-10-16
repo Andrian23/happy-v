@@ -6,8 +6,10 @@ import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { BeatLoader } from "react-spinners"
 
+import { Prisma } from "@prisma/client"
+
 import { getAllProducts } from "@/actions/productsShopify"
-import { getTemplateById } from "@/actions/recommendation"
+import { getTemplateById, updateTemplate } from "@/actions/recommendation"
 import PageTopic from "@/components/PageTopic"
 import ProductGridItem from "@/components/ProductItemGrid"
 import ConfirmationModal from "@/components/Recommendations/components/ConfirmationModal"
@@ -17,6 +19,7 @@ import { Input } from "@/components/ui/Input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { Textarea } from "@/components/ui/Textarea"
+import { useToast } from "@/components/ui/useToast"
 import { BackArrowIcon, CloseIcon, CrossIcon, MenuIcon, PlusIcon, TriangleDownIcon } from "@/icons"
 import { cn } from "@/lib/utils"
 import type { Product } from "@/models/product"
@@ -58,6 +61,8 @@ const RecommendationsTemplatePage = () => {
     created: "",
     clients: [],
   })
+
+  const { toast } = useToast()
 
   const handleOpenDeletingModal = (clientId: string | number | null) => {
     setDeletingId(clientId)
@@ -233,20 +238,26 @@ const RecommendationsTemplatePage = () => {
 
   // <pre>{JSON.stringify(formData, null, 2)}</pre>
 
-  const handleSubmit = () => {
-    const newRecommendation = {
+  const handleSubmit = async () => {
+    const updatedData: Prisma.RecommendationUpdateInput = {
       ...formData,
-      created: new Date().toLocaleDateString("en-GB"),
+      created: new Date().toISOString(),
+      clients: formData.clients as unknown as Prisma.InputJsonObject[],
+      selectedProducts: formData.selectedProducts as unknown as Prisma.InputJsonObject[],
     }
 
-    // Updating the recommendation in local storage
-    const recommendationsData = localStorage.getItem("recommendations")
-    const currentRecommendations: Template[] = recommendationsData ? JSON.parse(recommendationsData) : []
-    const updatedRecommendations: TemplateData[] = [...currentRecommendations, newRecommendation]
-
-    localStorage.setItem("recommendations", JSON.stringify(updatedRecommendations))
-
-    router.push("/recommendations")
+    if (tempId) {
+      try {
+        await updateTemplate(tempId, updatedData)
+        router.push("/recommendations")
+        toast({ title: "Template updated successfully", position: "bottom-right" })
+      } catch (error) {
+        console.error("Failed to update template:", error)
+        toast({ title: "Failed to update template", position: "bottom-right" })
+      }
+    } else {
+      console.error("Template ID is null. Cannot update template.")
+    }
   }
 
   const calculateTotalPrice = () => {
