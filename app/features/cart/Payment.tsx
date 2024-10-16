@@ -1,34 +1,41 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
 
 import { Elements } from "@stripe/react-stripe-js"
-import { type Appearance, loadStripe } from "@stripe/stripe-js"
+import { type Appearance, loadStripe, type PaymentMethod } from "@stripe/stripe-js"
 
+import { placeOrder } from "@/actions/order"
+import { getPaymentMethods } from "@/actions/paymentIntent"
 import BillingModal from "@/components/BillingModal"
 import Breadcrumbs from "@/components/Breadcrumbs"
-import OrderSummary from "@/components/OrderSummary"
-import PaymentMethod from "@/components/PaymentMethod"
+import { OrderSummary } from "@/components/cart/OrderSummary"
 import PaymentModal from "@/components/PaymentModal"
 import { Button } from "@/components/ui/Button"
-import { useCart, useLocalStorage, useProductData, useStorageChange } from "@/hooks"
-import type { CartItem } from "@/interfaces/cart"
-import type { UserCard } from "@/interfaces/payment"
-import { handleCartItemsChange } from "@/lib"
+import { useLocalStorage } from "@/hooks"
 import { cn } from "@/lib/utils"
-import type { ShippingAddress, ShippingMethod } from "@/models/shipping"
-import amazonPayLogo from "@/public/Amazon_Pay.svg"
+import type { ShippingAddress } from "@/models/shipping"
 import americanExpressLogo from "@/public/American_express.svg"
 import cardIcon from "@/public/Card.svg"
 import mastercardLogo from "@/public/Mastercard.svg"
-import payPalLogo from "@/public/PayPal.svg"
 import radioButtonIcon from "@/public/Radio_button.svg"
-import shopPayLogo from "@/public/Shop_Pay.svg"
 import visaLogo from "@/public/Visa.svg"
+import { useCartStore } from "@/stores/cart"
+
+const shippingMethods = {
+  standard: {
+    label: "Standard (2-6 Days)",
+    price: 8.3,
+  },
+  express: {
+    label: "Express (1-2 Business Days)",
+    price: 12.3,
+  },
+}
 
 const appearance = {
   variables: {
@@ -43,9 +50,24 @@ const appearance = {
       lineHeight: "24px",
       color: "#25425d",
       fontWeight: "500",
+      borderColor: "#E7E6E6",
     },
     ".Input::placeholder": {
       color: "#7C8E9E",
+    },
+    ".Input:focus": {
+      borderColor: "#E7E6E6",
+      outline: "none",
+      boxShadow: `0 0 0 2px #fff, 0 0 0 4px #6CB4DA`,
+    },
+    ".Input--invalid": {
+      boxShadow: "none",
+      borderColor: "#FF6A6A",
+    },
+    ".Error": {
+      color: "#FF6A6A",
+      fontSize: "14px",
+      lineHeight: "20px",
     },
     ".Label": {
       fontWeight: "600",
@@ -56,125 +78,63 @@ const appearance = {
   },
 } satisfies Appearance
 
-const paymentMethods = [
-  { name: "shopPay", icon: <Image src={shopPayLogo} alt="ShopPay logo" className="h-[18px] w-20" /> },
-  { name: "paypal", icon: <Image src={payPalLogo} alt="PayPal logo" className="h-5 w-[79px]" /> },
-  { name: "amazonPay", icon: <Image src={amazonPayLogo} alt="Amazon logo" className="h-[18px] w-[94px]" /> },
-]
-
 type PaymentProps = {
   clientSecret?: string
+  initialPaymentMethods: PaymentMethod[]
+  defaultPaymentMethod: string | null
 }
 
-export const Payment: React.FC<PaymentProps> = ({ clientSecret }) => {
+export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMethods, defaultPaymentMethod }) => {
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(initialPaymentMethods)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(defaultPaymentMethod)
   const router = useRouter()
 
-  const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false)
   const [isBillingModalVisible, setIsBillingModalVisible] = useState(false)
-  const [totalPrice, setTotalPrice] = useState(0)
-  const [isProtected, setIsProtected] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("protected") === "true"
-    }
-    return false
-  })
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedPaymentMethod") || null
-    }
-    return null
-  })
 
-  const [cart] = useLocalStorage<CartItem[]>("cart", [])
+  const products = useCartStore((state) => state.products)
+  const shippingMethod = useCartStore((state) => state.shippingMethod)
   const [shippingAddress] = useLocalStorage<ShippingAddress | null>("shippingAddress", null)
-  const [shippingMethod] = useLocalStorage<ShippingMethod | null>("shippingMethod", null)
-  const [userCard] = useLocalStorage<UserCard | null>("userCard", null)
   const [email] = useLocalStorage<string>("shippingAddress", "", "email")
 
-  const { cartContent, listProductsId, totalCount } = useCart(setTotalPrice)
-  const [productData] = useProductData(listProductsId, cart)
-  useStorageChange(handleCartItemsChange(setTotalPrice))
-
-  const handlePaymentModal = () => setIsPaymentModalVisible(!isPaymentModalVisible)
   const handleBillingModal = () => setIsBillingModalVisible(!isBillingModalVisible)
 
-  const handleProtectionClick = () => {
-    const newValue = !isProtected
-    setIsProtected(newValue)
-    if (typeof window !== "undefined") {
-      localStorage.setItem("protected", newValue.toString())
-    }
-  }
+  const refreshPaymentMethods = useCallback(async () => {
+    const { paymentMethods, defaultPaymentMethod } = await getPaymentMethods()
+    setPaymentMethods(paymentMethods)
+    setSelectedPaymentMethod(defaultPaymentMethod)
+  }, [])
 
-  const handlePaymentMethodClick = (method: string) => {
-    setSelectedPaymentMethod(method)
-    if (typeof window !== "undefined") {
-      localStorage.setItem("selectedPaymentMethod", method)
-    }
-  }
+  const handleAddPaymentMethod = useCallback(async () => {
+    await refreshPaymentMethods()
+  }, [refreshPaymentMethods])
 
-  const handlePlaceOrder = async () => {
-    if (!userCard || !selectedPaymentMethod) return
-    try {
-      const response = await fetch("/api/upload_order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: orderData.email,
-          shippingAddress: orderData.shippingAddress,
-          billingAddress: orderData.shippingAddress,
-          shippingMethod: orderData.shippingMethod,
-          paymentMethod: orderData.selectedPaymentMethod,
-          products: orderData.productData,
-          totalPrice: orderData.totalPrice,
-          status: "pending",
-        }),
-      })
+  const handlePlaceOrder = useCallback(
+    async (totalPrice: number) => {
+      if (!selectedPaymentMethod || !shippingMethod || !shippingAddress) return
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error("Error response:", response.status, errorText)
-        throw new Error("Network response was not ok")
+      try {
+        const order = await placeOrder({
+          shippingMethod: {
+            type: shippingMethod,
+            price: shippingMethods[shippingMethod].price,
+          },
+          products,
+          totalPrice,
+          paymentMethod: selectedPaymentMethod,
+          shippingAddress,
+          billingAddress: shippingAddress,
+        })
+
+        router.push(`/confirmed/${order.id}`)
+      } catch {
+        console.error("Error uploading order:")
       }
-
-      const result = await response.json()
-      console.log("Order uploaded successfully:", result)
-
-      localStorage.removeItem("cart")
-      localStorage.removeItem("shippingMethod")
-      localStorage.removeItem("selectedPaymentMethod")
-      localStorage.removeItem("userCard")
-      // Redirect to confirm_order with orderId
-      router.push(`/confirm_order/${result.newOrder.id}`)
-    } catch (error) {
-      console.error("Error uploading order:", error)
-      // Handle error (e.g., show an error message to the user)
-    }
-  }
-
-  const orderData = {
-    email: email,
-    shippingAddress: shippingAddress,
-    shippingMethod: shippingMethod,
-    selectedPaymentMethod: selectedPaymentMethod,
-    userCard: userCard,
-    productData: productData,
-    totalPrice: totalPrice,
-    status: "pending",
-  }
+    },
+    [router, selectedPaymentMethod, shippingMethod, shippingAddress, products]
+  )
 
   return (
     <>
-      {isPaymentModalVisible && (
-        <Elements
-          stripe={loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string)}
-          options={{ appearance, clientSecret }}
-        >
-          <PaymentModal />
-        </Elements>
-      )}
       {isBillingModalVisible && <BillingModal />}
       <section className="lg:col-span-3">
         <Breadcrumbs currentStep="payment" />
@@ -206,7 +166,7 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret }) => {
               <div className="text-sm font-medium text-primary-900">
                 {shippingMethod && (
                   <div>
-                    {shippingMethod.type} • {shippingMethod.price}
+                    {shippingMethods[shippingMethod].label} • ${shippingMethods[shippingMethod].price.toFixed(2)}
                   </div>
                 )}
               </div>
@@ -220,16 +180,9 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret }) => {
         <div className="mt-8">
           <div className="text-xl font-semibold text-primary-900">Payment</div>
           <div className="my-4 h-auto w-full rounded-xl bg-white p-4">
-            <div className="flex w-full items-center" onClick={() => handlePaymentMethodClick("creditCard")}>
-              <div
-                className={cn(
-                  "relative h-5 w-5 shrink-0 rounded-full border border-grey-700",
-                  selectedPaymentMethod === "creditCard" && "border-primary-500"
-                )}
-              >
-                {selectedPaymentMethod === "creditCard" && (
-                  <Image src={radioButtonIcon} alt="Shipping" fill className="h-5 w-5 object-contain" />
-                )}
+            <div className="flex w-full items-center">
+              <div className="relative h-5 w-5 shrink-0 rounded-full border border-primary-500">
+                <Image src={radioButtonIcon} alt="Shipping" fill className="h-5 w-5 object-contain" />
               </div>
 
               <div className="ml-2 flex w-full items-center justify-between">
@@ -244,37 +197,43 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret }) => {
                 </div>
               </div>
             </div>
-            {selectedPaymentMethod === "creditCard" && (
-              <>
-                {selectedPaymentMethod === "creditCard" && userCard && (
-                  <div className="my-4 h-auto w-full rounded-xl border border-grey-400 p-4">
-                    <div className="flex items-start justify-start">
-                      <Image src={radioButtonIcon} alt="Shipping" className="h-5 w-5" />
-                      <div className="ml-2 text-sm font-medium text-primary-900">
-                        <div>**** **** **** {userCard.cardNumber.slice(-4)}</div>
-                        <div>{userCard.cardName}</div>
-                      </div>
-                    </div>
+            {paymentMethods.map((pm) => (
+              <div
+                key={pm.id}
+                className="my-4 h-auto w-full rounded-xl border border-grey-400 p-4"
+                onClick={() => setSelectedPaymentMethod(pm.id)}
+              >
+                <div className="flex items-start justify-start">
+                  <div
+                    className={cn(
+                      "relative h-5 w-5 shrink-0 rounded-full border border-grey-700",
+                      selectedPaymentMethod === pm.id && "border-primary-500"
+                    )}
+                  >
+                    {selectedPaymentMethod === pm.id && (
+                      <Image src={radioButtonIcon} alt="Shipping" fill className="h-5 w-5 object-contain" />
+                    )}
                   </div>
-                )}
-                {selectedPaymentMethod === "creditCard" && (
-                  <Button variant="primary-outline" className="mt-4 w-full gap-2" onClick={handlePaymentModal}>
-                    <Plus />
-                    Add credit card
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-          {paymentMethods.map(({ name, icon }) => (
-            <PaymentMethod
-              key={name}
-              onClick={() => handlePaymentMethodClick(name)}
-              isSelected={selectedPaymentMethod === name}
+                  <div className="ml-2 text-sm font-medium text-primary-900">
+                    <div>**** **** **** {pm.card?.last4}</div>
+                    <div>{pm.card?.brand}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <Elements
+              stripe={loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string)}
+              options={{ appearance, clientSecret }}
             >
-              {icon}
-            </PaymentMethod>
-          ))}
+              <PaymentModal onPaymentAdded={handleAddPaymentMethod}>
+                <Button variant="primary-outline" className="mt-4 w-full gap-2">
+                  <Plus />
+                  Add credit card
+                </Button>
+              </PaymentModal>
+            </Elements>
+          </div>
         </div>
 
         <div className="mt-8">
@@ -301,41 +260,11 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret }) => {
         </div>
       </section>
 
-      <section className="lg:col-span-2">
-        <OrderSummary
-          totalCount={totalCount}
-          cartContent={cartContent}
-          productData={productData}
-          subtotal={totalPrice.toFixed(2)}
-          shipping={shippingMethod ? shippingMethod.price : "N/A"}
-          taxes="Calculated at checkout"
-          handleProtectionClick={handleProtectionClick}
-        >
-          <div className="p-4">
-            <div className="flex justify-between pt-4 text-lg font-semibold">
-              <div>Total</div>
-              <div>
-                $
-                {(
-                  totalPrice +
-                  (isProtected ? 1.99 : 0) +
-                  (shippingMethod ? parseFloat(shippingMethod.price.replace("$", "")) : 0)
-                ).toFixed(2)}
-              </div>
-            </div>
-            <div>
-              <Button
-                className="mt-5 w-full"
-                variant="primary"
-                disabled={!userCard || !selectedPaymentMethod}
-                onClick={handlePlaceOrder}
-              >
-                Place order
-              </Button>
-            </div>
-          </div>
-        </OrderSummary>
-      </section>
+      <OrderSummary
+        onSubmit={handlePlaceOrder}
+        buttonLabel="Place order"
+        disabled={!selectedPaymentMethod || !shippingAddress || !shippingMethod}
+      />
     </>
   )
 }
