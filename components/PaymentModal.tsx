@@ -1,78 +1,77 @@
 "use client"
 
-import React, { useState } from "react"
-import { X } from "lucide-react"
+import React, { useCallback, useState } from "react"
 
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
 
+import { setDefaultPaymentMethod } from "@/actions/paymentIntent"
+
 import { Button } from "./ui/Button"
+import { Checkbox } from "./ui/Checkbox"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/Dialog"
+import { Label } from "./ui/Label"
 
-const PaymentModal = () => {
-  const [isVisible, setIsVisible] = useState(true)
-  // const [cardNumber, setCardNumber] = useState("")
-  // const [cardName, setCardName] = useState("")
-  // const [expirationDate, setExpirationDate] = useState("")
-  // const [cvc, setCvc] = useState("")
-  // const [isDefault, setIsDefault] = useState(false)
+type PaymentModalProps = React.PropsWithChildren & {
+  onPaymentAdded?: () => void
+}
 
-  const elements = useElements()
+export const PaymentModal: React.FC<PaymentModalProps> = ({ children, onPaymentAdded }) => {
   const stripe = useStripe()
+  const elements = useElements()
+  const [error, setError] = useState<string>()
+  const [isOpen, setIsOpen] = useState(false)
+  const [isDefault, setIsDefault] = useState(false)
 
-  const handleClose = () => {
-    setIsVisible(false)
-  }
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      setError(undefined)
 
-  // const handleSaveCard = () => {
-  //   const cardDetails = {
-  //     cardNumber,
-  //     cardName,
-  //     expirationDate,
-  //     cvc,
-  //     isDefault,
-  //   }
-  //   localStorage.setItem("userCard", JSON.stringify(cardDetails))
-  //   handleClose()
-  //   window.location.reload()
-  // }
+      if (!stripe || !elements) {
+        return
+      }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+      const result = await stripe.confirmSetup({
+        elements,
+        redirect: "if_required",
+      })
 
-    if (!stripe || !elements) {
-      return
-    }
-
-    const result = await stripe.confirmSetup({
-      elements,
-      confirmParams: {
-        return_url: window.location.href,
-      },
-    })
-
-    console.log(result)
-  }
+      if (result.error) {
+        setError(result.error.message)
+      } else {
+        if (result.setupIntent?.status === "succeeded") {
+          setIsOpen(false)
+          onPaymentAdded?.()
+          if (isDefault) {
+            await setDefaultPaymentMethod(result.setupIntent.payment_method as string)
+          }
+        }
+      }
+    },
+    [stripe, elements, onPaymentAdded, isDefault]
+  )
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={`fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-70 ${!isVisible ? "hidden" : ""}`}
-    >
-      <div className="w-[40rem] rounded-2xl bg-white shadow-lg max-md:w-full">
-        <div className="flex w-full items-center justify-between border-b border-grey-400 p-8 max-md:p-[1.3rem]">
-          <div className="text-2xl font-semibold text-[#25425D]">Add new card</div>
-          <X color="#25425D" onClick={handleClose} />
-        </div>
-        <div className="h-auto w-full p-8 max-md:p-[1.3rem]">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader className="text-primary-900">
+          <DialogTitle className="text-2xl font-bold text-primary-900">Add new card</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="px-6 pb-6">
           <PaymentElement />
 
-          <div className="mt-5 flex items-center justify-end">
-            <Button type="submit" variant="primary">
-              Add card
-            </Button>
-          </div>
-        </div>
-      </div>
-    </form>
+          <Label className="mt-5 flex gap-2">
+            <Checkbox checked={isDefault} onCheckedChange={(value) => setIsDefault(!!value)} />
+            Set as a default credit card
+          </Label>
+          {error && <p className="text-sm text-error-500">{error}</p>}
+          <Button type="submit" variant="primary" className="ml-auto mt-3 flex" disabled={!stripe || !elements}>
+            Add card
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
