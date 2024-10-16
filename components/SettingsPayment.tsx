@@ -59,14 +59,13 @@ const SettingsPayment = () => {
       return (
         <div key={paymentMethod.id} className="my-4 h-auto w-[60%] rounded-2xl bg-grey-200 p-4 max-lg:w-full">
           <div className="flex items-center justify-between text-sm">
-            <div className="">
-              <Image
-                src={paymentMethodIcon.src}
-                alt={paymentMethodIcon.alt}
-                height={paymentMethodIcon.height}
-                width={paymentMethodIcon.width}
-              />
-            </div>
+            <Image
+              src={paymentMethodIcon.src}
+              alt={paymentMethodIcon.alt}
+              height={paymentMethodIcon.height}
+              width={paymentMethodIcon.width}
+            />
+
             {defaultPaymentMethod === paymentMethod.id && (
               <div className="rounded-full bg-primary-500 px-2 py-1 text-[12px] text-white">Default</div>
             )}

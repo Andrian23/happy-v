@@ -19,11 +19,11 @@ import { Button } from "@/components/ui/Button"
 import { useLocalStorage } from "@/hooks"
 import { cn } from "@/lib/utils"
 import type { ShippingAddress } from "@/models/shipping"
-import americanExpressLogo from "@/public/American_express.svg"
+import americanExpress from "@/public/american-express.webp"
 import cardIcon from "@/public/Card.svg"
-import mastercardLogo from "@/public/Mastercard.svg"
+import mastercard from "@/public/mastercard.webp"
 import radioButtonIcon from "@/public/Radio_button.svg"
-import visaLogo from "@/public/Visa.svg"
+import visa from "@/public/visa.webp"
 import { useCartStore } from "@/stores/cart"
 
 const appearance = {
@@ -66,6 +66,27 @@ const appearance = {
     },
   },
 } satisfies Appearance
+
+const paymentMethodIcons = {
+  visa: {
+    src: visa,
+    alt: "Visa",
+    width: 40,
+    height: 12,
+  },
+  mastercard: {
+    src: mastercard,
+    alt: "Mastercard",
+    width: 23,
+    height: 14,
+  },
+  amex: {
+    src: americanExpress,
+    alt: "American Express",
+    width: 47,
+    height: 12,
+  },
+}
 
 type PaymentProps = {
   clientSecret?: string
@@ -180,36 +201,44 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
                   <div className="ml-2 text-sm font-medium text-primary-900">Credit Card</div>
                 </div>
                 <div className="flex items-center">
-                  <Image src={visaLogo} alt="Visa" className="h-3 w-10" />
-                  <Image src={mastercardLogo} alt="Mastercard" className="ml-2 h-3.5 w-[23px]" />
-                  <Image src={americanExpressLogo} alt="American_express" className="ml-2 h-3 w-[47px]" />
+                  <Image src={visa} alt="Visa" className="h-3 w-10" />
+                  <Image src={mastercard} alt="Mastercard" className="ml-2 h-3.5 w-[23px]" />
+                  <Image src={americanExpress} alt="American_express" className="ml-2 h-3 w-[47px]" />
                 </div>
               </div>
             </div>
-            {paymentMethods.map((pm) => (
-              <div
-                key={pm.id}
-                className="my-4 h-auto w-full rounded-xl border border-grey-400 p-4"
-                onClick={() => setSelectedPaymentMethod(pm.id)}
-              >
-                <div className="flex items-start justify-start">
-                  <div
-                    className={cn(
-                      "relative h-5 w-5 shrink-0 rounded-full border border-grey-700",
-                      selectedPaymentMethod === pm.id && "border-primary-500"
-                    )}
-                  >
-                    {selectedPaymentMethod === pm.id && (
-                      <Image src={radioButtonIcon} alt="Shipping" fill className="h-5 w-5 object-contain" />
-                    )}
-                  </div>
-                  <div className="ml-2 text-sm font-medium text-primary-900">
-                    <div>**** **** **** {pm.card?.last4}</div>
-                    <div>{pm.card?.brand}</div>
+            {paymentMethods.map((pm) => {
+              const paymentMethodIcon = paymentMethodIcons[pm.card?.brand as keyof typeof paymentMethodIcons]
+              return (
+                <div
+                  key={pm.id}
+                  className="my-4 h-auto w-full rounded-xl border border-grey-400 p-4"
+                  onClick={() => setSelectedPaymentMethod(pm.id)}
+                >
+                  <div className="flex items-start justify-start">
+                    <div
+                      className={cn(
+                        "relative h-5 w-5 shrink-0 rounded-full border border-grey-700",
+                        selectedPaymentMethod === pm.id && "border-primary-500"
+                      )}
+                    >
+                      {selectedPaymentMethod === pm.id && (
+                        <Image src={radioButtonIcon} alt="Shipping" fill className="h-5 w-5 object-contain" />
+                      )}
+                    </div>
+                    <div className="ml-2 text-sm font-medium text-primary-900">
+                      <div>**** **** **** {pm.card?.last4}</div>
+                      <Image
+                        src={paymentMethodIcon.src}
+                        alt={paymentMethodIcon.alt}
+                        height={paymentMethodIcon.height}
+                        width={paymentMethodIcon.width}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
 
             <Elements
               stripe={loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string)}
