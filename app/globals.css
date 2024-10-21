@@ -99,13 +99,3 @@
     overflow: hidden;
   }
 }
-
-/* styles.css */
-.vertical-line::before {
-  content: "";
-  transform: translateX(-50%);
-  width: 3px;
-  height: 100%;
-  background-color: #ccc;
-  @apply absolute left-1/2 h-full w-1 -translate-x-1/2 bg-gray-400;
-}
