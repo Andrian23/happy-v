@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useCallback, useMemo, useState } from "react"
+import React, { useMemo, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 
-import { createTopic, TopicWithAuthor } from "@/actions/topic"
-import { TopicCard } from "@/components/community/TopicCard"
+import { TopicWithAuthor } from "@/actions/topic"
+import { TopicList } from "@/components/community/TopicList"
 import CustomSearchInput from "@/components/CustomSearchInput"
 import { TopicDialog } from "@/components/dialogs/TopicDialog"
 import PageTopic from "@/components/PageTopic"
@@ -17,7 +17,8 @@ import com2Image from "@/public/Comment2.svg"
 import communityFlyIcon from "@/public/CommunityFly.svg"
 import communityNewsIcon from "@/public/CommunityNews.svg"
 import communityQuestionIcon from "@/public/CommunityQuestion.svg"
-import type { TopicData } from "@/schemas/topic"
+
+import { useTopicCreate } from "./Community.hooks"
 
 const links = [
   {
@@ -52,9 +53,7 @@ export const Community: React.FC<CommunityProps> = ({ topics, count = 0 }) => {
   const [activeItem, setActiveItem] = useState(0)
   const [searchTerm, setSearchTerm] = useState("")
 
-  const handleCreateTopic = useCallback(async (data: TopicData) => {
-    await createTopic({ type: data.type, title: data.title, content: data.content })
-  }, [])
+  const createTopic = useTopicCreate()
 
   const tabs = useMemo(() => [`Latest (${count})`, "Top", "My posts"], [count])
 
@@ -78,7 +77,7 @@ export const Community: React.FC<CommunityProps> = ({ topics, count = 0 }) => {
         <Image src={com2Image} alt="Comment2" className="absolute bottom-0 right-0 h-[190px] w-[151px]" />
       </div>
 
-      <div className="mt-8 flex flex-col gap-4 lg:flex-row">
+      <div className="mt-8 grid gap-4 lg:grid-cols-3 lg:gap-6">
         {links.map(({ href, icon, title, description, alt }) => (
           <Link
             key={href}
@@ -96,20 +95,15 @@ export const Community: React.FC<CommunityProps> = ({ topics, count = 0 }) => {
       <div className="mt-8 flex w-full items-center justify-between max-lg:block">
         <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
 
-        <TopicDialog onSubmit={handleCreateTopic}>
+        <TopicDialog onSubmit={createTopic}>
           <Button variant="primary" className="gap-2">
             <Plus className="h-5 w-5" />
             New topic
           </Button>
         </TopicDialog>
       </div>
-      <div className="mt-4 flex flex-col gap-4">
-        {topics.map((topic, index) => (
-          <Link key={index} href={`/community/${topic.id}`}>
-            <TopicCard topic={topic} />
-          </Link>
-        ))}
-      </div>
+
+      <TopicList topics={topics} />
     </div>
   )
 }
