@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback, useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -27,20 +27,29 @@ export const TopicDialog: React.FC<TopicDialogProps> = ({
   onSubmit,
   defaultValues = { type: TopicType.ASK, title: "", content: "" },
 }) => {
+  const [isOpened, setIsOpened] = useState(false)
   const form = useForm<TopicData>({
     resolver: zodResolver(topicSchema),
     defaultValues,
   })
 
+  const handleSubmit = useCallback(
+    (data: TopicData) => {
+      onSubmit(data)
+      setIsOpened(false)
+    },
+    [onSubmit]
+  )
+
   return (
-    <Dialog>
+    <Dialog open={isOpened} onOpenChange={setIsOpened}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader className="text-primary-900">
           <DialogTitle className="text-2xl font-bold text-primary-900">Create a New Topic</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5 px-4 pb-6 lg:px-6">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-5 px-4 pb-6 lg:px-6">
             <FormField
               control={form.control}
               name="type"
