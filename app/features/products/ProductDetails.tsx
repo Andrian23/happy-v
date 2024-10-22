@@ -12,7 +12,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { Check } from "@/icons/Check"
 import type { Product } from "@/models/product"
-import productAvailableImage from "@/public/Product-available.svg"
 import { useCartStore } from "@/stores/cart"
 
 import PageTopic from "../../../components/PageTopic"
@@ -83,7 +82,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
       <div className="mt-4 flex flex-col gap-4 border-b border-grey-400 pb-6 lg:flex-row lg:gap-10 lg:pb-8">
         <div className="flex aspect-square h-full max-h-64 w-full max-w-80 shrink-0 grow items-center justify-center justify-self-center rounded-2xl bg-grey-200 max-lg:order-1 max-lg:mx-auto">
-          <Image src={product?.image?.src || productAvailableImage} alt="ProductImage" width={150} height={150} />
+          <Image src={product?.image?.src || ""} alt="ProductImage" width={150} height={150} />
         </div>
         <div className="flex items-center max-lg:order-2 max-lg:w-full">
           <div className="w-full">
