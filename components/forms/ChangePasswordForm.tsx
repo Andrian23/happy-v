@@ -1,6 +1,6 @@
 "use client"
 
-import React, { startTransition, useState, useTransition } from "react"
+import React, { Dispatch, SetStateAction, startTransition, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -14,7 +14,11 @@ import { Button } from "@/components/ui/Button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
 import { ResetPasswordSettings } from "@/schemas"
 
-export const ChangePasswordForm: React.FC = () => {
+interface ChangePasswordFormProps {
+  setIsProfileUpdated: Dispatch<SetStateAction<boolean>>
+}
+
+export const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ setIsProfileUpdated }) => {
   const [isPending] = useTransition()
   const [error, setError] = useState<string | undefined>("")
   const [success, setSuccess] = useState<string | undefined>("")
@@ -36,6 +40,9 @@ export const ChangePasswordForm: React.FC = () => {
       resetPasswordSettings(values).then((data) => {
         setError(data.error)
         setSuccess(data.success)
+        if (data.success) {
+          setIsProfileUpdated(true)
+        }
       })
     })
   }

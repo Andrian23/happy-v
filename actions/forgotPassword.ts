@@ -2,8 +2,8 @@
 
 import * as z from "zod"
 
+import { sendPasswordResetEmail } from "@/actions/emailEvents"
 import { getUserByEmail } from "@/data/user"
-import { sendPasswordResetEmail } from "@/lib/mail"
 import { generatePasswordResetToken } from "@/lib/tokens"
 import { ResetSchema } from "@/schemas"
 
@@ -23,7 +23,11 @@ export const forgotPassword = async (values: z.infer<typeof ResetSchema>) => {
   }
 
   const passwordResetToken = await generatePasswordResetToken(email)
-  await sendPasswordResetEmail(passwordResetToken.email, passwordResetToken.token)
+
+  await sendPasswordResetEmail({
+    email: passwordResetToken.email,
+    token: passwordResetToken.token,
+  })
 
   return { success: "Reset email sent" }
 }
