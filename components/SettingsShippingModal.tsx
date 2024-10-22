@@ -24,6 +24,7 @@ interface SettingsShippingModalProps {
   shippingData?: ShippingAddress
   addressType?: "shipping" | "billing"
   setShippingData?: Dispatch<SetStateAction<ShippingAddress[]>>
+  setIsProfileUpdated?: Dispatch<SetStateAction<boolean>>
 }
 
 const SettingsShippingModal: React.FC<SettingsShippingModalProps> = ({
@@ -31,6 +32,7 @@ const SettingsShippingModal: React.FC<SettingsShippingModalProps> = ({
   shippingData,
   addressType = "shipping",
   setShippingData,
+  setIsProfileUpdated,
 }) => {
   const [formState, setFormState] = useState({
     country: null as ICountry | null,
@@ -91,8 +93,16 @@ const SettingsShippingModal: React.FC<SettingsShippingModalProps> = ({
               prev.map((address) => (address.id === shippingData.id ? { ...address, ...addressData } : address))
             )
           }
+
+          if (setIsProfileUpdated) {
+            setIsProfileUpdated(true)
+          }
         } else {
           const newAddress = await addShippingAddress(addressData, isDefault)
+
+          if (setIsProfileUpdated) {
+            setIsProfileUpdated(true)
+          }
 
           if (setShippingData) {
             setShippingData((prev) => [

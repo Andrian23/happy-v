@@ -3,9 +3,9 @@
 import bcrypt from "bcryptjs"
 import * as z from "zod"
 
+import { sendVerificationEmail } from "@/actions/emailEvents"
 import { getUserByEmail } from "@/data/user"
 import { db } from "@/lib/db"
-import { sendVerificationEmail } from "@/lib/mail"
 import { generateVerificationToken } from "@/lib/tokens"
 import { RegisterSchema } from "@/schemas"
 
@@ -46,7 +46,13 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
 
     const verificationToken = await generateVerificationToken(email)
 
-    await sendVerificationEmail(verificationToken.email, verificationToken.token)
+    await sendVerificationEmail({
+      email: verificationToken.email,
+      token: verificationToken.token,
+      name,
+      lastName,
+      telephone,
+    })
 
     return { success: "Confirmation email sent" }
   } catch (error) {

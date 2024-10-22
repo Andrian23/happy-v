@@ -3,6 +3,8 @@ import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { UserRole } from "@prisma/client"
 
+import { sendLoginNotification } from "@/actions/emailEvents"
+
 import { getUserById } from "./data/user"
 import { db } from "./lib/db"
 import authConfig from "./auth.config"
@@ -46,6 +48,14 @@ export const {
           where: { email: user.email || "" },
         })
 
+        if (user.email) {
+          try {
+            await sendLoginNotification({ email: user.email })
+          } catch (error) {
+            console.error("Failed to send login notification:", error)
+          }
+        }
+
         if (!existingUser) {
           return true
         }
@@ -55,6 +65,14 @@ export const {
 
       if (!user.id) {
         return "No user ID"
+      }
+
+      if (account?.provider === "credentials" && user.email) {
+        try {
+          await sendLoginNotification({ email: user.email })
+        } catch (error) {
+          console.error("Failed to send login notification:", error)
+        }
       }
 
       return true

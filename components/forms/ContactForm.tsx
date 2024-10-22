@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { cn } from "@/lib/utils"
 
 import { Button } from "../ui/Button"
-import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/Form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/Form"
 import { Input } from "../ui/Input"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/Select"
 import { Textarea } from "../ui/Textarea"
@@ -20,7 +20,10 @@ interface ContactFormProps {
 export const schema = z.object({
   fullName: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Email is required" }),
-  phoneNumber: z.string().min(1, { message: "Phone number is required" }),
+  phoneNumber: z
+    .string()
+    .min(1, { message: "Phone number is required" })
+    .regex(/^\+[1-9]\d{1,14}$/, { message: "Invalid phone number format. Use international format +XXXXXXXXXXX" }),
   subject: z.string().min(1, { message: "Subject is required" }),
   message: z.string().min(1, { message: "Message is required" }),
 })
@@ -79,6 +82,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, className })
               <FormControl>
                 <Input placeholder="Enter your phone number" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
