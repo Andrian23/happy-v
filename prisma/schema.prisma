@@ -110,18 +110,6 @@ model Reply {
   childReplies  Reply[]  @relation("ReplyToReply")
 }
 
-model Comment {
-  id        String    @id @default(cuid())
-  comment   String
-  createdAt DateTime  @default(now())
-  parentId  String?
-  topicId   String
-  likes     Int       @default(0)
-  userId    String
-  parent    Comment?  @relation("Replies", fields: [parentId], references: [id])
-  replies   Comment[] @relation("Replies")
-}
-
 model CartOrder {
   id              Int      @id @default(dbgenerated("(floor(((random() * (900000)::double precision) + (100000)::double precision)))::integer"))
   userId          String
