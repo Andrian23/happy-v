@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import React from "react"
 import Link from "next/link"
 import { ArrowLeft, Plus } from "lucide-react"
 
@@ -10,21 +10,25 @@ import type { TopicWithAuthor } from "@/actions/topic"
 import { TopicList } from "@/components/community/TopicList"
 import { TopicDialog } from "@/components/dialogs/TopicDialog"
 import PageTopic from "@/components/PageTopic"
-import { Tabs } from "@/components/Tabs"
 import { Button } from "@/components/ui/Button"
+import { Tabs } from "@/components/ui/Tabs"
 
-import { useTopicCreate } from "./Community.hooks"
+import { useTopicList } from "./Community.hooks"
 
 type CommunitySuggestionProps = {
   topics: TopicWithAuthor[]
   count?: number
 }
 
-export const CommunitySuggestion: React.FC<CommunitySuggestionProps> = ({ topics, count }) => {
-  const [activeItem, setActiveItem] = useState(0)
-  const createTopic = useTopicCreate()
-
-  const tabs = useMemo(() => [`Latest (${count})`, "Top", "My posts"], [count])
+export const CommunitySuggestion: React.FC<CommunitySuggestionProps> = ({
+  topics: initialTopics,
+  count: initialCount = 0,
+}) => {
+  const { tabs, activeTab, setActiveTab, filteredTopics, handleTopicCreate } = useTopicList({
+    initialTopics,
+    initialCount,
+    topicType: TopicType.SUGGESTION,
+  })
 
   return (
     <div className="m-[10px] w-[98%] max-md:m-0">
@@ -34,6 +38,7 @@ export const CommunitySuggestion: React.FC<CommunitySuggestionProps> = ({ topics
           Back to community forum
         </Link>
       </PageTopic>
+
       <div className="mt-8 flex h-auto w-full items-center justify-center rounded-2xl bg-grey-200 px-8 py-12">
         <div className="">
           <div className="text-center text-3xl font-semibold text-primary-900">Suggestion Box</div>
@@ -41,9 +46,12 @@ export const CommunitySuggestion: React.FC<CommunitySuggestionProps> = ({ topics
         </div>
       </div>
       <div className="mt-8 flex w-full items-center justify-between max-lg:block">
-        <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
+        <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-        <TopicDialog onSubmit={createTopic} defaultValues={{ type: TopicType.SUGGESTION, title: "", content: "" }}>
+        <TopicDialog
+          onSubmit={handleTopicCreate}
+          defaultValues={{ type: TopicType.SUGGESTION, title: "", content: "" }}
+        >
           <Button variant="primary" className="gap-2">
             <Plus className="h-5 w-5" />
             New topic
@@ -51,7 +59,7 @@ export const CommunitySuggestion: React.FC<CommunitySuggestionProps> = ({ topics
         </TopicDialog>
       </div>
 
-      <TopicList topics={topics} />
+      <TopicList topics={filteredTopics} />
     </div>
   )
 }

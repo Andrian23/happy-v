@@ -1,22 +1,24 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 import type { TopicWithAuthor } from "@/actions/topic"
 import { TopicList } from "@/components/community/TopicList"
 import PageTopic from "@/components/PageTopic"
-import { Tabs } from "@/components/Tabs"
+import { Tabs } from "@/components/ui/Tabs"
+
+import { useTopicList } from "./Community.hooks"
 
 type CommunityNewsProps = {
   topics: TopicWithAuthor[]
   count?: number
 }
 
-export const CommunityNews: React.FC<CommunityNewsProps> = ({ topics, count }) => {
-  const [activeItem, setActiveItem] = useState(0)
-  const tabs = useMemo(() => [`Latest (${count})`, "Top"], [count])
+export const CommunityNews: React.FC<CommunityNewsProps> = ({ topics: initialTopics, count: initialCount = 0 }) => {
+  const { tabs: initTabs, activeTab, setActiveTab, filteredTopics } = useTopicList({ initialTopics, initialCount })
+  const tabs = useMemo(() => initTabs.filter((tab) => tab.value !== "my"), [initTabs])
 
   return (
     <div className="m-[10px] w-[98%] max-md:m-0">
@@ -33,10 +35,10 @@ export const CommunityNews: React.FC<CommunityNewsProps> = ({ topics, count }) =
         </div>
       </div>
       <div className="mt-8 flex w-full items-center justify-between max-lg:block">
-        <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
+        <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
       </div>
 
-      <TopicList topics={topics} />
+      <TopicList topics={filteredTopics} />
     </div>
   )
 }

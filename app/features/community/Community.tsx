@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Plus, Search } from "lucide-react"
@@ -9,16 +9,16 @@ import { TopicWithAuthor } from "@/actions/topic"
 import { TopicList } from "@/components/community/TopicList"
 import { TopicDialog } from "@/components/dialogs/TopicDialog"
 import PageTopic from "@/components/PageTopic"
-import { Tabs } from "@/components/Tabs"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { Tabs } from "@/components/ui/Tabs"
 import com1Image from "@/public/Comment1.svg"
 import com2Image from "@/public/Comment2.svg"
 import communityFlyIcon from "@/public/CommunityFly.svg"
 import communityNewsIcon from "@/public/CommunityNews.svg"
 import communityQuestionIcon from "@/public/CommunityQuestion.svg"
 
-import { useTopicCreate } from "./Community.hooks"
+import { useTopicList } from "./Community.hooks"
 
 const links = [
   {
@@ -49,17 +49,11 @@ type CommunityProps = {
   count?: number
 }
 
-export const Community: React.FC<CommunityProps> = ({ topics, count = 0 }) => {
-  const [activeItem, setActiveItem] = useState(0)
-  const [searchTerm, setSearchTerm] = useState("")
-
-  const createTopic = useTopicCreate()
-
-  const tabs = useMemo(() => [`Latest (${count})`, "Top", "My posts"], [count])
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value)
-  }
+export const Community: React.FC<CommunityProps> = ({ topics: initialTopics, count: initialCount = 0 }) => {
+  const { searchTerm, setActiveTab, setSearchTerm, handleTopicCreate, filteredTopics, tabs, activeTab } = useTopicList({
+    initialTopics,
+    initialCount,
+  })
 
   return (
     <div className="mb-2.5 w-full lg:px-4">
@@ -76,7 +70,7 @@ export const Community: React.FC<CommunityProps> = ({ topics, count = 0 }) => {
             iconPosition="left"
             placeholder="Search for topic..."
             value={searchTerm}
-            onChange={handleSearchChange}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <Image src={com1Image} alt="Comment1" className="absolute bottom-0 left-0 h-[190px] w-[135px]" />
@@ -99,9 +93,9 @@ export const Community: React.FC<CommunityProps> = ({ topics, count = 0 }) => {
         ))}
       </div>
       <div className="mt-8 flex w-full items-center justify-between max-lg:block">
-        <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
+        <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-        <TopicDialog onSubmit={createTopic}>
+        <TopicDialog onSubmit={handleTopicCreate}>
           <Button variant="primary" className="gap-2">
             <Plus className="h-5 w-5" />
             New topic
@@ -109,7 +103,7 @@ export const Community: React.FC<CommunityProps> = ({ topics, count = 0 }) => {
         </TopicDialog>
       </div>
 
-      <TopicList topics={topics} />
+      <TopicList topics={filteredTopics} searchTerm={searchTerm} />
     </div>
   )
 }

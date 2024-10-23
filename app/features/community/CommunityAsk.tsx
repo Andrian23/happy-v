@@ -1,28 +1,31 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import React from "react"
 import Link from "next/link"
 import { ArrowLeft, Plus } from "lucide-react"
+
+import { TopicType } from "@prisma/client"
 
 import type { TopicWithAuthor } from "@/actions/topic"
 import { TopicList } from "@/components/community/TopicList"
 import { TopicDialog } from "@/components/dialogs/TopicDialog"
 import PageTopic from "@/components/PageTopic"
-import { Tabs } from "@/components/Tabs"
 import { Button } from "@/components/ui/Button"
+import { Tabs } from "@/components/ui/Tabs"
 
-import { useTopicCreate } from "./Community.hooks"
+import { useTopicList } from "./Community.hooks"
 
 type CommunityAskProps = {
   topics: TopicWithAuthor[]
   count?: number
 }
 
-export const CommunityAsk: React.FC<CommunityAskProps> = ({ topics, count }) => {
-  const [activeItem, setActiveItem] = useState(0)
-  const createTopic = useTopicCreate()
-
-  const tabs = useMemo(() => [`Latest (${count})`, "Top", "My posts"], [count])
+export const CommunityAsk: React.FC<CommunityAskProps> = ({ topics: initialTopics, count: initialCount = 0 }) => {
+  const { tabs, activeTab, setActiveTab, filteredTopics, handleTopicCreate } = useTopicList({
+    initialTopics,
+    initialCount,
+    topicType: TopicType.ASK,
+  })
 
   return (
     <div className="m-[10px] w-[98%] max-md:m-0">
@@ -39,9 +42,9 @@ export const CommunityAsk: React.FC<CommunityAskProps> = ({ topics, count }) => 
         </div>
       </div>
       <div className="mt-8 flex w-full items-center justify-between max-lg:block">
-        <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
+        <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-        <TopicDialog onSubmit={createTopic}>
+        <TopicDialog onSubmit={handleTopicCreate}>
           <Button variant="primary" className="gap-2">
             <Plus className="h-5 w-5" />
             New topic
@@ -49,7 +52,7 @@ export const CommunityAsk: React.FC<CommunityAskProps> = ({ topics, count }) => 
         </TopicDialog>
       </div>
 
-      <TopicList topics={topics} />
+      <TopicList topics={filteredTopics} />
     </div>
   )
 }
