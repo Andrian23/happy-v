@@ -2,13 +2,13 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { format } from "date-fns"
+import { formatDistanceToNow } from "date-fns"
 import { ArrowLeft, Heart } from "lucide-react"
 
 import { TopicWithAuthorAndReplies } from "@/actions/topic"
+import PageTopic from "@/components/PageTopic"
 import { TextEditor } from "@/components/TextEditor"
 import { Chat } from "@/icons/Chat"
-import cartIcon from "@/public/Cart.svg"
 
 type TopicDetailsProps = {
   topic: TopicWithAuthorAndReplies | null
@@ -17,22 +17,12 @@ type TopicDetailsProps = {
 export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic }) => {
   return (
     <div className="my-2.5 w-full lg:px-4">
-      <div className="flex h-auto w-full items-center justify-between">
-        <Link href="/community">
-          <div className="flex items-center justify-start">
-            <ArrowLeft width={20} height={20} color="#7F85A4" />
-            <div className="ml-2 text-sm text-[#7F85A4]">Back to community forum</div>
-          </div>
+      <PageTopic>
+        <Link href="/community" className="flex items-center gap-2 text-sm text-grey-800">
+          <ArrowLeft className="h-5 w-5" />
+          Back to community forum
         </Link>
-
-        <div className="relative block h-12 w-8 max-md:hidden">
-          <Link href="/cart">
-            <Image src={cartIcon} alt="Cart" className="absolute right-[5px] top-[5px] h-[25px] w-[25px]" />
-            <div className="absolute right-0 top-0 z-[2] h-[14px] w-[14px] rounded-full bg-primary-500"></div>
-            <div className="absolute right-px top-px z-[3] rounded-full px-[3px] text-[10px] text-white">{3}</div>
-          </Link>
-        </div>
-      </div>
+      </PageTopic>
 
       {topic && (
         <div className="mt-4">
@@ -41,7 +31,7 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic }) => {
             <div className="mt-1 flex items-center justify-start">
               <Chat className="text-grey-800" />
               <div className="ml-2 text-sm text-grey-800">
-                {topic._count.replies} replies • {format(new Date(topic.createdAt), "PPP")}
+                {topic._count.replies} replies • {formatDistanceToNow(topic.createdAt, { addSuffix: true })}
               </div>
             </div>
             <div className="mt-4">
