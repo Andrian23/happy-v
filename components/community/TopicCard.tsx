@@ -1,6 +1,6 @@
 import React from "react"
 import Image from "next/image"
-import { format } from "date-fns"
+import { formatDistanceToNow } from "date-fns"
 
 import { TopicType } from "@prisma/client"
 
@@ -44,7 +44,7 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic }) => {
       </div>
       <div className="flex items-center justify-start gap-1 text-sm text-grey-800">
         <Chat className="h-5 w-5" />
-        {`${topic._count.replies} replies • ${format(topic.createdAt, "PPP")}`}
+        {topic._count.replies} replies • {formatDistanceToNow(topic.createdAt, { addSuffix: true })}
       </div>
     </div>
   )
