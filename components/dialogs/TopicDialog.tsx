@@ -11,7 +11,7 @@ import { type TopicData, topicSchema } from "@/schemas/topic"
 
 import { TextEditor } from "../TextEditor"
 import { Button } from "../ui/Button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/Dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/Dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/Form"
 import { Input } from "../ui/Input"
 import { Label } from "../ui/Label"
@@ -48,6 +48,7 @@ export const TopicDialog: React.FC<TopicDialogProps> = ({
         <DialogHeader className="text-primary-900">
           <DialogTitle className="text-2xl font-bold text-primary-900">Create a New Topic</DialogTitle>
         </DialogHeader>
+        <DialogDescription />
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-5 px-4 pb-6 lg:px-6">
             <FormField
@@ -108,7 +109,7 @@ export const TopicDialog: React.FC<TopicDialogProps> = ({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <TextEditor onChange={(content) => field.onChange(content)} />
+                    <TextEditor value={field.value} onChange={(content) => field.onChange(content)} />
                   </FormControl>
                 </FormItem>
               )}
