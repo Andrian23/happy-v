@@ -1,20 +1,38 @@
 "use client"
 
-import Image from "next/image"
+import { useCallback, useState } from "react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
-import { ArrowLeft, Heart } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 
+import { createReply } from "@/actions/reply"
 import { TopicWithAuthorAndReplies } from "@/actions/topic"
+import { AuthorHeading } from "@/components/community/AuthorHeading"
+import { TopicContent } from "@/components/community/TopicContent"
+import { ReplyForm } from "@/components/forms/ReplyForm"
 import PageTopic from "@/components/PageTopic"
-import { TextEditor } from "@/components/TextEditor"
 import { Chat } from "@/icons/Chat"
 
 type TopicDetailsProps = {
   topic: TopicWithAuthorAndReplies | null
 }
 
-export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic }) => {
+export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic: initialTopic }) => {
+  const [topic, setTopic] = useState<TopicWithAuthorAndReplies | null>(initialTopic)
+
+  const handleReply = useCallback(
+    async (data: { content: string }) => {
+      if (topic === null) return
+
+      const reply = await createReply(topic.id, data)
+
+      setTopic((prev) =>
+        prev ? { ...prev, replies: [...prev.replies, reply], _count: { replies: prev._count.replies + 1 } } : null
+      )
+    },
+    [topic]
+  )
+
   return (
     <div className="my-2.5 w-full lg:px-4">
       <PageTopic>
@@ -24,54 +42,38 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic }) => {
         </Link>
       </PageTopic>
 
-      {topic && (
-        <div className="mt-4">
-          <div className="mt-1">
-            <div className="text-2xl font-semibold text-primary-900">{topic.title}</div>
-            <div className="mt-1 flex items-center justify-start">
-              <Chat className="text-grey-800" />
-              <div className="ml-2 text-sm text-grey-800">
+      <div className="max-w-2xl">
+        {topic && (
+          <>
+            <div className="mt-3">
+              <h2 className="text-2xl font-bold text-primary-900">{topic.title}</h2>
+              <div className="mt-2 flex items-center gap-1 text-sm text-grey-800">
+                <Chat />
                 {topic._count.replies} replies • {formatDistanceToNow(topic.createdAt, { addSuffix: true })}
               </div>
             </div>
-            <div className="mt-4">
-              <div className="flex items-center justify-start">
-                <div className="relative h-10 w-10 rounded-full bg-grey-400">
-                  {topic.author.image && (
-                    <Image src={topic.author.image} alt="Profile image" className="object-contain" />
-                  )}
-                </div>
-                <div className="ml-2 text-sm font-medium text-primary-900">
-                  <div className="text-sm text-primary-900">
-                    {`${topic.author.name} ${topic.author.lastName} · ${topic.author.type_proffesion}`}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-start">
-                <div className="p-auto my-2 mr-2 h-[15rem] w-[40px]">
-                  <div className="m-auto h-[100%] w-[3px] border-l border-gray-400"></div>
-                </div>
-                <div className="w-[65%] text-sm text-primary-900 max-lg:w-full">
-                  <div dangerouslySetInnerHTML={{ __html: topic.content }} />
-                  <div className="mt-3 flex items-center justify-end">
-                    <Heart onClick={() => {}} className="cursor-pointer text-primary-500" />
-                    <div className="ml-2 text-primary-500">{0}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
-      <div className="mt-6 w-[70%] rounded-2xl bg-grey-200 p-4 max-lg:w-full">
-        <div className="mb-[20px] text-2xl font-semibold text-primary-900">Reply</div>
-        <TextEditor onChange={() => {}} />
-        <div className="mt-4 flex items-center justify-end">
-          <div className="cursor-pointer rounded-full bg-primary-500 px-4 py-2 text-sm text-white" onClick={() => {}}>
-            Send
+            <AuthorHeading author={topic.author} className="mt-8" />
+            <TopicContent content={topic.content} />
+          </>
+        )}
+
+        {topic?.replies && topic.replies.length > 0 && (
+          <div className="mt-3">
+            <h3 className="text-xl font-bold text-primary-900">{topic.replies.length} Replies</h3>
+
+            <ul>
+              {topic?.replies.map((reply) => (
+                <li key={reply.id}>
+                  <AuthorHeading author={reply.author} createdAt={reply.createdAt} className="mt-3" />
+                  <TopicContent content={reply.content} />
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        )}
+
+        <ReplyForm onSubmit={handleReply} />
       </div>
     </div>
   )
