@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useCallback } from "react"
 import {
   AlignCenter,
@@ -14,12 +15,8 @@ import {
   UnderlineIcon,
 } from "lucide-react"
 
-import Blockquote from "@tiptap/extension-blockquote"
-import BulletList from "@tiptap/extension-bullet-list"
-import Italic from "@tiptap/extension-italic"
 import Link from "@tiptap/extension-link"
 import Placeholder from "@tiptap/extension-placeholder"
-import Strike from "@tiptap/extension-strike"
 import TextAlign from "@tiptap/extension-text-align"
 import Underline from "@tiptap/extension-underline"
 import { type EditorEvents, EditorProvider, useCurrentEditor } from "@tiptap/react"
@@ -28,27 +25,27 @@ import StarterKit from "@tiptap/starter-kit"
 import { ToggleGroup, ToggleGroupItem } from "./ui/ToggleGroup"
 
 const extensions = [
-  StarterKit,
+  StarterKit.configure({
+    bulletList: {
+      HTMLAttributes: {
+        class: "list-inside list-disc [&>li>p]:inline",
+      },
+    },
+    blockquote: {
+      HTMLAttributes: {
+        class: "border-l-2  border-primary-500 my-4 pl-4",
+      },
+    },
+  }),
   Placeholder.configure({
     placeholder: "Type here, drag or paste image",
   }),
-  Italic,
   Underline,
-  Strike,
   TextAlign.configure({
     defaultAlignment: "left",
     types: ["heading", "paragraph"],
   }),
-  BulletList.configure({
-    HTMLAttributes: {
-      class: "list-inside list-disc [&>li>p]:inline",
-    },
-  }),
-  Blockquote.configure({
-    HTMLAttributes: {
-      class: "border-l-2  border-primary-500 my-4 pl-4",
-    },
-  }),
+
   Link.configure({
     protocols: ["ftp", "mailto", "tel"],
     autolink: true,
@@ -192,6 +189,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({ onChange }) => {
       <EditorProvider
         extensions={extensions}
         slotBefore={<Toolbar />}
+        immediatelyRender
         onUpdate={handleChange}
         editorContainerProps={{
           className:
