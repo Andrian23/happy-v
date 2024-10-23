@@ -42,7 +42,11 @@ export type TopicWithAuthor = Prisma.TopicGetPayload<typeof topicWithAuthorAndRe
 export async function getTopics(params?: Partial<Topic>): Promise<{ topics: TopicWithAuthor[]; count: number }> {
   try {
     const [topics, count] = await db.$transaction([
-      db.topic.findMany({ where: params ? params : {}, ...topicWithAuthorAndRepliesCountQuery }),
+      db.topic.findMany({
+        where: params ? params : {},
+        ...topicWithAuthorAndRepliesCountQuery,
+        orderBy: { createdAt: "desc" },
+      }),
       db.topic.count({ where: params ? params : {} }),
     ])
 
