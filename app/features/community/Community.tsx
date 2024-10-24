@@ -92,7 +92,7 @@ export const Community: React.FC<CommunityProps> = ({ topics: initialTopics, cou
           </Link>
         ))}
       </div>
-      <div className="mt-8 flex w-full items-center justify-between max-lg:block">
+      <div className="mt-8 flex w-full flex-wrap items-center justify-between gap-3">
         <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
         <TopicDialog onSubmit={handleTopicCreate}>

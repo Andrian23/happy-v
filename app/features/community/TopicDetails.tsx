@@ -59,10 +59,10 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic: initialTopic 
           <div className="mt-3">
             <h3 className="text-xl font-bold text-primary-900">{topic.replies.length} Replies</h3>
 
-            <ul>
+            <ul className="mt-4 grid gap-5 lg:mt-3 lg:gap-3">
               {topic?.replies.map((reply) => (
                 <li key={reply.id}>
-                  <AuthorHeading author={reply.author} createdAt={reply.createdAt} className="mt-3" />
+                  <AuthorHeading author={reply.author} createdAt={reply.createdAt} />
                   <TopicContent
                     content={reply.content}
                     onLike={() => handleLikeToggle({ replyId: reply.id })}

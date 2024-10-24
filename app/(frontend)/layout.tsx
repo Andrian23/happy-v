@@ -7,7 +7,7 @@ export default function FrontendLayout({ children }: Readonly<{ children: React.
   return (
     <>
       <MenuMobile />
-      <div className="m-[14px] flex max-md:pt-[70px]">
+      <div className="m-[14px] flex">
         <div className="fixed mr-[42px] h-[97%] w-[301px] max-md:hidden">
           <Sidebar />
         </div>

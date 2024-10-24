@@ -35,13 +35,13 @@ export const CommunityAsk: React.FC<CommunityAskProps> = ({ topics: initialTopic
           Back to community forum
         </Link>
       </PageTopic>
-      <div className="mt-8 flex h-auto w-full items-center justify-center rounded-2xl bg-grey-200 px-8 py-12">
-        <div>
-          <div className="text-center text-3xl font-semibold text-primary-900">Ask the Community</div>
-          <div className="mt-2 text-center text-sm text-grey-800">Find answers and ask questions to colleagues</div>
-        </div>
-      </div>
-      <div className="mt-8 flex w-full items-center justify-between max-lg:block">
+
+      <section className="mt-3 grid w-full gap-1.5 rounded-2xl bg-grey-200 px-4 py-6 lg:p-11">
+        <h2 className="text-center text-2xl font-bold text-primary-900 lg:text-3xl">Ask the Community</h2>
+        <p className="text-center text-sm font-medium text-primary-800">Find answers and ask questions to colleagues</p>
+      </section>
+
+      <div className="mt-8 flex w-full flex-wrap items-center justify-between gap-3">
         <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
         <TopicDialog onSubmit={handleTopicCreate}>

@@ -27,7 +27,7 @@ export const ReplyForm: React.FC<ReplyFormProps> = ({ onSubmit, defaultValues = 
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-8 grid gap-5 rounded-2xl bg-grey-200 p-5">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-8 grid gap-5 rounded-2xl lg:bg-grey-200 lg:p-5">
         <h3 className="text-xl font-bold text-primary-900">Reply</h3>
 
         <FormField

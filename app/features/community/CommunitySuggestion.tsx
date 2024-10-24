@@ -39,13 +39,12 @@ export const CommunitySuggestion: React.FC<CommunitySuggestionProps> = ({
         </Link>
       </PageTopic>
 
-      <div className="mt-8 flex h-auto w-full items-center justify-center rounded-2xl bg-grey-200 px-8 py-12">
-        <div className="">
-          <div className="text-center text-3xl font-semibold text-primary-900">Suggestion Box</div>
-          <div className="mt-2 text-center text-sm text-grey-800">Suggest ideas on how to improve Happy V </div>
-        </div>
-      </div>
-      <div className="mt-8 flex w-full items-center justify-between max-lg:block">
+      <section className="mt-3 grid w-full gap-1.5 rounded-2xl bg-grey-200 px-4 py-6 lg:p-11">
+        <h2 className="text-center text-2xl font-bold text-primary-900 lg:text-3xl">Suggestion Box</h2>
+        <p className="text-center text-sm font-medium text-primary-800">Suggest ideas on how to improve Happy V</p>
+      </section>
+
+      <div className="mt-8 flex w-full flex-wrap items-center justify-between gap-3">
         <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
         <TopicDialog
