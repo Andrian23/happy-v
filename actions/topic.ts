@@ -14,7 +14,7 @@ const topicWithAuthorAndRepliesCountQuery = {
     },
     _count: { select: { replies: true } },
   },
-}
+} satisfies Prisma.TopicDefaultArgs
 
 export type TopicWithAuthor = Prisma.TopicGetPayload<typeof topicWithAuthorAndRepliesCountQuery>
 
@@ -61,16 +61,21 @@ const topicWithAuthorAndReplies = {
     author: {
       select: { name: true, lastName: true, type_proffesion: true, image: true },
     },
-    _count: { select: { replies: true } },
     replies: {
+      orderBy: { createdAt: "asc" },
       include: {
         author: {
           select: { name: true, lastName: true, type_proffesion: true, image: true },
         },
+        likes: { select: { userId: true } },
+        _count: { select: { likes: true } },
       },
     },
+    likes: { select: { userId: true } },
+    _count: { select: { replies: true, likes: true } },
   },
-}
+} satisfies Prisma.TopicDefaultArgs
+
 export type TopicWithAuthorAndReplies = Prisma.TopicGetPayload<typeof topicWithAuthorAndReplies>
 
 export async function getTopicById(id: string): Promise<TopicWithAuthorAndReplies | null> {

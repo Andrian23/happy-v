@@ -12,8 +12,10 @@ const replyWithAuthor = {
     author: {
       select: { name: true, lastName: true, type_proffesion: true, image: true },
     },
+    likes: { select: { userId: true } },
+    _count: { select: { likes: true } },
   },
-}
+} satisfies Prisma.ReplyDefaultArgs
 
 export type ReplyWithAuthor = Prisma.ReplyGetPayload<typeof replyWithAuthor>
 
