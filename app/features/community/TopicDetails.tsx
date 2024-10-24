@@ -1,11 +1,11 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useState } from "react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import { formatDistanceToNow } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 
-import { createReply } from "@/actions/reply"
 import { TopicWithAuthorAndReplies } from "@/actions/topic"
 import { AuthorHeading } from "@/components/community/AuthorHeading"
 import { TopicContent } from "@/components/community/TopicContent"
@@ -13,25 +13,17 @@ import { ReplyForm } from "@/components/forms/ReplyForm"
 import PageTopic from "@/components/PageTopic"
 import { Chat } from "@/icons/Chat"
 
+import { useLikes, useReply } from "./Community.hooks"
+
 type TopicDetailsProps = {
   topic: TopicWithAuthorAndReplies | null
 }
 
 export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic: initialTopic }) => {
   const [topic, setTopic] = useState<TopicWithAuthorAndReplies | null>(initialTopic)
-
-  const handleReply = useCallback(
-    async (data: { content: string }) => {
-      if (topic === null) return
-
-      const reply = await createReply(topic.id, data)
-
-      setTopic((prev) =>
-        prev ? { ...prev, replies: [...prev.replies, reply], _count: { replies: prev._count.replies + 1 } } : null
-      )
-    },
-    [topic]
-  )
+  const { data: session } = useSession()
+  const { handleLikeToggle } = useLikes(setTopic)
+  const { handleReply } = useReply(topic?.id, setTopic)
 
   return (
     <div className="my-2.5 w-full lg:px-4">
@@ -54,7 +46,12 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic: initialTopic 
             </div>
 
             <AuthorHeading author={topic.author} className="mt-8" />
-            <TopicContent content={topic.content} />
+            <TopicContent
+              content={topic.content}
+              onLike={() => handleLikeToggle({ topicId: topic.id })}
+              likes={topic._count.likes}
+              isLiked={topic.likes.some((like) => like.userId === session?.user?.id)}
+            />
           </>
         )}
 
@@ -66,7 +63,12 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({ topic: initialTopic 
               {topic?.replies.map((reply) => (
                 <li key={reply.id}>
                   <AuthorHeading author={reply.author} createdAt={reply.createdAt} className="mt-3" />
-                  <TopicContent content={reply.content} />
+                  <TopicContent
+                    content={reply.content}
+                    onLike={() => handleLikeToggle({ replyId: reply.id })}
+                    likes={reply._count.likes}
+                    isLiked={reply.likes.some((like) => like.userId === session?.user?.id)}
+                  />
                 </li>
               ))}
             </ul>

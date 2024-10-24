@@ -1,10 +1,17 @@
+"use client"
+
+import React from "react"
 import { useCallback, useMemo, useState } from "react"
 import { useSession } from "next-auth/react"
 
 import type { TopicType } from "@prisma/client"
 
-import { createTopic, TopicWithAuthor } from "@/actions/topic"
-import { TopicData } from "@/schemas/topic"
+import { toggleLike } from "@/actions/like"
+import { createReply } from "@/actions/reply"
+import { createTopic, type TopicWithAuthor, type TopicWithAuthorAndReplies } from "@/actions/topic"
+import type { TopicData } from "@/schemas/topic"
+
+import { getLikesUpdate } from "./Community.utils"
 
 export const useTopicList = ({
   initialTopics,
@@ -56,4 +63,66 @@ export const useTopicList = ({
   )
 
   return { handleTopicCreate, filteredTopics, tabs, activeTab, setActiveTab, setSearchTerm, searchTerm }
+}
+
+export const useLikes = (setTopic: React.Dispatch<React.SetStateAction<TopicWithAuthorAndReplies | null>>) => {
+  const { data: session } = useSession()
+
+  const handleLikeToggle = useCallback(
+    async ({ topicId, replyId }: { topicId?: string; replyId?: string }) => {
+      const userId = session?.user?.id
+
+      if (!userId) return
+
+      const value = await toggleLike(userId, { topicId, replyId })
+
+      setTopic((prevTopic) => {
+        if (!prevTopic) return null
+
+        if (replyId) {
+          return {
+            ...prevTopic,
+            replies: prevTopic.replies.map((reply) =>
+              reply.id === replyId ? getLikesUpdate(reply, userId, value) : reply
+            ),
+          }
+        }
+
+        if (topicId) {
+          return getLikesUpdate(prevTopic, userId, value)
+        }
+
+        return prevTopic
+      })
+    },
+    [session, setTopic]
+  )
+
+  return { handleLikeToggle }
+}
+
+export const useReply = (
+  topicId: string | undefined,
+  setTopic: React.Dispatch<React.SetStateAction<TopicWithAuthorAndReplies | null>>
+) => {
+  const handleReply = useCallback(
+    async (data: { content: string }) => {
+      if (!topicId) return
+
+      const reply = await createReply(topicId, data)
+
+      setTopic((prevTopic) => {
+        if (!prevTopic) return null
+
+        return {
+          ...prevTopic,
+          replies: [...prevTopic.replies, reply],
+          _count: { ...prevTopic._count, replies: prevTopic._count.replies + 1 },
+        }
+      })
+    },
+    [topicId, setTopic]
+  )
+
+  return { handleReply }
 }
