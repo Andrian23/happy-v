@@ -115,8 +115,8 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
   }, [editor])
 
   return (
-    <div className="flex gap-1 border-b border-grey-400 p-1 text-primary-900">
-      <ToggleGroup size="xs" type="multiple">
+    <div className="flex border-b border-grey-400 py-1 text-primary-900">
+      <ToggleGroup size="xs" type="multiple" className="px-1">
         {formatting.map(({ value, icon: Icon, ariaLabel, tooltip }) => (
           <ToggleGroupItem
             key={value}
@@ -130,7 +130,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
         ))}
       </ToggleGroup>
 
-      <ToggleGroup size="xs" type="single">
+      <ToggleGroup size="xs" type="single" className="border-l border-grey-400 px-1">
         {alignment.map(({ value, icon: Icon, ariaLabel }) => (
           <ToggleGroupItem
             key={value}
@@ -152,7 +152,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <ToggleGroup size="xs" type="single">
+      <ToggleGroup size="xs" type="single" className="border-l border-grey-400 px-1">
         <ToggleGroupItem
           value="quote"
           data-state={editor?.isActive("blockquote") ? "on" : "off"}
