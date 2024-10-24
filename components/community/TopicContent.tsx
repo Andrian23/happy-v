@@ -1,6 +1,6 @@
 import React from "react"
-import { Heart } from "lucide-react"
 
+import { Heart } from "@/icons/Heart"
 import { cn } from "@/lib/utils"
 
 type ContentProps = {
