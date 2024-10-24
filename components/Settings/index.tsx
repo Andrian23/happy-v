@@ -4,6 +4,7 @@ import { FC, useCallback, useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { Plus } from "lucide-react"
 
+import { sendProfileUpdateEmail } from "@/actions/emailEvents"
 import { getShippingAddresses } from "@/actions/shippingAddress"
 import { findUserById } from "@/actions/user"
 import { ChangePasswordForm } from "@/components/forms/ChangePasswordForm"
@@ -23,12 +24,21 @@ import { User } from "@/models/user"
 
 const tabs = ["Basic Info", "Change Password", "Notifications", "Shipping Address", "Payment Method"]
 
+type TabNames = (typeof tabs)[number]
+
+const updateMessages: Record<TabNames, string> = {
+  "Basic Info": "Your basic information has been successfully updated.",
+  "Change Password": "Your password has been successfully changed.",
+  "Shipping Address": "Your shipping information has been successfully updated.",
+}
+
 const Settings: FC = () => {
   const [activeItem, setActiveItem] = useState(0)
   const [showShippingModal, setShippingShowModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [shippingData, setShippingData] = useState<ShippingAddress[]>([])
+  const [isProfileUpdated, setIsProfileUpdated] = useState(false)
 
   const { toast } = useToast()
 
@@ -51,6 +61,7 @@ const Settings: FC = () => {
 
         await response.json()
         toast({ title: "Data updated successfully" })
+        setIsProfileUpdated(true)
       } catch (error) {
         console.error("Failed to upload data:", error)
         toast({ title: "Failed to update data" })
@@ -81,10 +92,29 @@ const Settings: FC = () => {
     fetchShippingAddresses()
   }, [])
 
+  useEffect(() => {
+    if (isProfileUpdated && user?.email) {
+      const tabName = tabs[activeItem]
+
+      const getUpdateMessage = (tabName: string) =>
+        updateMessages[tabName] || `Your settings have been successfully updated. Updated section: ${tabName}.`
+
+      if (tabName) {
+        sendProfileUpdateEmail({ email: user.email, message: getUpdateMessage(tabName) })
+      }
+
+      setIsProfileUpdated(false)
+    }
+  }, [isProfileUpdated, user, activeItem])
+
   return (
     <div className="mb-2.5 w-full lg:px-4">
       {showShippingModal && (
-        <SettingsShippingModal onClose={() => setShippingShowModal(false)} setShippingData={setShippingData} />
+        <SettingsShippingModal
+          onClose={() => setShippingShowModal(false)}
+          setShippingData={setShippingData}
+          setIsProfileUpdated={setIsProfileUpdated}
+        />
       )}
       {showPaymentModal && <SettingsPaymentModal onClose={() => setShowPaymentModal(false)} />}
       <PageTopic name="Account Settings" description="Easy manage your Professional profile" />
@@ -128,13 +158,14 @@ const Settings: FC = () => {
               onSubmit={handleSubmit}
             />
           )}
-          {activeItem === 1 && <ChangePasswordForm />}
+          {activeItem === 1 && <ChangePasswordForm setIsProfileUpdated={setIsProfileUpdated} />}
           {activeItem === 2 && <SettingsNotification />}
           {activeItem === 3 && (
             <SettingsShipping
               setShippingData={setShippingData}
               shippingData={shippingData}
               defaultShippingAddressId={data?.user.defaultShippingAddress}
+              setIsProfileUpdated={setIsProfileUpdated}
             />
           )}
           {activeItem === 4 && <SettingsPayment />}

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { Dispatch, SetStateAction, useState } from "react"
 import Image from "next/image"
 import { Plus } from "lucide-react"
 
@@ -12,12 +12,14 @@ interface SettingsShippingProps {
   defaultShippingAddressId?: number | null
   setShippingData: React.Dispatch<React.SetStateAction<ShippingAddress[]>>
   shippingData: ShippingAddress[]
+  setIsProfileUpdated?: Dispatch<SetStateAction<boolean>>
 }
 
 const SettingsShipping: React.FC<SettingsShippingProps> = ({
   defaultShippingAddressId,
   setShippingData,
   shippingData,
+  setIsProfileUpdated,
 }) => {
   const [empty, setEmpty] = useState(false)
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
@@ -33,8 +35,13 @@ const SettingsShipping: React.FC<SettingsShippingProps> = ({
     try {
       await deleteShippingAddress(id)
       setShippingData((prevData) => prevData.filter((address) => address.id !== id))
-      if (shippingData.length === 1) {
+
+      if (shippingData.length === 0) {
         setEmpty(true)
+      }
+
+      if (setIsProfileUpdated) {
+        setIsProfileUpdated(true)
       }
     } catch (error) {
       console.error("Failed to delete address:", error)
@@ -47,7 +54,13 @@ const SettingsShipping: React.FC<SettingsShippingProps> = ({
 
   return (
     <>
-      {isShowModal && <SettingsShippingModal onClose={() => setIsShowModal(false)} setShippingData={setShippingData} />}
+      {isShowModal && (
+        <SettingsShippingModal
+          onClose={() => setIsShowModal(false)}
+          setShippingData={setShippingData}
+          setIsProfileUpdated={setIsProfileUpdated}
+        />
+      )}
       {showEditModal && shippingData && (
         <SettingsShippingModal
           shippingData={shippingData.find((address) => address.id === selectedAddressId)}
@@ -56,9 +69,10 @@ const SettingsShipping: React.FC<SettingsShippingProps> = ({
             setSelectedAddressId(null)
           }}
           setShippingData={setShippingData}
+          setIsProfileUpdated={setIsProfileUpdated}
         />
       )}
-      {empty ? (
+      {empty || shippingData.length === 0 ? (
         <div className="flex h-[80vh] w-full items-center justify-center">
           <div className="text-center">
             <div className="m-auto w-fit rounded-full bg-grey-200 p-4">
