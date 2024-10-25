@@ -27,14 +27,15 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, searchTerm = "" }) 
     <div className="flex flex-col gap-4 rounded-2xl bg-grey-200 p-4 lg:flex-row lg:justify-between">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-start gap-2.5">
-          <div className="relative h-10 w-10 rounded-full bg-grey-400">
+          <div className="relative h-10 w-10 overflow-hidden rounded-full bg-grey-400">
             {topic.author.image && (
               <Image src={topic.author.image} alt="Profile image" fill className="object-contain" />
             )}
           </div>
           <div className="flex flex-col gap-0.5">
             <div className="text-sm font-semibold text-primary-900">
-              {`${topic.author.name} ${topic.author.lastName} · ${topic.author.type_proffesion}`}
+              {topic.author.name} {topic.author.lastName} {topic.author.type_proffesion && "•"}{" "}
+              {topic.author.type_proffesion}
             </div>
             <div className="flex items-center justify-start gap-1 text-grey-800">
               {topicTypeGroup[topic.type].icon}
