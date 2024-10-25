@@ -17,10 +17,10 @@ export const AuthorHeading: React.FC<AuthorHeadingProps> = ({ author, createdAt,
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div className="relative h-10 w-10 overflow-hidden rounded-full bg-grey-400">
-        {author.image && <Image src={author.image} alt="Profile image" className="object-contain" />}
+        {author.image && <Image src={author.image} alt="Profile image" fill className="object-contain" />}
       </div>
       <p className="text-sm font-semibold text-primary-900">
-        {author.name} {author.lastName} • {author.type_proffesion}
+        {author.name} {author.lastName} {author.type_proffesion && "•"} {author.type_proffesion}
       </p>
       {createdAt && (
         <span className="ml-auto text-xs font-medium text-primary-800">
