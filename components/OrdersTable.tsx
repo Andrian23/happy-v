@@ -1,13 +1,13 @@
 import React from "react"
 
 import { useMediaQuery } from "@/hooks/useMediaQuery"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/Table"
 import { ProductTableCell } from "./ProductTableCell"
 
 interface OrdersTableProps {
-  products: Product[]
+  products: Array<ShopifyProduct & { amount?: number }>
 }
 
 export const OrdersTable: React.FC<OrdersTableProps> = ({ products }) => {
@@ -20,9 +20,9 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ products }) => {
           <ProductTableCell
             key={product.id}
             title={product.title}
-            sku={product.variants[0].sku}
+            sku={product.variants.edges[0].node.sku}
             count={product.amount}
-            image={product.image.src}
+            image={product.images.edges[0]?.node?.src}
             place={index + 1}
             className="border-b border-grey-400 py-4"
           />
@@ -45,7 +45,11 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ products }) => {
           <TableRow key={product.id}>
             <TableCell>{index + 1}</TableCell>
             <TableCell>
-              <ProductTableCell title={product.title} sku={product.variants[0].sku} image={product.image.src} />
+              <ProductTableCell
+                title={product.title}
+                sku={product.variants.edges[0].node.sku}
+                image={product.images.edges[0]?.node?.src}
+              />
             </TableCell>
             <TableCell className="text-right text-sm font-bold text-primary-900">{product.amount}</TableCell>
           </TableRow>

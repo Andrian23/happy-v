@@ -11,7 +11,7 @@ import PageTopic from "@/components/PageTopic"
 import { RecommendationsTable } from "@/components/RecommendationsTable"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import type { Order } from "@/models/order"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 import type { Recommendation } from "@/models/recommendation"
 import bagIcon from "@/public/Bag.svg"
 import cardIcon from "@/public/Card.svg"
@@ -79,7 +79,7 @@ type DashboardProps = {
 export const Dashboard: React.FC<DashboardProps> = ({ orders = [], recommendations = [] }) => {
   const [isHidden, setIsHidden] = useState(false)
   const [period, setPeriod] = useState("last_month")
-  const products = orders.flatMap((order) => JSON.parse(order.products as unknown as string) as Product[])
+  const products = orders.flatMap((order) => JSON.parse(order.products as unknown as string) as ShopifyProduct[])
 
   return (
     <div className="mb-2.5 w-full lg:px-4">

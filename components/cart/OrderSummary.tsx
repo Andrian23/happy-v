@@ -29,7 +29,7 @@ type OrderSummaryProps = {
 
 export const OrderSummary: React.FC<OrderSummaryProps> = ({ onSubmit, buttonLabel, disabled }) => {
   const subtotal = useCartStore((state) =>
-    state.products.reduce((acc, product) => acc + parseFloat(product.variants[0].price) * product.amount, 0)
+    state.products.reduce((acc, product) => acc + parseFloat(product.variants.edges[0].node.price) * product.amount, 0)
   )
   const shippingMethod = useCartStore((state) => state.shippingMethod)
   const isProtected = useCartStore((state) => state.protected)

@@ -71,19 +71,22 @@ const RecommendationsAndTemplatesTab: React.FC<RecommendationsAndTemplatesTabPro
               {product?.title}
             </div>
             <div>
-              {product?.images
+              {product?.images.edges
                 .slice(0, 1)
-                .map((image, imageIdx) => (
-                  <Image
-                    key={imageIdx}
-                    onMouseOver={() => handleShowProductName(`${index}-${product.id}-${idx}`)}
-                    onMouseOut={() => handleShowProductName(null)}
-                    src={image.src}
-                    alt={`Product Image ${imageIdx}`}
-                    width={40}
-                    height={40}
-                  />
-                ))}
+                .map(
+                  (image, imageIdx) =>
+                    image?.node?.src && (
+                      <Image
+                        key={imageIdx}
+                        onMouseOver={() => handleShowProductName(`${index}-${product.id}-${idx}`)}
+                        onMouseOut={() => handleShowProductName(null)}
+                        src={image.node.src}
+                        alt={image.node.altText ?? ""}
+                        width={40}
+                        height={40}
+                      />
+                    )
+                )}
             </div>
           </div>
         ))}

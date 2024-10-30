@@ -1,6 +1,6 @@
 import React from "react"
 
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 
 import ProductGridItem from "../ProductItemGrid"
 import { ProductTableRow } from "../ProductTableRow"
@@ -9,7 +9,7 @@ import type { View } from "../ViewSwitch"
 
 interface ProductItemProps {
   view?: View
-  products: Product[]
+  products: ShopifyProduct[]
 }
 
 export const ProductsLayout: React.FC<ProductItemProps> = ({ products, view = "grid" }) => {

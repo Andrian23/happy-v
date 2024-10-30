@@ -21,14 +21,14 @@ export const RecommendationsTable: React.FC<RecommendationsTableProps> = ({ reco
             <ProductTableCell
               key={product.id}
               title={product.title}
-              sku={product.variants[0].sku}
+              sku={product.variants.edges[0].node.sku}
               count={product.amount}
-              image={product.image.src}
+              image={product.images.edges[0]?.node?.src}
               fullName={`${recommendation.clients[0].firstName} ${recommendation.clients[0].lastName}`}
               email={recommendation.clients[0].email}
               date={new Date(recommendation.created).toLocaleDateString()}
-              total={(parseFloat(product.variants[0].price) * parseInt(product.amount)).toFixed(2)}
-              earnings={(parseFloat(product.variants[0].price) * parseInt(product.amount)).toFixed(2)}
+              total={(parseFloat(product.variants.edges[0].node.price) * parseInt(product.amount)).toFixed(2)}
+              earnings={(parseFloat(product.variants.edges[0].node.price) * parseInt(product.amount)).toFixed(2)}
               className="border-b border-grey-400 py-4"
             />
           ))
@@ -54,7 +54,11 @@ export const RecommendationsTable: React.FC<RecommendationsTableProps> = ({ reco
           recommendation.selectedProducts.map((product) => (
             <TableRow key={recommendation.id}>
               <TableCell>
-                <ProductTableCell title={product.title} sku={product.variants[0].sku} image={product.image.src} />
+                <ProductTableCell
+                  title={product.title}
+                  sku={product.variants.edges[0].node.sku}
+                  image={product.images.edges[0]?.node?.src}
+                />
               </TableCell>
               <TableCell className="text-right text-sm font-medium text-primary-900">{product.amount}</TableCell>
               <TableCell className="text-sm font-bold text-primary-900">
@@ -67,10 +71,10 @@ export const RecommendationsTable: React.FC<RecommendationsTableProps> = ({ reco
                 {new Date(recommendation.created).toLocaleDateString()}
               </TableCell>
               <TableCell className="text-sm font-medium text-primary-900">
-                ${(parseFloat(product.variants[0].price) * parseInt(product.amount)).toFixed(2)}
+                ${(parseFloat(product.variants.edges[0].node.price) * parseInt(product.amount)).toFixed(2)}
               </TableCell>
               <TableCell className="text-right text-sm font-bold text-primary-900">
-                ${(parseFloat(product.variants[0].price) * parseInt(product.amount)).toFixed(2)}
+                ${(parseFloat(product.variants.edges[0].node.price) * parseInt(product.amount)).toFixed(2)}
               </TableCell>
             </TableRow>
           ))

@@ -13,7 +13,7 @@ import { Tabs } from "@/components/Tabs"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { highlightText } from "@/lib/highlightText"
 import { Order } from "@/models/order"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 
 const tabs = ["All", "Fulfilled", "Unfulfilled"]
 
@@ -63,7 +63,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
           {orders.length > 0 && (
             <div className="mt-4">
               {orders?.map((order) => {
-                const products = JSON.parse(order?.products as unknown as string) as Product[]
+                const products = JSON.parse(order?.products as unknown as string) as ShopifyProduct[]
 
                 return (
                   <Link href={`/orders/${order.id}`} key={order.id}>
@@ -89,16 +89,18 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
                       </div>
                       <div className="flex w-[50%] justify-between max-md:mt-2 max-md:w-full">
                         <div className="flex items-center justify-center">
-                          {products?.map((product, index) => (
-                            <Image
-                              key={index}
-                              src={product.images[0].src}
-                              alt="OrderImg"
-                              width={60}
-                              height={60}
-                              className="mx-2"
-                            />
-                          ))}
+                          {products?.map((product, index) =>
+                            product.images.edges[0]?.node?.src ? (
+                              <Image
+                                key={index}
+                                src={product.images.edges[0].node.src}
+                                alt={product.images.edges[0].node.altText ?? ""}
+                                width={60}
+                                height={60}
+                                className="mx-2"
+                              />
+                            ) : null
+                          )}
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="">

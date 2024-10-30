@@ -8,12 +8,12 @@ import { Tabs } from "@/components/ui/Tabs"
 import { type View, ViewSwitch } from "@/components/ViewSwitch"
 import useDraggableScroll from "@/hooks/useDraggableScroll"
 import { useProductFilters } from "@/hooks/useProductFilters"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 
 import { ProductsLayout } from "../../../components/products/ProductsLayout"
 
 type ProductsProps = {
-  products: Product[]
+  products: ShopifyProduct[]
 }
 
 const tabs = [

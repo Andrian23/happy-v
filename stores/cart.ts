@@ -1,17 +1,17 @@
 import { create } from "zustand"
 
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 
 type State = {
-  products: Product[]
+  products: Array<ShopifyProduct & { amount: number }>
   protected: boolean
   shippingMethod: "standard" | "express" | null
 }
 
 type Action = {
-  addProduct: (product: Product, amount: number) => void
-  removeProduct: (productId: number) => void
-  updateCount: (id: number, amount: number) => void
+  addProduct: (product: ShopifyProduct & { amount?: number }, amount: number) => void
+  removeProduct: (productId: string) => void
+  updateCount: (id: string, amount: number) => void
   setProtected: () => void
   setShippingMethod: (method: "standard" | "express") => void
 }

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 interface ProductTableCellProps {
   title: string
   sku: string
-  image: string
+  image?: string
   count?: string | number
   place?: number
   className?: string
@@ -34,7 +34,7 @@ export const ProductTableCell: React.FC<ProductTableCellProps> = ({
     <div className={cn("flex flex-col", className)}>
       {place && <div className="text-sm text-grey-800">{place} place</div>}
       <div className="flex items-center gap-4">
-        <Image src={image} alt="Product Image" width={52} height={52} />
+        {image && <Image src={image} alt="Product Image" width={52} height={52} />}
         <div className="flex flex-col gap-1 text-sm text-primary-900">
           <div className="font-semibold">{title}</div>
           <div className="font-normal text-grey-800">{sku}</div>

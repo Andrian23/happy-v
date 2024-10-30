@@ -1,6 +1,6 @@
 import { BillingAddress } from "@/models/billing"
 
-import type { Product } from "./product"
+import type { ShopifyProduct } from "./product"
 import type { ShippingAddress, ShippingMethod } from "./shipping"
 
 interface Fulfillments {
@@ -13,7 +13,7 @@ export interface Order {
   id: number
   userId: string
   email: string
-  products: Product[]
+  products: ShopifyProduct[]
   createdAt: Date
   totalPrice: number
   shippingMethod: ShippingMethod

@@ -1,4 +1,4 @@
-import { getProductById } from "@/actions/productsShopify"
+import { getProductById } from "@/actions/product"
 import { ProductDetails } from "@/app/features/products/ProductDetails"
 
 type Params = {
@@ -6,7 +6,7 @@ type Params = {
 }
 
 export default async function ProductDetailsPage({ params }: Params) {
-  const { product } = await getProductById(params.productId)
+  const product = await getProductById(params.productId)
 
   return <ProductDetails product={product} />
 }

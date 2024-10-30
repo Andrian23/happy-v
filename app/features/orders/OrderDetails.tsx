@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react"
 
 import type { CartItem } from "@/interfaces/cart"
 import type { Order } from "@/models/order"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 import type { ShippingAddress, ShippingMethod } from "@/models/shipping"
 import amazonPayIcon from "@/public/Amazon_Pay.svg"
 import cardIcon from "@/public/Card.svg"
@@ -21,7 +21,7 @@ type OrderPageProps = {
 }
 
 export const OrderDetails: React.FC<OrderPageProps> = ({ order }) => {
-  const products = JSON.parse(order?.products as unknown as string) as Product[]
+  const products = JSON.parse(order?.products as unknown as string) as Array<ShopifyProduct & { amount: number }>
   const shippingMethod = JSON.parse(order?.shippingMethod as unknown as string) as ShippingMethod
   const shippingAddress = JSON.parse(order?.shippingAddress as unknown as string) as ShippingAddress
   const [totalItemCount, setTotalItemCount] = useState(0)
@@ -110,16 +110,23 @@ export const OrderDetails: React.FC<OrderPageProps> = ({ order }) => {
               className="flex h-20 items-center justify-between border-b border-grey-400 p-4 text-sm uppercase text-primary-900"
             >
               <div className="flex w-[25%] items-center">
-                <Image src={product.images[0].src} alt="OrderProduct" width={50} height={50} />
-                <div className="ml-2 font-semibold">{product.name}</div>
+                {product.images.edges[0]?.node?.src && (
+                  <Image
+                    src={product.images.edges[0].node.src}
+                    alt={product.images.edges[0].node.altText ?? ""}
+                    width={50}
+                    height={50}
+                  />
+                )}
+                <div className="ml-2 font-semibold">{product.title}</div>
               </div>
-              <div className="">{product.variants[0].sku}</div>
+              <div className="">{product.variants.edges[0].node.sku}</div>
               <div className="">
-                <div className="text-sm">${product.variants[0].price}</div>
-                <div className="text-[10px]">${product.variants[0].price}</div>
+                <div className="text-sm">${product.variants.edges[0].node.price}</div>
+                <div className="text-[10px]">${product.variants.edges[0].node.price}</div>
               </div>
               <div className="">{product.amount}</div>
-              <div className="">${product.variants[0].price}</div>
+              <div className="">${product.variants.edges[0].node.price}</div>
             </div>
           ))
         ) : (

@@ -1,4 +1,4 @@
-import type { Product } from "./product"
+import { ShopifyProduct } from "./product"
 
 interface Client {
   id: number
@@ -17,7 +17,7 @@ export interface Recommendation {
   clients: Client[]
   created: string
   discount: number
-  selectedProducts: Array<Omit<Product, "amount"> & { amount: string; frequency: string; details: string }>
+  selectedProducts: Array<ShopifyProduct & { amount: string; frequency: string; details: string }>
   status: "ordered" | "not-ordered"
 }
 

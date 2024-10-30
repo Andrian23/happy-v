@@ -10,7 +10,7 @@ import ConfirmOrderItem from "@/components/ConfirmOrderItem"
 import SummaryItem from "@/components/SummaryItem"
 import { Button } from "@/components/ui/Button"
 import type { Order } from "@/models/order"
-import { Product } from "@/models/product"
+import { ShopifyProduct } from "@/models/product"
 import type { ShippingAddress, ShippingMethod } from "@/models/shipping"
 import cardIcon from "@/public/Card.svg"
 import confirmedOrderImage from "@/public/Confirmed_Order.svg"
@@ -30,7 +30,7 @@ type ConfirmedProps = {
 export const Confirmed: React.FC<ConfirmedProps> = ({ order }) => {
   const shippingMethod = JSON.parse(order?.shippingMethod as unknown as string) as ShippingMethod
   const shippingAddress = JSON.parse(order?.shippingAddress as unknown as string) as ShippingAddress
-  const products = JSON.parse(order?.products as unknown as string) as Product[]
+  const products = JSON.parse(order?.products as unknown as string) as ShopifyProduct[]
   const billingAddress = JSON.parse(order?.billingAddress as unknown as string) as ShippingAddress
 
   return (

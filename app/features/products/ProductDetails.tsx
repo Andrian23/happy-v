@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/Button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/DropdownMenu"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { Check } from "@/icons/Check"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 import { useCartStore } from "@/stores/cart"
 
 import PageTopic from "../../../components/PageTopic"
@@ -61,7 +61,7 @@ const ingredients = [
 ]
 
 type ProductDetailsProps = {
-  product: Product
+  product: ShopifyProduct
 }
 
 export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
@@ -82,23 +82,32 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
       <div className="mt-4 flex flex-col gap-4 border-b border-grey-400 pb-6 lg:flex-row lg:gap-10 lg:pb-8">
         <div className="flex aspect-square h-full max-h-64 w-full max-w-80 shrink-0 grow items-center justify-center justify-self-center rounded-2xl bg-grey-200 max-lg:order-1 max-lg:mx-auto">
-          <Image src={product?.image?.src || ""} alt="ProductImage" width={150} height={150} />
+          <Image
+            src={product.images.edges[0].node.src}
+            alt={product.images.edges[0].node.altText ?? ""}
+            width={150}
+            height={150}
+          />
         </div>
         <div className="flex items-center max-lg:order-2 max-lg:w-full">
           <div className="w-full">
             <div className="text-xl font-semibold text-primary-900">{product.title}</div>
-            <div className="mt-2 text-sm text-primary-900">Servings: {product.variants[0].grams} grams</div>
-            <div className="mt-2 text-xs text-grey-800">SKU: {product.variants[0].sku}</div>
+            <div className="mt-2 text-sm text-primary-900">
+              Servings: {product.variants.edges[0].node.inventoryQuantity}
+            </div>
+            <div className="mt-2 text-xs text-grey-800">SKU: {product.variants.edges[0].node.sku}</div>
             <div className="mt-6 text-xs text-grey-800">
-              <span className="line-through">${product.variants[0].price}</span> Retail
+              <span className="line-through">${product.variants.edges[0].node.price}</span> Retail
             </div>
             <div className="flex">
-              <div className="price text-2xl font-semibold text-primary-900">${product.variants[0].price}</div>
+              <div className="price text-2xl font-semibold text-primary-900">
+                ${product.variants.edges[0].node.price}
+              </div>
               <div className="ml-2 mt-4 text-xs text-grey-800">Wholesale</div>
             </div>
 
             <div className="flex">
-              {product && product.status === "active" ? (
+              {product.status === "ACTIVE" ? (
                 <div className="mt-2 flex w-full gap-2">
                   <ProductCounter onCountChange={setCount} />
                   <Button size="md" variant="primary-outline" onClick={() => addToCart(product, count)}>
@@ -177,10 +186,10 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           </Table>
         </div>
 
-        {product.body_html && (
+        {product.descriptionHtml && (
           <div className="text-primary-900 lg:col-span-2">
             <h5 className="text-base font-bold">Description</h5>
-            <div className="mt-2 text-sm" dangerouslySetInnerHTML={{ __html: product.body_html }} />
+            <div className="mt-2 text-sm" dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} />
           </div>
         )}
       </div>
