@@ -1,24 +1,28 @@
-interface ProductImage {
-  src: string
-}
-
-interface ProductVariant {
-  sku: string
-  price: string
-  inventory_quantity: number
-  grams: string
-}
-
-export interface Product {
-  id: number
+export interface ShopifyProduct {
+  id: string
   title: string
-  description: string
-  image: ProductImage
-  images: ProductImage[]
-  name: string
-  variants: ProductVariant[]
-  amount: number
-  status: "active" | "archived" | "draft"
-  body_html: string
-  tags: string
+  descriptionHtml: string
+  tags: string[]
+  status: "ACTIVE" | "ARCHIVED" | "DRAFT"
+  images: {
+    edges: ImageEdge[]
+  }
+  variants: {
+    edges: VariantEdge[]
+  }
+}
+
+export interface ImageEdge {
+  node: {
+    src: string
+    altText: string | null
+  }
+}
+
+export interface VariantEdge {
+  node: {
+    sku: string
+    price: string
+    inventoryQuantity: number
+  }
 }
