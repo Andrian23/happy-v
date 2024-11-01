@@ -22,6 +22,7 @@ const queryProducts = /* GraphQL */ `
           variants(first: 1) {
             edges {
               node {
+                id
                 sku
                 price
                 inventoryQuantity
@@ -67,6 +68,7 @@ const queryProductById = /* GraphQL */ `
       variants(first: 1) {
         edges {
           node {
+            id
             sku
             price
             inventoryQuantity

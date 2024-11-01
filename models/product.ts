@@ -21,6 +21,7 @@ export interface ImageEdge {
 
 export interface VariantEdge {
   node: {
+    id: string
     sku: string
     price: string
     inventoryQuantity: number
