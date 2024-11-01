@@ -1,9 +1,11 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 
+import { createTicketAction } from "@/actions/contact-us"
+import { useToast } from "@/components/ui/useToast"
 import { cn } from "@/lib/utils"
 
 import { Button } from "../ui/Button"
@@ -13,7 +15,6 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Textarea } from "../ui/Textarea"
 
 interface ContactFormProps {
-  onSubmit: (data: ContactFormData) => void
   className?: string
 }
 
@@ -41,12 +42,38 @@ const selectOptions = [
   { value: "other", label: "Other" },
 ]
 
-export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, className }) => {
-  const form = useForm<ContactFormData>({ resolver: zodResolver(schema) })
+export const ContactForm: React.FC<ContactFormProps> = ({ className }) => {
+  const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false)
+
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { fullName: "", email: "", phoneNumber: "", subject: "", message: "" },
+  })
+  const { toast } = useToast()
+
+  const handleSubmit = async (contactData: ContactFormData) => {
+    const response = await createTicketAction(contactData)
+
+    if (response.success) {
+      toast({ title: "Your form has been submitted successfully!" })
+      setIsSubmitSuccessful(true)
+    } else {
+      console.error(response.message)
+      toast({ title: "There was an issue submitting your form. Please try again." })
+      setIsSubmitSuccessful(false)
+    }
+  }
+
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      form.reset()
+      setIsSubmitSuccessful(false)
+    }
+  }, [isSubmitSuccessful, form])
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn("flex flex-col gap-5", className)}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className={cn("flex flex-col gap-5", className)}>
         <FormField
           control={form.control}
           name="fullName"
@@ -93,7 +120,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, className })
           render={({ field }) => (
             <FormItem>
               <FormLabel>Subject*</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value || ""}>
                 <FormControl>
                   <SelectTrigger className="mt-2 w-full rounded-xl">
                     <SelectValue placeholder="Select one" />
