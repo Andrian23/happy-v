@@ -28,11 +28,11 @@ const SignUpReviewPage = () => {
 
       <div className="mb-[20px] mt-[32px] rounded-[8px] bg-grey-200 p-[16px] text-sm text-primary-900">
         By creating an account, I agree to the Happy V{" "}
-        <Link href="/terms" className="text-primary-500">
+        <Link href="https://happyv.com/policies/terms-of-service" target="_blank" className="text-primary-500">
           Terms of Service
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" className="text-primary-500">
+        <Link href="https://happyv.com/policies/privacy-policy" target="_blank" className="text-primary-500">
           Privacy Policy
         </Link>
       </div>
