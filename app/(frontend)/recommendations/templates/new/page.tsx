@@ -73,7 +73,6 @@ const RecommendationsNewTemplatePage = () => {
       document.body.classList.remove("no-scroll")
     }
 
-    // Clean up function to remove the class when the component unmounts
     return () => {
       document.body.classList.remove("no-scroll")
     }

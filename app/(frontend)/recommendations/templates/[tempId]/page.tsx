@@ -97,7 +97,6 @@ const RecommendationsTemplatePage = () => {
       document.body.classList.remove("no-scroll")
     }
 
-    // Clean up function to remove the class when the component unmounts
     return () => {
       document.body.classList.remove("no-scroll")
     }
@@ -126,10 +125,10 @@ const RecommendationsTemplatePage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true) // Встановлення завантаження перед запитом
+      setIsLoading(true)
       const products = await getProducts()
       setProducts({ products })
-      setIsLoading(false) // Вимкнення завантаження після завершення запиту
+      setIsLoading(false)
     }
     fetchData()
   }, [])
@@ -169,7 +168,6 @@ const RecommendationsTemplatePage = () => {
       sorted = productsToSort.sort((a) => (a.status === "ACTIVE" ? -1 : 1))
     }
 
-    // Перевірка, чи відрізняється новий відсортований список від попереднього
     if (JSON.stringify(sorted) !== JSON.stringify(sortedProducts)) {
       // setSortedProducts(sorted)
     }
