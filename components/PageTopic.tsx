@@ -1,11 +1,11 @@
 "use client"
 
-import React from "react"
+import React, { useEffect } from "react"
 import Link from "next/link"
 
 import { Cart } from "@/icons/Cart"
 import { cn } from "@/lib/utils"
-import { useCartStore } from "@/stores/cart"
+import { useShopifyCartStore } from "@/stores/shopifyCart"
 
 import { Badge } from "./ui/Badge"
 
@@ -17,7 +17,15 @@ interface PageTopicProps {
 }
 
 const PageTopic: React.FC<PageTopicProps> = ({ name, description, children, sticky = false }) => {
-  const count = useCartStore((state) => state.products.reduce((acc, product) => acc + product.amount, 0))
+  const cart = useShopifyCartStore((state) => state.cart)
+
+  const fetchCart = useShopifyCartStore((state) => state.fetchCart)
+
+  const cartCount = cart?.lines.edges.reduce((total, { node }) => total + node.quantity, 0) || 0
+
+  useEffect(() => {
+    fetchCart()
+  }, [fetchCart])
 
   return (
     <div className={cn("bg-white pb-3 pt-4", sticky && "lg:sticky lg:top-0 lg:z-10")}>
@@ -27,7 +35,7 @@ const PageTopic: React.FC<PageTopicProps> = ({ name, description, children, stic
         <Link href="/cart" className="relative ml-auto max-lg:hidden">
           <Cart className="h-6 w-6 text-primary-900" />
           <Badge className="absolute -right-1 -top-1 flex aspect-square min-w-4 items-center justify-center rounded-full p-0.5 text-[10px] leading-none">
-            {count}
+            {cartCount}
           </Badge>
         </Link>
       </div>

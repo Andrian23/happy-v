@@ -3,14 +3,13 @@
 import React, { useState } from "react"
 
 import PageTopic from "@/components/PageTopic"
+import { ProductsLayout } from "@/components/products/ProductsLayout"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from "@/components/ui/Select"
 import { Tabs } from "@/components/ui/Tabs"
 import { type View, ViewSwitch } from "@/components/ViewSwitch"
 import useDraggableScroll from "@/hooks/useDraggableScroll"
 import { useProductFilters } from "@/hooks/useProductFilters"
 import type { ShopifyProduct } from "@/models/product"
-
-import { ProductsLayout } from "../../../components/products/ProductsLayout"
 
 type ProductsProps = {
   products: ShopifyProduct[]

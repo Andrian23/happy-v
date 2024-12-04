@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
+import { servingsNumber } from "@/lib/servingsNumber"
+import { useSupplementInfo } from "@/lib/useSupplementInfo"
 import { cn, extractShopifyProductId } from "@/lib/utils"
 import type { ShopifyProduct } from "@/models/product"
 import { useCartStore } from "@/stores/cart"
@@ -16,6 +18,7 @@ interface ProductGridItemProps {
   isSelected?: boolean
   price?: number
   addLabel?: string
+  isButtonPresent?: boolean
 }
 
 const ProductGridItem: React.FC<ProductGridItemProps> = ({
@@ -24,14 +27,13 @@ const ProductGridItem: React.FC<ProductGridItemProps> = ({
   onAddToCart,
   isSelected,
   addLabel = "Add to Cart",
+  isButtonPresent = true,
 }) => {
   const addProduct = useCartStore((state) => state.addProduct)
   const [count, setCount] = useState(0)
   const [isAdded, setIsAdded] = useState(isSelected)
 
-  useEffect(() => {
-    setIsAdded(isSelected)
-  }, [isSelected])
+  const { supplementInfo } = useSupplementInfo(product)
 
   const handleClick = () => {
     if (onAddToCart) {
@@ -39,6 +41,10 @@ const ProductGridItem: React.FC<ProductGridItemProps> = ({
     }
     setIsAdded(!isAdded)
   }
+
+  useEffect(() => {
+    setIsAdded(isSelected)
+  }, [isSelected])
 
   if (!product.images.edges[0]?.node?.src) return null
 
@@ -65,15 +71,19 @@ const ProductGridItem: React.FC<ProductGridItemProps> = ({
               {product.title.length > 35 ? `${product.title.substring(0, 35)}...` : product.title}
             </h4>
           </Link>
-          <p className="text-xs text-grey-800">Servings: {product.variants.edges[0].node.inventoryQuantity}</p>
-          <p className="mt-4 text-xs text-grey-800 line-through">${product.variants.edges[0].node.price}</p>
-          <div className="flex items-center">
-            <p className="text-lg font-semibold text-primary-900">${product.variants.edges[0].node.price}</p>
-            <p className="ml-1.5 text-xs text-grey-800">Wholesale</p>
+          <p className="text-xs text-grey-800">
+            Servings:{" "}
+            {servingsNumber(supplementInfo?.bottleSizeSecond) || servingsNumber(supplementInfo?.bottleSizeFirst)}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm text-grey-800">From:</p>
+            <p className="text-lg font-semibold text-primary-900">
+              ${parseFloat(product?.priceRange?.minVariantPrice.amount) / 100}
+            </p>
           </div>
         </div>
-
         {product.status === "ACTIVE" &&
+          isButtonPresent &&
           (quantity ? (
             <div className="mt-4 flex items-start justify-start gap-2">
               <ProductCounter onCountChange={setCount} />

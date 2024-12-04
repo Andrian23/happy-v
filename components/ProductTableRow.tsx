@@ -1,22 +1,20 @@
-import React, { useState } from "react"
+import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 
+import { servingsNumber } from "@/lib/servingsNumber"
+import { useSupplementInfo } from "@/lib/useSupplementInfo"
 import { cn, extractShopifyProductId } from "@/lib/utils"
 import type { ShopifyProduct } from "@/models/product"
-import { useCartStore } from "@/stores/cart"
 
-import { Button } from "./ui/Button"
 import { TableCell } from "./ui/Table"
-import { ProductCounter } from "./ProductCounter"
 
 interface ProductTableRowProps {
   product: ShopifyProduct
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({ product }) => {
-  const addProduct = useCartStore((state) => state.addProduct)
-  const [count, setCount] = useState(0)
+  const { supplementInfo } = useSupplementInfo(product)
 
   if (!product.images.edges[0]?.node?.src) return null
 
@@ -37,11 +35,13 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({ product }) => 
             <Link href={`/products/${extractShopifyProductId(product.id)}`} className="text-sm font-semibold">
               {product.title.length > 35 ? `${product.title.substring(0, 35)}...` : product.title}
             </Link>
-            <span className="text-xs text-grey-800">Servings: {product.variants.edges[0].node.inventoryQuantity}</span>
+            <span className="text-xs text-grey-800">
+              Servings:{" "}
+              {servingsNumber(supplementInfo?.bottleSizeSecond) || servingsNumber(supplementInfo?.bottleSizeFirst)}
+            </span>
           </div>
         </div>
       </TableCell>
-      <TableCell className="font-semibold text-grey-800">${product.variants.edges[0].node.price}</TableCell>
       <TableCell className="font-semibold">${product.variants.edges[0].node.price}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2 font-semibold">
@@ -50,16 +50,6 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({ product }) => 
           />
           {product.status === "ACTIVE" ? "Available" : "Not Available"}
         </div>
-      </TableCell>
-      <TableCell>
-        {product.status === "ACTIVE" && (
-          <div className="ml-auto flex justify-end gap-2">
-            <ProductCounter onCountChange={setCount} />
-            <Button size="md" variant="primary-outline" onClick={() => addProduct(product, count)}>
-              Add to Cart
-            </Button>
-          </div>
-        )}
       </TableCell>
     </>
   )

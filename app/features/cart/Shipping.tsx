@@ -1,42 +1,105 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Plus } from "lucide-react"
 
+import { updateShippingAddress, updateShippingMethod } from "@/actions/cart"
 import { getShippingAddresses } from "@/actions/shippingAddress"
 import Breadcrumbs from "@/components/Breadcrumbs"
-import { OrderSummary, shippingMethods } from "@/components/cart/OrderSummary"
+import { OrderSummary } from "@/components/cart/OrderSummary"
 import SettingsShippingModal from "@/components/SettingsShippingModal"
 import ShippingVariant from "@/components/ShippingVariant"
 import { Button } from "@/components/ui/Button"
 import { Label } from "@/components/ui/Label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/RadioGroup"
+import { useShippingMethods } from "@/lib/useShippingMethods"
 import type { ShippingAddress } from "@/models/shipping"
 import { useAddressStore } from "@/stores/address"
 import { useCartStore } from "@/stores/cart"
 
 export const Shipping = () => {
   const router = useRouter()
-  const shippingMethod = useCartStore((state) => state.shippingMethod)
-  const setShippingMethod = useCartStore((state) => state.setShippingMethod)
+  const searchParams = useSearchParams()
+  const { data } = useSession()
 
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [shippingAddresses, setShippingAddresses] = useState<ShippingAddress[]>([])
+
+  const checkoutId = searchParams.get("checkoutId")
+
+  const shippingMethod = useCartStore((state) => state.shippingMethod)
+  const setShippingMethod = useCartStore((state) => state.setShippingMethod)
   const { selectedShippingAddress, setShippingAddress } = useAddressStore()
 
-  const { data } = useSession()
+  const { shippingMethods, totalTaxAmount } = useShippingMethods(checkoutId, selectedShippingAddress)
 
   const handleModalToggle = () => setIsModalVisible(!isModalVisible)
 
-  const handleShipping = useCallback(() => {
-    if (!selectedShippingAddress || !shippingMethod) return
+  const updateAddress = async () => {
+    if (!selectedShippingAddress || !data?.user?.email || !checkoutId) return
 
-    router.push("/payment")
-  }, [router, selectedShippingAddress, shippingMethod])
+    const buyerIdentity = {
+      email: data.user.email,
+      deliveryAddressPreferences: [
+        {
+          deliveryAddress: {
+            firstName: selectedShippingAddress.firstName,
+            lastName: selectedShippingAddress.lastName,
+            address1: selectedShippingAddress.address,
+            address2: selectedShippingAddress.apartmentSuite || "",
+            city: selectedShippingAddress.city,
+            country: selectedShippingAddress.country,
+            province: selectedShippingAddress.stateProvince,
+            zip: selectedShippingAddress.postalZipCode,
+            phone: selectedShippingAddress.phone,
+          },
+        },
+      ],
+    }
 
-  const handleShippingChange = (id: "standard" | "express") => {
+    try {
+      await updateShippingAddress(checkoutId, buyerIdentity)
+    } catch (error) {
+      console.error("Error updating shipping address:", error)
+    }
+  }
+
+  useEffect(() => {
+    if (selectedShippingAddress) {
+      updateAddress()
+    }
+  }, [selectedShippingAddress])
+
+  const handleShipping = useCallback(async () => {
+    if (!selectedShippingAddress || !shippingMethod || !checkoutId) return
+
+    const deliveryOption = shippingMethods.find(({ code }) => code === shippingMethod)
+    if (!deliveryOption) {
+      console.error("Shipping method not found.")
+      return
+    }
+
+    try {
+      const result = await updateShippingMethod(checkoutId, [
+        {
+          deliveryOptionHandle: deliveryOption.handle,
+          deliveryGroupId: deliveryOption.groupId,
+        },
+      ])
+
+      if (result) {
+        router.push(`/payment?checkoutId=${checkoutId}`)
+      } else {
+        console.error("Failed to update shipping method.")
+      }
+    } catch (error) {
+      console.error("Error while updating shipping method:", error)
+    }
+  }, [router, selectedShippingAddress, shippingMethod, checkoutId, shippingMethods])
+
+  const handleShippingChange = (id: string) => {
     setShippingMethod(id)
   }
 
@@ -110,13 +173,13 @@ export const Shipping = () => {
         <div className="mt-10">
           <div className="text-2xl font-semibold text-primary-900">Shipping method</div>
           <div className="mt-4 grid gap-y-4">
-            {Object.entries(shippingMethods).map(([id, { label, price }]) => (
+            {shippingMethods.map(({ code, title, estimatedCost, handle }) => (
               <ShippingVariant
-                key={id}
-                onClick={() => handleShippingChange(id as "standard" | "express")}
-                isSelected={shippingMethod === id}
-                label={label}
-                price={price}
+                key={handle}
+                onClick={() => handleShippingChange(code)}
+                isSelected={shippingMethod === code}
+                label={title || ""}
+                price={estimatedCost?.amount || ""}
               />
             ))}
           </div>
@@ -127,6 +190,8 @@ export const Shipping = () => {
         onSubmit={handleShipping}
         disabled={!selectedShippingAddress || !shippingMethod}
         buttonLabel="To shipping"
+        shippingMethods={shippingMethods}
+        totalTaxAmount={totalTaxAmount}
       />
     </>
   )

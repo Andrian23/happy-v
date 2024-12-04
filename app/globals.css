@@ -20,6 +20,10 @@
     --grey-700: 171 176 197; /* radio button border color */
     --grey-800: 124 142 158; /* placeholder font color */
 
+    /* Green Colors */
+    --green-100: 9 189 48; /* success color */
+
+    /* Red Colors */
     --error-500: 255 106 106; /* error color */
 
     --background: 0 0% 100%;

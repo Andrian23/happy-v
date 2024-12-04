@@ -4,15 +4,17 @@ import { cn } from "@/lib/utils"
 
 interface IngredientsCardProps {
   className?: string
+  servingSize?: string
+  servingsNumber?: string
 }
 
-export const IngredientsCard: React.FC<IngredientsCardProps> = ({ className }) => {
+export const IngredientsCard: React.FC<IngredientsCardProps> = ({ className, servingSize, servingsNumber }) => {
   return (
     <div className={cn("grid gap-5 rounded-2xl bg-grey-200 p-4 text-primary-900 lg:gap-6 lg:p-6", className)}>
       <div className="grid gap-1.5">
         <h5 className="text-base font-bold">Ingredient Amounts</h5>
-        <div className="text-sm">Serving Size: 1 Stick Pack (4.6 grams)</div>
-        <div className="text-sm">Servings Per Container: 15</div>
+        <div className="text-sm">{`Serving Size: ${servingSize}`}</div>
+        <div className="text-sm">{`Servings Per Container: ${servingsNumber}`}</div>
       </div>
 
       <div className="grid gap-1.5">

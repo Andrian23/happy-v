@@ -3,20 +3,21 @@
 import { useCallback, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+// import { useRouter, useSearchParams } from "next/navigation"
 import { Plus } from "lucide-react"
 
 import { Elements } from "@stripe/react-stripe-js"
 import { type Appearance, loadStripe, type PaymentMethod } from "@stripe/stripe-js"
 
-import { placeOrder } from "@/actions/order"
+// import { createOrderShopify } from "@/actions/order"
 import { getPaymentMethods } from "@/actions/paymentIntent"
 import Breadcrumbs from "@/components/Breadcrumbs"
-import { OrderSummary, shippingMethods } from "@/components/cart/OrderSummary"
+// import { OrderSummary } from "@/components/cart/OrderSummary"
 import PaymentModal from "@/components/PaymentModal"
 import SettingsShippingModal from "@/components/SettingsShippingModal"
 import { Button } from "@/components/ui/Button"
 import { useLocalStorage } from "@/hooks"
+// import { useShippingMethods } from "@/lib/useShippingMethods"
 import { cn } from "@/lib/utils"
 import americanExpress from "@/public/american-express.webp"
 import cardIcon from "@/public/Card.svg"
@@ -95,16 +96,24 @@ type PaymentProps = {
 }
 
 export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMethods, defaultPaymentMethod }) => {
+  // const router = useRouter()
+  // const searchParams = useSearchParams()
+
+  const [email] = useLocalStorage<string>("shippingAddress", "", "email")
+
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(initialPaymentMethods)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(defaultPaymentMethod)
-  const router = useRouter()
-
   const [isBillingModalVisible, setIsBillingModalVisible] = useState(false)
 
-  const products = useCartStore((state) => state.products)
+  // const subtotal = useCartStore((state) =>
+  //   state.products.reduce((acc, product) => acc + parseFloat(product.variants.edges[0].node.price) * product.amount, 0)
+  // )
+  // const products = useCartStore((state) => state.products)
   const shippingMethod = useCartStore((state) => state.shippingMethod)
   const { selectedShippingAddress, billingAddress, setBillingAddress } = useAddressStore()
-  const [email] = useLocalStorage<string>("shippingAddress", "", "email")
+
+  // const checkoutId = searchParams.get("checkoutId")
+  // const { shippingMethods, totalTaxAmount } = useShippingMethods(checkoutId, selectedShippingAddress)
 
   const handleBillingModal = () => setIsBillingModalVisible(!isBillingModalVisible)
 
@@ -118,30 +127,86 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
     await refreshPaymentMethods()
   }, [refreshPaymentMethods])
 
-  const handlePlaceOrder = useCallback(
-    async (totalPrice: number) => {
-      if (!selectedPaymentMethod || !shippingMethod || !billingAddress || !selectedShippingAddress) return
-
-      try {
-        const order = await placeOrder({
-          shippingMethod: {
-            type: shippingMethod,
-            price: shippingMethods[shippingMethod].price,
-          },
-          products,
-          totalPrice,
-          paymentMethod: selectedPaymentMethod,
-          shippingAddress: selectedShippingAddress,
-          billingAddress: billingAddress,
-        })
-
-        router.push(`/confirmed/${order.id}`)
-      } catch {
-        console.error("Error uploading order:")
-      }
-    },
-    [router, selectedPaymentMethod, shippingMethod, selectedShippingAddress, billingAddress, products]
-  )
+  // const handlePlaceOrder = useCallback(
+  //   async (totalPrice: number) => {
+  //     if (!selectedPaymentMethod || !shippingMethod || !billingAddress || !selectedShippingAddress) return
+  //
+  //     const { order } = await createOrderShopify({
+  //       lineItems: products.map((product) => ({
+  //         variantId: product.variants.edges[0].node.id,
+  //         quantity: product.amount,
+  //       })),
+  //       transactions: [
+  //         {
+  //           kind: "SALE",
+  //           status: "SUCCESS",
+  //           amountSet: {
+  //             shopMoney: {
+  //               amount: totalPrice.toString(),
+  //               currencyCode: "USD",
+  //             },
+  //           },
+  //         },
+  //       ],
+  //       shippingAddress: {
+  //         firstName: selectedShippingAddress.firstName,
+  //         lastName: selectedShippingAddress.lastName,
+  //         address1: selectedShippingAddress.address,
+  //         address2: selectedShippingAddress.apartmentSuite || "",
+  //         city: selectedShippingAddress.city,
+  //         province: selectedShippingAddress.stateProvince,
+  //         country: selectedShippingAddress.country,
+  //         zip: selectedShippingAddress.postalZipCode,
+  //         phone: selectedShippingAddress.phone,
+  //       },
+  //       billingAddress: {
+  //         firstName: billingAddress.firstName,
+  //         lastName: billingAddress.lastName,
+  //         address1: billingAddress.address,
+  //         address2: billingAddress.apartmentSuite || "",
+  //         city: billingAddress.city,
+  //         province: billingAddress.stateProvince,
+  //         country: billingAddress.country,
+  //         zip: billingAddress.postalZipCode,
+  //         phone: billingAddress.phone,
+  //       },
+  //       shippingLines: [
+  //         {
+  //           title: shippingMethods?.find((method) => method.code === shippingMethod)?.title || "",
+  //           source: "shopify",
+  //           code: "Standard (2-6 days)",
+  //           taxLines: {
+  //             title: "Tax",
+  //             rate: (parseFloat(totalTaxAmount.amount) / subtotal).toString(),
+  //             priceSet: {
+  //               shopMoney: {
+  //                 amount: totalTaxAmount.amount,
+  //                 currencyCode: "UAH",
+  //               },
+  //             },
+  //           },
+  //           priceSet: {
+  //             shopMoney: {
+  //               amount: shippingMethods?.find((method) => method.code === shippingMethod)?.estimatedCost.amount || "",
+  //               currencyCode: "UAH",
+  //             },
+  //             presentmentMoney: {
+  //               amount: shippingMethods?.find((method) => method.code === shippingMethod)?.estimatedCost.amount || "",
+  //               currencyCode: "UAH",
+  //             },
+  //           },
+  //         },
+  //       ],
+  //       payment: {
+  //         paymentMethod: selectedPaymentMethod,
+  //         amount: totalPrice.toString(),
+  //       },
+  //     })
+  //
+  //     router.push(`/confirmed/${order.id.replace("gid://shopify/Order/", "")}`)
+  //   },
+  //   [router, selectedPaymentMethod, shippingMethod, selectedShippingAddress, billingAddress, products]
+  // )
 
   useEffect(() => {
     if (!billingAddress && selectedShippingAddress) {
@@ -189,7 +254,9 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
               <div className="text-sm font-medium text-primary-900">
                 {shippingMethod && (
                   <div>
-                    {shippingMethods[shippingMethod].label} • ${shippingMethods[shippingMethod].price.toFixed(2)}
+                    {/*{shippingMethods?.find((method) => method.code === shippingMethod)?.title} - $*/}
+                    {/*{shippingMethods?.find((method) => method.code === shippingMethod)?.estimatedCost.amount}*/}
+                    {/*{shippingMethods[shippingMethod].label} - ${shippingMethods[shippingMethod].price}*/}
                   </div>
                 )}
               </div>
@@ -291,11 +358,13 @@ export const Payment: React.FC<PaymentProps> = ({ clientSecret, initialPaymentMe
         </div>
       </section>
 
-      <OrderSummary
-        onSubmit={handlePlaceOrder}
-        buttonLabel="Place order"
-        disabled={!selectedPaymentMethod || !selectedShippingAddress || !shippingMethod || !billingAddress}
-      />
+      {/*<OrderSummary*/}
+      {/*  onSubmit={handlePlaceOrder}*/}
+      {/*  buttonLabel="Place order"*/}
+      {/*  disabled={!selectedPaymentMethod || !selectedShippingAddress || !shippingMethod || !billingAddress}*/}
+      {/*  shippingMethods={shippingMethods}*/}
+      {/*  totalTaxAmount={totalTaxAmount}*/}
+      {/*/>*/}
     </>
   )
 }
