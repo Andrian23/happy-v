@@ -10,8 +10,6 @@ import ConfirmOrderItem from "@/components/ConfirmOrderItem"
 import SummaryItem from "@/components/SummaryItem"
 import { Button } from "@/components/ui/Button"
 import type { Order } from "@/models/order"
-import { Product } from "@/models/product"
-import type { ShippingAddress, ShippingMethod } from "@/models/shipping"
 import cardIcon from "@/public/Card.svg"
 import confirmedOrderImage from "@/public/Confirmed_Order.svg"
 
@@ -28,10 +26,10 @@ type ConfirmedProps = {
 }
 
 export const Confirmed: React.FC<ConfirmedProps> = ({ order }) => {
-  const shippingMethod = JSON.parse(order?.shippingMethod as unknown as string) as ShippingMethod
-  const shippingAddress = JSON.parse(order?.shippingAddress as unknown as string) as ShippingAddress
-  const products = JSON.parse(order?.products as unknown as string) as Product[]
-  const billingAddress = JSON.parse(order?.billingAddress as unknown as string) as ShippingAddress
+  const products = order?.lineItems.edges || []
+  const shippingMethod = order?.shippingLine
+  const shippingAddress = order?.shippingAddress
+  const billingAddress = order?.billingAddress
 
   return (
     <div className="h-full w-full bg-grey-200">
@@ -71,18 +69,20 @@ export const Confirmed: React.FC<ConfirmedProps> = ({ order }) => {
             ))}
           </div>
 
-          <>
-            {products.map((product, index) => (
-              <ConfirmOrderItem key={index} product={product} />
-            ))}
-          </>
+          {products && products.length > 0 && (
+            <>
+              {products.map((product, index) => (
+                <ConfirmOrderItem key={index} data={product} />
+              ))}
+            </>
+          )}
 
           <div className="p-5">
             <div className="my-2 flex h-auto w-full items-start justify-between">
               <div className="text-mb font-semibold text-primary-900 max-lg:hidden">Order Summary</div>
               <div className="h-auto w-[35%] rounded-2xl bg-grey-200 p-3 max-lg:w-full">
                 <SummaryItem label="Subtotal" value={`$${order?.totalPrice}`} isBold />
-                <SummaryItem label={shippingMethod?.type} value={shippingMethod?.price} />
+                <SummaryItem label={shippingMethod?.title} value={shippingMethod?.originalPriceSet.shopMoney.amount} />
                 <SummaryItem label="Taxes" value="$0.00" className="border-b border-dashed border-gray-400 pb-3 pt-3" />
                 <SummaryItem label="Total" value={`$${order?.totalPrice}`} isBold />
               </div>

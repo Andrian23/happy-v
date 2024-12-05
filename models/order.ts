@@ -1,28 +1,115 @@
-import { BillingAddress } from "@/models/billing"
+import type { ShopifyProduct } from "./product"
 
-import type { Product } from "./product"
-import type { ShippingAddress, ShippingMethod } from "./shipping"
+interface Money {
+  amount: string
+  currencyCode: string
+}
 
-interface Fulfillments {
-  tracking_url: string
-  tracking_company: string
-  tracking_number: string
+interface PriceSet {
+  shopMoney: Money
+  presentmentMoney?: Money
+}
+
+interface AmountSet {
+  shopMoney: Money
+}
+
+export interface Address {
+  firstName: string
+  lastName: string
+  address1: string
+  address2: string
+  city: string
+  province: string
+  country: string
+  zip: string
+  phone: string
+}
+
+interface Transaction {
+  kind: string
+  status: string
+  amountSet: AmountSet
+}
+
+interface ShippingLine {
+  title: string
+  priceSet: PriceSet
+}
+
+interface Payment {
+  amount: string
+  paymentMethod: string
+}
+
+interface LineItemEdgeNode {
+  title: string
+  quantity: number
+  product: ShopifyProduct
+}
+
+interface LineItem {
+  variantId: string
+  quantity: number
+  edges?: { node: LineItemEdgeNode }[]
+}
+
+interface Fulfillment {
+  trackingInfo: {
+    company: number
+    number: string
+    url: string
+  }
+}
+
+interface ShippingLineDetails extends ShippingLine {
+  originalPriceSet: PriceSet
 }
 
 export interface Order {
-  id: number
-  userId: string
+  id: string
+  name: string
   email: string
-  products: Product[]
-  createdAt: Date
+  createdAt: string
+  updatedAt: string
+  lineItems: LineItem
+  shippingAddress: Address
+  billingAddress: Address
   totalPrice: number
-  shippingMethod: ShippingMethod
-  shippingAddress: ShippingAddress
-  billingAddress: BillingAddress
-  paymentMethod: string
-  financialStatus?: "paid"
-  fulfillmentStatus?: string | null
-  fulfillments?: Fulfillments[]
-  fulfillment_status?: string | null
-  financial_status?: "paid"
+  status: string
+  displayFinancialStatus: string
+  displayFulfillmentStatus: string
+  fulfillments: Fulfillment[]
+  currentSubtotalPriceSet: {
+    shopMoney: Money
+  }
+  currentTaxLines?: {
+    priceSet: {
+      shopMoney: Money
+    }
+  }[]
+  customAttributes?: { key: string; value: string }[]
+  transactions: Transaction[]
+  shippingLines: ShippingLine[]
+  shippingLine: ShippingLineDetails
+  payment: Payment
+}
+
+export interface OrderInput {
+  lineItems: { variantId: string; quantity: number }[]
+  shippingAddress: Address
+  billingAddress: Address
+  transactions: Transaction[]
+  shippingLines: {
+    title: string
+    source: string
+    code: string
+    taxLines: {
+      title: string
+      rate: string
+      priceSet: PriceSet
+    }
+    priceSet: PriceSet
+  }[]
+  payment: Payment
 }

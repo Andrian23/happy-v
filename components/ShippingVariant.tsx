@@ -7,7 +7,7 @@ interface ShippingVariantProps {
   onClick: () => void
   isSelected: boolean
   label: string
-  price: number
+  price: string
 }
 
 const ShippingVariant = ({ onClick, isSelected, label, price }: ShippingVariantProps) => (
@@ -24,7 +24,7 @@ const ShippingVariant = ({ onClick, isSelected, label, price }: ShippingVariantP
       </div>
       <div className="ml-4 text-sm font-semibold text-primary-900">{label}</div>
     </div>
-    <div className="text-sm font-semibold text-primary-900">${price.toFixed(2)}</div>
+    <div className="text-sm font-semibold text-primary-900">${parseFloat(price).toFixed(2)}</div>
   </div>
 )
 

@@ -69,6 +69,9 @@ const config = {
           700: "rgba(var(--grey-700) / <alpha-value>)",
           800: "rgba(var(--grey-800) / <alpha-value>)",
         },
+        green: {
+          100: "rgba(var(--green-100) / <alpha-value>)",
+        },
         error: {
           500: "rgba(var(--error-500) / <alpha-value>)",
         },

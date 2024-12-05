@@ -1,33 +1,41 @@
 "use client"
 
-import { useCallback } from "react"
-import { useRouter } from "next/navigation"
-
 import { OrderSummary } from "@/components/cart/OrderSummary"
 import { ProductCartItem } from "@/components/cart/ProductCartItem"
 import EmptyCart from "@/components/EmptyCart"
-import { useCartStore } from "@/stores/cart"
+import { useCheckout } from "@/hooks/useCheckout"
+import { useShopifyCartStore } from "@/stores/shopifyCart"
 
 export const Cart = () => {
-  const products = useCartStore((state) => state.products)
-  const router = useRouter()
+  const { cart } = useShopifyCartStore()
+  const { handleCheckout } = useCheckout()
+  const isCartEmpty = !cart || cart.lines.edges.length === 0
 
-  const handleCheckout = useCallback(() => {
-    if (products.length === 0) return
-    router.push("/shipping")
-  }, [router, products])
+  const onCheckout = () => {
+    if (!isCartEmpty) {
+      handleCheckout(cart.id)
+    }
+  }
 
   return (
     <>
       <section className="lg:col-span-3">
         <h2 className="text-xl font-semibold text-primary-900">Cart</h2>
         <div className="mt-3 grid gap-3 lg:mt-4 lg:gap-4">
-          {products.length !== 0 && products.map((product) => <ProductCartItem key={product.id} product={product} />)}
+          {cart &&
+            cart?.lines.edges.length > 0 &&
+            cart.lines.edges.map((line) => <ProductCartItem key={line.node.id} product={line} />)}
         </div>
-        {products.length === 0 && <EmptyCart />}
+        {(!cart || cart.lines.edges.length === 0) && <EmptyCart />}
       </section>
 
-      <OrderSummary onSubmit={handleCheckout} buttonLabel="Checkout" disabled={products.length === 0} />
+      <OrderSummary
+        onSubmit={onCheckout}
+        buttonLabel="Checkout"
+        disabled={!cart || cart.lines.edges.length === 0}
+        total={cart?.cost?.subtotalAmount.amount || ""}
+        subtotal={cart?.cost?.subtotalAmount.amount || ""}
+      />
     </>
   )
 }

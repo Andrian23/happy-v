@@ -8,7 +8,7 @@ import { BeatLoader } from "react-spinners"
 
 import { Prisma } from "@prisma/client"
 
-import { getAllProducts } from "@/actions/productsShopify"
+import { getProducts } from "@/actions/product"
 import { getRecommendationById } from "@/actions/recommendation"
 import { updateRecommendation } from "@/actions/recommendation"
 import PageTopic from "@/components/PageTopic"
@@ -23,12 +23,12 @@ import { Textarea } from "@/components/ui/Textarea"
 import { useToast } from "@/components/ui/useToast"
 import { BackArrowIcon, CloseIcon, CrossIcon, MenuIcon, PlusIcon, TriangleDownIcon } from "@/icons"
 import { cn } from "@/lib/utils"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 import type { Recommendation } from "@/models/recommendation"
 import pills from "@/public/pills.png"
 
 interface ProductsState {
-  products: Product[]
+  products: ShopifyProduct[]
 }
 
 const percentages = [0, 3, 8, 10, 12]
@@ -122,8 +122,8 @@ const RecommendationPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
-      const data = await getAllProducts()
-      setProducts(data)
+      const products = await getProducts()
+      setProducts({ products })
       setIsLoading(false)
     }
     fetchData()
@@ -134,11 +134,15 @@ const RecommendationPage = () => {
     let sorted = []
 
     if (select === "low-to-high") {
-      sorted = productsToSort.sort((a, b) => parseFloat(a.variants[0].price) - parseFloat(b.variants[0].price))
+      sorted = productsToSort.sort(
+        (a, b) => parseFloat(a.variants.edges[0].node.price) - parseFloat(b.variants.edges[0].node.price)
+      )
     } else if (select === "high-to-low") {
-      sorted = productsToSort.sort((a, b) => parseFloat(b.variants[0].price) - parseFloat(a.variants[0].price))
+      sorted = productsToSort.sort(
+        (a, b) => parseFloat(b.variants.edges[0].node.price) - parseFloat(a.variants.edges[0].node.price)
+      )
     } else {
-      sorted = productsToSort.sort((a) => (a.status === "active" ? -1 : 1))
+      sorted = productsToSort.sort((a) => (a.status === "ACTIVE" ? -1 : 1))
     }
 
     return sorted
@@ -149,11 +153,15 @@ const RecommendationPage = () => {
     let sorted = []
 
     if (select === "low-to-high") {
-      sorted = productsToSort.sort((a, b) => parseFloat(a.variants[0].price) - parseFloat(b.variants[0].price))
+      sorted = productsToSort.sort(
+        (a, b) => parseFloat(a.variants.edges[0].node.price) - parseFloat(b.variants.edges[0].node.price)
+      )
     } else if (select === "high-to-low") {
-      sorted = productsToSort.sort((a, b) => parseFloat(b.variants[0].price) - parseFloat(a.variants[0].price))
+      sorted = productsToSort.sort(
+        (a, b) => parseFloat(b.variants.edges[0].node.price) - parseFloat(a.variants.edges[0].node.price)
+      )
     } else {
-      sorted = productsToSort.sort((a) => (a.status === "active" ? -1 : 1))
+      sorted = productsToSort.sort((a) => (a.status === "ACTIVE" ? -1 : 1))
     }
 
     // Перевірка, чи відрізняється новий відсортований список від попереднього
@@ -212,7 +220,7 @@ const RecommendationPage = () => {
 
   /* 4. recommendation products */
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: ShopifyProduct) => {
     setFormData((prev) => ({
       ...prev,
       selectedProducts: prev.selectedProducts.some((p) => p.id === product.id)
@@ -221,7 +229,7 @@ const RecommendationPage = () => {
     }))
   }
 
-  const handleRemoveProduct = (productId: number) => {
+  const handleRemoveProduct = (productId: string) => {
     setFormData((prev) => ({
       ...prev,
       selectedProducts: prev?.selectedProducts.filter((p) => p?.id !== productId),
@@ -269,7 +277,7 @@ const RecommendationPage = () => {
 
   const calculateTotalPrice = () => {
     return formData.selectedProducts.reduce((total, product) => {
-      return total + parseFloat(product.variants[0].price)
+      return total + parseFloat(product.variants.edges[0].node.price)
     }, 0)
   }
 
@@ -408,20 +416,29 @@ const RecommendationPage = () => {
                   />
 
                   <div>
-                    <Image src={product?.image.src} alt={product?.image.src} width={70} height={70} />
+                    {product?.images.edges[0]?.node?.src && (
+                      <Image
+                        src={product.images.edges[0].node.src}
+                        alt={product.images.edges[0].node.altText ?? ""}
+                        width={70}
+                        height={70}
+                      />
+                    )}
 
                     <p className="mt-4 text-sm font-semibold text-primary-900">
                       {product?.title.length > 35 ? `${product?.title.substring(0, 35)}...` : product?.title}
                     </p>
                     <p className="mx-0 mb-1.5 mt-0.5 text-xs font-medium leading-normal text-grey-800">
-                      Servings: {product?.variants[0].inventory_quantity}
+                      Servings: {product?.variants.edges[0].node.inventoryQuantity}
                     </p>
                     <p className="mx-0 mb-1.5 mt-0.5 text-xs font-medium leading-normal text-grey-800">
-                      ${product?.variants[0].price} Retail
+                      ${product?.variants.edges[0].node.price} Retail
                     </p>
                     <p className="text-xs font-medium leading-normal text-grey-800">
-                      <span className="mr-1.5 line-through">${product?.variants[0].price}</span>
-                      <span className="text-sm font-semibold text-primary-900">${product?.variants[0].price}</span>
+                      <span className="mr-1.5 line-through">${product?.variants.edges[0].node.price}</span>
+                      <span className="text-sm font-semibold text-primary-900">
+                        ${product?.variants.edges[0].node.price}
+                      </span>
                     </p>
                   </div>
 
@@ -611,7 +628,14 @@ const RecommendationPage = () => {
                         className="flex min-h-[44px] w-[168px] flex-row items-center justify-center gap-2.5 rounded-md border border-grey-400 px-2 py-0"
                         key={product?.id}
                       >
-                        <Image src={product?.image.src} alt={product?.image.src} width={32} height={32} />
+                        {product?.images.edges[0]?.node?.src && (
+                          <Image
+                            src={product.images.edges[0].node.src}
+                            alt={product.images.edges[0].node.altText ?? ""}
+                            width={32}
+                            height={32}
+                          />
+                        )}
                         <p className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold text-primary-900">
                           {product?.title}
                         </p>

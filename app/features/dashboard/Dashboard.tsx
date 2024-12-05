@@ -11,7 +11,7 @@ import PageTopic from "@/components/PageTopic"
 import { RecommendationsTable } from "@/components/RecommendationsTable"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import type { Order } from "@/models/order"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 import type { Recommendation } from "@/models/recommendation"
 import bagIcon from "@/public/Bag.svg"
 import cardIcon from "@/public/Card.svg"
@@ -74,12 +74,15 @@ const terms = [
 type DashboardProps = {
   orders: Order[]
   recommendations: Recommendation[]
+  topOrderedProducts: { product: ShopifyProduct; quantity: number }[]
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ orders = [], recommendations = [] }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ orders = [], recommendations = [], topOrderedProducts }) => {
   const [isHidden, setIsHidden] = useState(false)
   const [period, setPeriod] = useState("last_month")
-  const products = orders.flatMap((order) => JSON.parse(order.products as unknown as string) as Product[])
+  const products = orders.flatMap(
+    (order) => order.lineItems?.edges?.map(({ node }) => node.product) as Array<ShopifyProduct & { amount?: number }>
+  )
 
   return (
     <div className="mb-2.5 w-full lg:px-4">
@@ -140,7 +143,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ orders = [], recommendatio
           buttonLabel="To Wholesale Products"
           className="mt-4 lg:mt-6"
         >
-          {products.length > 0 ? <OrdersTable products={products} /> : null}
+          {products.length > 0 ? <OrdersTable products={topOrderedProducts} /> : null}
         </ListContainer>
 
         <ListContainer

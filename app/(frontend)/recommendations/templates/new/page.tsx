@@ -5,7 +5,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { BeatLoader } from "react-spinners"
 
-import { getAllProducts } from "@/actions/productsShopify"
+import { getProducts } from "@/actions/product"
 import PageTopic from "@/components/PageTopic"
 import ProductGridItem from "@/components/ProductItemGrid"
 import ConfirmationModal from "@/components/Recommendations/components/ConfirmationModal"
@@ -17,12 +17,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Textarea } from "@/components/ui/Textarea"
 import { BackArrowIcon, CloseIcon, CrossIcon, MenuIcon, PlusIcon, TriangleDownIcon } from "@/icons"
 import { cn } from "@/lib/utils"
-import type { Product } from "@/models/product"
+import type { ShopifyProduct } from "@/models/product"
 import { Template } from "@/models/recommendation"
 import pills from "@/public/pills.png"
 
 interface ProductsState {
-  products: Product[]
+  products: ShopifyProduct[]
 }
 
 type TemplateData = Omit<Template, "id" | "userId">
@@ -40,7 +40,7 @@ const RecommendationsNewTemplatePage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [select, setSelect] = useState("")
   const [productRecommendationModal, setProductRecommendationModal] = useState(false)
-  const [hoveredProductId, setHoveredProductId] = useState<number | null>(null)
+  const [hoveredProductId, setHoveredProductId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | number | null>(null)
   const [formData, setFormData] = useState<TemplateData>({
     basicInfo: {
@@ -73,7 +73,6 @@ const RecommendationsNewTemplatePage = () => {
       document.body.classList.remove("no-scroll")
     }
 
-    // Clean up function to remove the class when the component unmounts
     return () => {
       document.body.classList.remove("no-scroll")
     }
@@ -103,8 +102,8 @@ const RecommendationsNewTemplatePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
-      const data = await getAllProducts()
-      setProducts(data)
+      const products = await getProducts()
+      setProducts({ products })
       setIsLoading(false)
     }
     fetchData()
@@ -116,11 +115,15 @@ const RecommendationsNewTemplatePage = () => {
     let sorted = []
 
     if (select === "low-to-high") {
-      sorted = productsToSort.sort((a, b) => parseFloat(a.variants[0].price) - parseFloat(b.variants[0].price))
+      sorted = productsToSort.sort(
+        (a, b) => parseFloat(a.variants.edges[0].node.price) - parseFloat(b.variants.edges[0].node.price)
+      )
     } else if (select === "high-to-low") {
-      sorted = productsToSort.sort((a, b) => parseFloat(b.variants[0].price) - parseFloat(a.variants[0].price))
+      sorted = productsToSort.sort(
+        (a, b) => parseFloat(b.variants.edges[0].node.price) - parseFloat(a.variants.edges[0].node.price)
+      )
     } else {
-      sorted = productsToSort.sort((a) => (a.status === "active" ? -1 : 1))
+      sorted = productsToSort.sort((a) => (a.status === "ACTIVE" ? -1 : 1))
     }
 
     return sorted
@@ -174,7 +177,7 @@ const RecommendationsNewTemplatePage = () => {
 
   /* 4. recommendation products */
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: ShopifyProduct) => {
     setFormData((prev) => ({
       ...prev,
       selectedProducts: prev.selectedProducts.some((p) => p.id === product.id)
@@ -183,7 +186,7 @@ const RecommendationsNewTemplatePage = () => {
     }))
   }
 
-  const handleRemoveProduct = (productId: number) => {
+  const handleRemoveProduct = (productId: string) => {
     setFormData((prev) => ({
       ...prev,
       selectedProducts: prev?.selectedProducts.filter((p) => p?.id !== productId),
@@ -194,7 +197,7 @@ const RecommendationsNewTemplatePage = () => {
     setShowMoreInfo((prev) => !prev)
   }
 
-  const handleMouseEnter = (productId: number) => {
+  const handleMouseEnter = (productId: string) => {
     setHoveredProductId(productId)
   }
 
@@ -237,7 +240,7 @@ const RecommendationsNewTemplatePage = () => {
 
   const calculateTotalPrice = () => {
     return formData.selectedProducts.reduce((total, product) => {
-      return total + parseFloat(product.variants[0].price)
+      return total + parseFloat(product.variants.edges[0].node.price)
     }, 0)
   }
 
@@ -313,17 +316,26 @@ const RecommendationsNewTemplatePage = () => {
                   />
 
                   <div>
-                    <Image src={product?.image.src} alt={product?.image.src} width={70} height={70} />
+                    {product?.images.edges[0]?.node?.src && (
+                      <Image
+                        src={product.images.edges[0].node.src}
+                        alt={product.images.edges[0].node.altText ?? ""}
+                        width={70}
+                        height={70}
+                      />
+                    )}
 
                     <p className="mt-4 text-sm font-semibold text-primary-900">
                       {product?.title.length > 35 ? `${product?.title.substring(0, 35)}...` : product?.title}
                     </p>
                     <p className="mx-0 mb-1.5 mt-0.5 text-xs font-medium leading-normal text-grey-800">
-                      Servings: {product?.variants[0].inventory_quantity}
+                      Servings: {product?.variants.edges[0].node.inventoryQuantity}
                     </p>
                     <p className="text-xs font-medium leading-normal text-grey-800">
-                      <span className="mr-1.5 line-through">${product?.variants[0].price}</span>
-                      <span className="text-sm font-semibold text-primary-900">${product?.variants[0].price}</span>
+                      <span className="mr-1.5 line-through">${product?.variants.edges[0].node.price}</span>
+                      <span className="text-sm font-semibold text-primary-900">
+                        ${product?.variants.edges[0].node.price}
+                      </span>
                     </p>
                   </div>
 
@@ -523,7 +535,14 @@ const RecommendationsNewTemplatePage = () => {
                           </div>
                         )}
 
-                        <Image src={product?.image.src} alt={product?.image.src} width={32} height={32} />
+                        {product?.images.edges[0]?.node?.src && (
+                          <Image
+                            src={product.images.edges[0].node.src}
+                            alt={product.images.edges[0].node.altText ?? ""}
+                            width={32}
+                            height={32}
+                          />
+                        )}
                         <p className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold text-primary-900">
                           {product?.title}
                         </p>

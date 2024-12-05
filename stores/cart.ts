@@ -1,40 +1,68 @@
 import { create } from "zustand"
 
-import type { Product } from "@/models/product"
+import { ShopifyProduct, VariantEdge } from "@/models/product"
+
+type CartProduct = VariantEdge & {
+  amount: number
+  sellingPlanId?: string | null
+}
+
+type ProductVariant = ShopifyProduct["variants"]["edges"][0]
 
 type State = {
-  products: Product[]
+  products: CartProduct[]
   protected: boolean
-  shippingMethod: "standard" | "express" | null
+  shippingMethod: string | null
 }
 
 type Action = {
-  addProduct: (product: Product, amount: number) => void
-  removeProduct: (productId: number) => void
-  updateCount: (id: number, amount: number) => void
+  addProduct: (product: ShopifyProduct | ProductVariant, amount: number, sellingPlanId?: string | null) => void
+  removeProduct: (productId: string) => void
+  updateCount: (id: string, amount: number) => void
   setProtected: () => void
-  setShippingMethod: (method: "standard" | "express") => void
+  setShippingMethod: (method: string) => void
 }
 
 export const useCartStore = create<State & Action>((set) => ({
   products: [],
   protected: false,
   shippingMethod: null,
-  addProduct: (product, amount) =>
+  addProduct: (product, amount = 1, sellingPlanId = null) =>
     set((state) => {
-      const existingProduct = state.products.find((p) => p.id === product.id)
+      const variantProduct = "variants" in product ? product.variants.edges[0] : (product as VariantEdge)
+
+      const existingProduct = state.products.find(
+        (p) => p.node.id === variantProduct.node.id && p.sellingPlanId === sellingPlanId
+      )
+
+      const newProduct = {
+        ...variantProduct,
+        amount: (existingProduct?.amount || 0) + amount,
+        sellingPlanId,
+      }
+
       return {
         products: existingProduct
-          ? state.products.map((p) => (p.id === product.id ? { ...p, amount: p.amount + amount } : p))
-          : [...state.products, { ...product, amount }],
+          ? state.products.map((p) =>
+              p.node.id === variantProduct.node.id && p.sellingPlanId === sellingPlanId ? newProduct : p
+            )
+          : [...state.products, newProduct],
       }
     }),
   removeProduct: (productId) =>
-    set((state) => ({ products: state.products.filter((product) => product.id !== productId) })),
+    set((state) => ({
+      products: state.products.filter((product) => product.node.id !== productId),
+    })),
   updateCount: (productId, amount) =>
     set((state) => ({
-      products: state.products.map((product) => (product.id === productId ? { ...product, amount } : product)),
+      products: state.products.map((product) => (product.node.id === productId ? { ...product, amount } : product)),
     })),
-  setProtected: () => set((state) => ({ protected: !state.protected })),
-  setShippingMethod: (method) => set({ shippingMethod: method }),
+  setProtected: () =>
+    set((state) => ({
+      protected: !state.protected,
+    })),
+  setShippingMethod: (method) =>
+    set({
+      shippingMethod: method,
+    }),
 }))

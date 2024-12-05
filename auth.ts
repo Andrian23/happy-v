@@ -90,6 +90,10 @@ export const {
         session.user.defaultShippingAddress = token.defaultShippingAddress || null
       }
 
+      if (token.telephone && session.user) {
+        session.user.telephone = token.telephone as string
+      }
+
       return session
     },
     async jwt({ token }) {
@@ -102,6 +106,8 @@ export const {
       token.role = existingUser.role
 
       token.defaultShippingAddress = existingUser.defaultShippingAddress || null
+
+      token.telephone = existingUser.telephone || null
 
       return token
     },
