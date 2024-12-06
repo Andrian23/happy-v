@@ -4,6 +4,7 @@ import { FC, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, Ellipsis } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 import { IngredientsCard } from "@/components/IngredientsCard"
 import PageTopic from "@/components/PageTopic"
@@ -11,9 +12,10 @@ import { ProductCounter } from "@/components/ProductCounter"
 import { Button } from "@/components/ui/Button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/DropdownMenu"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
+import { useProductVariant } from "@/hooks/useProductVariant"
+import { useSupplementInfo } from "@/hooks/useSupplementInfo"
 import { Check } from "@/icons/Check"
-import { useSupplementInfo } from "@/lib/useSupplementInfo"
-import { ShopifyProduct, VariantEdge } from "@/models/product"
+import { ShopifyProduct } from "@/models/product"
 import { useShopifyCartStore } from "@/stores/shopifyCart"
 
 interface Ingredient {
@@ -30,54 +32,42 @@ interface ProductDetailsProps {
 
 export const ProductDetails: FC<ProductDetailsProps> = ({ product, ingredients }) => {
   const addToCart = useShopifyCartStore((state) => state.addToCart)
-  const [selectedVariant, setSelectedVariant] = useState<VariantEdge>(product.variants.edges[0])
   const [count, setCount] = useState(1)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [notify, setNotify] = useState(false)
-  const [isOneTimePurchase, setIsOneTimePurchase] = useState(true)
 
   const { supplementInfo } = useSupplementInfo(product)
 
-  const selectedVariantPercentage =
-    selectedVariant.node?.sellingPlanGroups?.edges.length > 0
-      ? selectedVariant.node?.sellingPlanGroups?.edges[0]?.node.sellingPlans.edges[0].node.pricingPolicies[0]
-          .adjustmentValue.percentage
-      : 0
+  const {
+    selectedVariant,
+    setSelectedVariant,
+    isOneTimePurchase,
+    setIsOneTimePurchase,
+    getSelectedSellingPlanGroup,
+    calculatePrice,
+  } = useProductVariant(product)
 
   const handleAddToCart = async () => {
+    setIsAddingToCart(true)
+
     try {
       if (isOneTimePurchase) {
         await addToCart(selectedVariant.node.id, count, null, supplementInfo?.bottleSizeFirst)
         return
       }
 
-      const is30DaySupply = selectedVariant.node.title.includes("30-day")
-      const sellingPlanGroup = selectedVariant.node?.sellingPlanGroups?.edges.find((edge) =>
-        is30DaySupply ? edge.node.name === "Delivery every 1 month" : edge.node.name === "Delivery every 3 months"
-      )
-
+      const sellingPlanGroup = getSelectedSellingPlanGroup()
       const sellingPlanId = sellingPlanGroup?.node?.sellingPlans?.edges[0]?.node?.id || null
 
       await addToCart(selectedVariant.node.id, count, sellingPlanId, supplementInfo?.bottleSizeFirst)
     } catch (error) {
       console.error("Error adding to cart:", error)
+    } finally {
+      setIsAddingToCart(false)
     }
   }
 
-  const getPrice = () => {
-    if (isOneTimePurchase) {
-      return parseFloat(selectedVariant.node.price)
-    }
-
-    return (
-      Math.ceil(
-        (parseFloat(selectedVariant.node.price) -
-          (parseFloat(selectedVariant.node.price) * selectedVariantPercentage) / 100) *
-          100
-      ) / 100
-    )
-  }
-
-  const discountedPrice = getPrice()
+  const discountedPrice = calculatePrice()
 
   return (
     <div className="my-2.5 block h-screen w-full lg:px-4">
@@ -154,9 +144,22 @@ export const ProductDetails: FC<ProductDetailsProps> = ({ product, ingredients }
             <div className="flex">
               {product.status === "ACTIVE" && selectedVariant.node.inventoryQuantity !== 0 ? (
                 <div className="mt-2 flex w-full gap-2">
-                  <ProductCounter onCountChange={setCount} />
-                  <Button size="md" variant="primary-outline" onClick={handleAddToCart}>
-                    Add to Cart
+                  <ProductCounter onCountChange={setCount} idDisabled={isAddingToCart} />
+                  <Button
+                    size="md"
+                    variant="primary-outline"
+                    onClick={handleAddToCart}
+                    disabled={isAddingToCart}
+                    className="min-w-[120px]"
+                  >
+                    {isAddingToCart ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Adding...
+                      </div>
+                    ) : (
+                      "Add to Cart"
+                    )}
                   </Button>
                 </div>
               ) : (
