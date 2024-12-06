@@ -23,8 +23,8 @@ export const IngredientsCard: React.FC<IngredientsCardProps> = ({
     <div className={cn("grid gap-5 rounded-2xl bg-grey-200 p-4 text-primary-900 lg:gap-6 lg:p-6", className)}>
       <div className="grid gap-1.5">
         <h5 className="text-base font-bold">Ingredient Amounts</h5>
-        <div className="text-sm">{`Serving Size: ${servingSize}`}</div>
-        <div className="text-sm">{`Servings Per Container: ${servingsNumber}`}</div>
+        {servingSize && <div className="text-sm">{`Serving Size: ${servingSize}`}</div>}
+        {servingsNumber && <div className="text-sm">{`Servings Per Container: ${servingsNumber}`}</div>}
       </div>
 
       <div className="grid gap-1.5">
