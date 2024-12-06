@@ -17,6 +17,9 @@ interface SupplementInfo {
   bottleSizeFirst: string
   bottleSizeSecond: string
   notes: SupplementNotes
+  howToUse: string
+  allergyWarning: string
+  storage: string
 }
 
 const extractMetafieldValue = (metafields: MetafieldEdge[], key: string): string => {
@@ -120,6 +123,9 @@ const createEmptySupplementInfo = (): SupplementInfo => ({
     dvNote: "",
     percentDailyValue: "",
   },
+  howToUse: "",
+  allergyWarning: "",
+  storage: "",
 })
 
 export function useSupplementInfo(product: ShopifyProduct) {
@@ -145,6 +151,9 @@ export function useSupplementInfo(product: ShopifyProduct) {
         bottleSizeFirst: extractMetafieldValue(metafields, "product_bottle_size_2"),
         bottleSizeSecond: extractMetafieldValue(metafields, "p_serving"),
         notes: parsedInfo.notes,
+        howToUse: extractMetafieldValue(metafields, "p_how_to_use"),
+        allergyWarning: extractMetafieldValue(metafields, "p_allergy_warning"),
+        storage: extractMetafieldValue(metafields, "p_storage"),
       })
     } catch (error) {
       console.error("Error extracting supplement info:", error)

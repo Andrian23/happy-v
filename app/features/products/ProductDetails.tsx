@@ -199,6 +199,9 @@ export const ProductDetails: FC<ProductDetailsProps> = ({ product, ingredients }
           className="lg:col-start-3"
           servingSize={supplementInfo?.servingSize}
           servingsNumber={supplementInfo?.servingsNumber}
+          howToUse={supplementInfo?.howToUse}
+          allergyWarning={supplementInfo?.allergyWarning}
+          storage={supplementInfo?.storage}
         />
 
         <div className="text-primary-900 lg:col-span-2 lg:col-start-1 lg:row-start-1">
