@@ -1,7 +1,5 @@
 import SetPageComponent from "@/components/ambassador/ambassador-form/set"
 
-const SetPage = () => {
+export default function SetPage() {
   return <SetPageComponent />
 }
-
-export default SetPage

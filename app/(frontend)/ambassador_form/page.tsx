@@ -1,7 +1,5 @@
 import AmbassadorForm from "@/components/ambassador/ambassador-form"
 
-const AmbassadorFormPage = () => {
+export default function AmbassadorFormPage() {
   return <AmbassadorForm />
 }
-
-export default AmbassadorFormPage

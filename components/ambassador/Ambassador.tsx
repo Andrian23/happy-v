@@ -106,13 +106,13 @@ const Ambassador: FC = () => {
               <Image src={ambassadorImage} alt="Ambassador" className="object-cover" fill />
             </div>
             <div className="w-full lg:max-w-md">
-              <div className="text-2xl font-semibold leading-8 text-primary-900">
+              <h3 className="text-2xl font-semibold leading-8 text-primary-900">
                 Would You Like to Become a More Active Partner of Happy V?
-              </div>
-              <div className="mt-4 text-sm font-normal text-grey-800">
+              </h3>
+              <p className="mt-4 text-sm font-normal text-grey-800">
                 Great, become a Happy V ambassador, promote your favorite brand on social media and at professional
                 events and earn extra income from Happy V.
-              </div>
+              </p>
               <div className="mt-6">
                 <Button variant="primary" onClick={() => router.push("/ambassador_form")}>
                   Become an Ambassador
@@ -121,7 +121,7 @@ const Ambassador: FC = () => {
             </div>
           </div>
           <div className="mt-13">
-            <div className="text-xl font-bold text-primary-900">How it Works</div>
+            <h3 className="text-xl font-bold text-primary-900">How it Works</h3>
             <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:gap-4">
               {steps.map(({ image, title, description }, index) => (
                 <div className="flex flex-1 gap-4 lg:basis-1/5 lg:flex-col" key={title}>
@@ -138,8 +138,8 @@ const Ambassador: FC = () => {
                     )}
                   </div>
                   <div className="flex max-w-full flex-col gap-y-1.5 lg:max-w-52">
-                    <div className="text-sm font-semibold text-primary-900">{title}</div>
-                    <div className="text-sm text-grey-800">{description}</div>
+                    <h4 className="text-sm font-semibold text-primary-900">{title}</h4>
+                    <p className="text-sm text-grey-800">{description}</p>
                   </div>
                 </div>
               ))}
