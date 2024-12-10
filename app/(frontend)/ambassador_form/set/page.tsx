@@ -1,4 +1,4 @@
-import SetPageComponent from "@/components/AmbassadorForm/Set"
+import SetPageComponent from "@/components/ambassador/ambassador-form/set"
 
 const SetPage = () => {
   return <SetPageComponent />

@@ -1,6 +1,6 @@
 "use server"
 
-import { db } from "../lib/db"
+import { db } from "@/lib/db"
 
 export async function toggleLike(userId: string, { topicId, replyId }: { topicId?: string; replyId?: string }) {
   if (!topicId && !replyId) {

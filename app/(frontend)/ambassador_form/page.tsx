@@ -1,4 +1,4 @@
-import AmbassadorForm from "@/components/AmbassadorForm"
+import AmbassadorForm from "@/components/ambassador/ambassador-form"
 
 const AmbassadorFormPage = () => {
   return <AmbassadorForm />
