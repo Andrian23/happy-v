@@ -40,6 +40,7 @@ const config = {
         34: "8.5rem",
       },
       fontSize: {
+        "2.5xl": "1.75rem",
         "3xl": "2rem",
       },
       gap: {
@@ -127,6 +128,9 @@ const config = {
       },
       boxShadow: {
         soft: "0 8px 24px rgba(42, 50, 52, 0.08)",
+      },
+      aspectRatio: {
+        "5/4": "1.25",
       },
     },
   },
