@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
   images: {
     domains: ["cdn.shopify.com", "s3-alpha-sig.figma.com", "lh3.googleusercontent.com", "res.cloudinary.com"],
   },

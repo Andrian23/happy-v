@@ -8,7 +8,10 @@ import type { User } from "@/models/user"
 
 import { findUserById, updateUser } from "./user"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const stripe = require("stripe")({
+  apiKey: process.env.STRIPE_SECRET_KEY,
+})
 
 export type PaymentMethodResponse = {
   defaultPaymentMethod: string | null
