@@ -25,14 +25,14 @@ TableBody.displayName = "TableBody"
 
 const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <tfoot ref={ref} className={cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className)} {...props} />
+    <tfoot ref={ref} className={cn("bg-muted/50 border-t font-medium last:[&>tr]:border-b-0", className)} {...props} />
   )
 )
 TableFooter.displayName = "TableFooter"
 
 const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
   ({ className, ...props }, ref) => (
-    <tr ref={ref} className={cn("border-b transition-colors data-[state=selected]:bg-muted", className)} {...props} />
+    <tr ref={ref} className={cn("data-[state=selected]:bg-muted border-b transition-colors", className)} {...props} />
   )
 )
 TableRow.displayName = "TableRow"
@@ -57,7 +57,7 @@ TableCell.displayName = "TableCell"
 
 const TableCaption = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttributes<HTMLTableCaptionElement>>(
   ({ className, ...props }, ref) => (
-    <caption ref={ref} className={cn("mt-4 text-xs text-grey-800", className)} {...props} />
+    <caption ref={ref} className={cn("text-grey-800 mt-4 text-xs", className)} {...props} />
   )
 )
 TableCaption.displayName = "TableCaption"

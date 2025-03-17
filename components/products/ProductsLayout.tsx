@@ -24,8 +24,8 @@ export const ProductsLayout: React.FC<ProductItemProps> = ({ products, view = "g
   }
 
   return (
-    <Table className="mt-6 border-separate border-spacing-0 overflow-hidden rounded-2xl border text-primary-900">
-      <TableHeader className="bg-grey-200 text-xs uppercase text-grey-800">
+    <Table className="text-primary-900 mt-6 border-separate border-spacing-0 overflow-hidden rounded-2xl border">
+      <TableHeader className="bg-grey-200 text-grey-800 text-xs uppercase">
         <TableRow className="[&>th]:border-b">
           <TableHead className="px-5 py-3">Name</TableHead>
           <TableHead className="px-5 py-3">From</TableHead>
@@ -34,7 +34,7 @@ export const ProductsLayout: React.FC<ProductItemProps> = ({ products, view = "g
       </TableHeader>
       <TableBody>
         {products.map((product) => (
-          <TableRow key={product.id} className="[&>td]:border-b [&>td]:last:border-0">
+          <TableRow key={product.id} className="[&>td]:border-b last:[&>td]:border-0">
             <ProductTableRow product={product} />
           </TableRow>
         ))}

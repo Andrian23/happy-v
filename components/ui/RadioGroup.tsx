@@ -9,7 +9,7 @@ import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { cn } from "@/lib/utils"
 
 const radioVariants = cva(
-  "rounded-full border transition-colors focus:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+  "rounded-full border transition-colors focus:outline-hidden focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {

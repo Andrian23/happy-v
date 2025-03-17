@@ -13,6 +13,12 @@ export default defineConfig([
     },
   },
   {
+    files: ["postcss.config.js"],
+    rules: {
+        "no-undef": "off",
+    },
+  },
+  {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
       ...pluginNext.configs.recommended.rules

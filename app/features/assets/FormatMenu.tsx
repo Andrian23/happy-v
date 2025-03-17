@@ -15,7 +15,7 @@ const FormatMenu: FC<FormatMenuProps> = ({ format, setFormat }) => {
 
   return (
     <div
-      className={`relative mx-4 h-full w-auto cursor-pointer rounded-xl border px-3 py-2 text-sm font-medium text-primary-900 max-lg:mx-0 ${isMenuOpen ? "border-primary-500 bg-primary-100" : ""} ${format !== "Format" ? "border-primary-500 bg-primary-100" : ""}`}
+      className={`text-primary-900 relative mx-4 h-full w-auto cursor-pointer rounded-xl border px-3 py-2 text-sm font-medium max-lg:mx-0 ${isMenuOpen ? "border-primary-500 bg-primary-100" : ""} ${format !== "Format" ? "border-primary-500 bg-primary-100" : ""}`}
     >
       <div className="flex items-center gap-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
         {format !== "Format" && <Check className="h-5 w-5" />}
@@ -23,8 +23,8 @@ const FormatMenu: FC<FormatMenuProps> = ({ format, setFormat }) => {
         {format !== "Format" && <X className="h-5 w-5" onClick={() => setFormat("Format")} />}
       </div>
       {isMenuOpen && (
-        <div className="absolute left-0 top-10 z-40 h-auto w-auto rounded-2xl bg-white p-3 shadow-sm">
-          <div className="font-medium text-primary-900">Format</div>
+        <div className="absolute top-10 left-0 z-40 h-auto w-auto rounded-2xl bg-white p-3 shadow-xs">
+          <div className="text-primary-900 font-medium">Format</div>
           <div className="mt-2 flex items-center justify-between gap-6">
             <Label className="flex items-center gap-2 font-normal">
               <Checkbox id="pdf" onCheckedChange={() => setFormat("PDF")} checked={format === "PDF"} />

@@ -24,15 +24,15 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
   }
 
   return (
-    <div className="fixed left-0 top-0 z-[55] h-screen w-screen bg-black/50">
+    <div className="fixed top-0 left-0 z-55 h-screen w-screen bg-black/50">
       <div
         ref={modalRef}
-        className="relative left-1/2 top-1/2 z-[1] inline-flex h-[15%] w-full max-w-[383px] -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-5 rounded-xl border-b border-grey-400 bg-white p-6"
+        className="border-grey-400 relative top-1/2 left-1/2 z-1 inline-flex h-[15%] w-full max-w-[383px] -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-5 rounded-xl border-b bg-white p-6"
       >
-        <p className="text-sm font-medium text-primary-900">{message}</p>
+        <p className="text-primary-900 text-sm font-medium">{message}</p>
         <div className="flex items-start gap-2 self-stretch">
           <button
-            className="flex h-9 shrink-0 grow basis-0 items-center justify-center gap-2 rounded-[98px] border border-grey-400 px-4 py-2 text-sm font-semibold text-primary-900"
+            className="border-grey-400 text-primary-900 flex h-9 shrink-0 grow basis-0 items-center justify-center gap-2 rounded-[98px] border px-4 py-2 text-sm font-semibold"
             onClick={onClose}
           >
             Cancel

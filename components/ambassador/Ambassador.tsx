@@ -102,14 +102,14 @@ const Ambassador: FC = () => {
       ) : (
         <>
           <div className="mt-5 flex flex-col-reverse items-start justify-start gap-5 lg:flex-row lg:items-center lg:gap-16">
-            <div className="relative aspect-[5/4] w-full max-w-md overflow-hidden rounded-3xl">
+            <div className="relative aspect-5/4 w-full max-w-md overflow-hidden rounded-3xl">
               <Image src={ambassadorImage} alt="Ambassador" className="object-cover" fill />
             </div>
             <div className="w-full lg:max-w-md">
-              <h3 className="text-2xl font-semibold leading-8 text-primary-900">
+              <h3 className="text-primary-900 text-2xl leading-8 font-semibold">
                 Would You Like to Become a More Active Partner of Happy V?
               </h3>
-              <p className="mt-4 text-sm font-normal text-grey-800">
+              <p className="text-grey-800 mt-4 text-sm font-normal">
                 Great, become a Happy V ambassador, promote your favorite brand on social media and at professional
                 events and earn extra income from Happy V.
               </p>
@@ -121,25 +121,25 @@ const Ambassador: FC = () => {
             </div>
           </div>
           <div className="mt-13">
-            <h3 className="text-xl font-bold text-primary-900">How it Works</h3>
+            <h3 className="text-primary-900 text-xl font-bold">How it Works</h3>
             <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:gap-4">
               {steps.map(({ image, title, description }, index) => (
                 <div className="flex flex-1 gap-4 lg:basis-1/5 lg:flex-col" key={title}>
                   <div className="relative flex flex-col items-center gap-2 lg:flex-row lg:gap-4">
-                    <div className="relative z-[1] flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-grey-200">
+                    <div className="bg-grey-200 relative z-1 flex h-14 w-14 shrink-0 items-center justify-center rounded-full">
                       <Image src={image} alt="Ambassador_" className="h-8 w-8" />
                     </div>
                     {index !== steps.length - 1 && (
                       <div className="relative flex h-13 w-14 shrink-0 justify-center lg:h-auto lg:w-full lg:flex-1">
-                        <div className="absolute top-1/2 h-0.5 w-full -translate-y-1/2 rotate-90 lg:left-0 lg:right-0 lg:w-full lg:rotate-0">
+                        <div className="absolute top-1/2 h-0.5 w-full -translate-y-1/2 rotate-90 lg:right-0 lg:left-0 lg:w-full lg:rotate-0">
                           <Image src={ambassadorLineImage} alt="Ambassador_" fill className="object-cover" />
                         </div>
                       </div>
                     )}
                   </div>
                   <div className="flex max-w-full flex-col gap-y-1.5 lg:max-w-52">
-                    <h4 className="text-sm font-semibold text-primary-900">{title}</h4>
-                    <p className="text-sm text-grey-800">{description}</p>
+                    <h4 className="text-primary-900 text-sm font-semibold">{title}</h4>
+                    <p className="text-grey-800 text-sm">{description}</p>
                   </div>
                 </div>
               ))}

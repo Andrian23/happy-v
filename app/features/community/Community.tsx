@@ -59,14 +59,14 @@ export const Community: React.FC<CommunityProps> = ({ topics: initialTopics, cou
     <div className="mb-2.5 w-full lg:px-4">
       <PageTopic name="Community forum" description="Connect with other Happy V Professionals" />
 
-      <div className="relative mt-5 flex h-auto w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#A7CDED] to-[#DFF1FF] px-8 py-12">
+      <div className="relative mt-5 flex h-auto w-full items-center justify-center rounded-2xl bg-linear-to-r from-[#A7CDED] to-[#DFF1FF] px-8 py-12">
         <div className="">
-          <div className="text-center text-3xl font-semibold text-primary-900">Welcome to Community</div>
-          <div className="mx-[35px] mb-[20px] mt-2 text-center text-sm text-grey-800">
+          <div className="text-primary-900 text-center text-3xl font-semibold">Welcome to Community</div>
+          <div className="text-grey-800 mx-[35px] mt-2 mb-[20px] text-center text-sm">
             We&apos;re happy to have you here. If you need help, please search before you post
           </div>
           <Input
-            icon={<Search className="h-5 w-5 text-grey-800" />}
+            icon={<Search className="text-grey-800 h-5 w-5" />}
             iconPosition="left"
             placeholder="Search for topic..."
             value={searchTerm}
@@ -74,7 +74,7 @@ export const Community: React.FC<CommunityProps> = ({ topics: initialTopics, cou
           />
         </div>
         <Image src={com1Image} alt="Comment1" className="absolute bottom-0 left-0 h-[190px] w-[135px]" />
-        <Image src={com2Image} alt="Comment2" className="absolute bottom-0 right-0 h-[190px] w-[151px]" />
+        <Image src={com2Image} alt="Comment2" className="absolute right-0 bottom-0 h-[190px] w-[151px]" />
       </div>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-3 lg:gap-6">
@@ -82,12 +82,12 @@ export const Community: React.FC<CommunityProps> = ({ topics: initialTopics, cou
           <Link
             key={href}
             href={href}
-            className="flex w-full items-center gap-4 rounded-2xl bg-grey-200 px-4 py-5 lg:flex-col lg:p-8"
+            className="bg-grey-200 flex w-full items-center gap-4 rounded-2xl px-4 py-5 lg:flex-col lg:p-8"
           >
             <Image src={icon} alt={alt} className="h-[50px] w-[50px]" />
             <div className="flex flex-col lg:text-center">
-              <div className="text-base font-semibold text-primary-900">{title}</div>
-              <div className="text-sm text-grey-800">{description}</div>
+              <div className="text-primary-900 text-base font-semibold">{title}</div>
+              <div className="text-grey-800 text-sm">{description}</div>
             </div>
           </Link>
         ))}

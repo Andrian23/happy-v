@@ -53,9 +53,9 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="relative z-[4] ml-2 max-md:ml-0 max-md:mt-2">
+            <div className="relative z-4 ml-2 max-md:mt-2 max-md:ml-0">
               <Select value={sortOption} onValueChange={setSortOption}>
-                <SelectTrigger className="w-[180px] rounded-[12px] border-grey-400 max-md:w-full">
+                <SelectTrigger className="border-grey-400 w-[180px] rounded-[12px] max-md:w-full">
                   <SelectValue placeholder="For all times" />
                 </SelectTrigger>
                 <SelectContent>
@@ -80,9 +80,9 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
 
                 return (
                   <Link href={`/orders/${order.id.replace("gid://shopify/Order/", "")}`} key={order.id}>
-                    <div className="my-2 flex h-full w-full items-center justify-between rounded-2xl bg-grey-200 p-2 text-sm max-md:block max-md:p-4">
+                    <div className="bg-grey-200 my-2 flex h-full w-full items-center justify-between rounded-2xl p-2 text-sm max-md:block max-md:p-4">
                       <div>
-                        <div className="flex flex-row gap-2 text-primary-900 md:flex-col md:gap-0 lg:flex-row lg:gap-2">
+                        <div className="text-primary-900 flex flex-row gap-2 md:flex-col md:gap-0 lg:flex-row lg:gap-2">
                           <div className="font-semibold">
                             Order: {highlightText(order.id.replace("gid://shopify/Order/", ""), searchTerm)}
                           </div>
@@ -94,7 +94,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
                           ) : (
                             <div className="text-error-500">{formatText(order.displayFinancialStatus)}</div>
                           )}
-                          <div className="mx-1 text-grey-400">•</div>
+                          <div className="text-grey-400 mx-1">•</div>
                           {order.displayFulfillmentStatus !== null ? (
                             <div className={`${getStatusStyle(order.displayFulfillmentStatus).color}`}>
                               {getStatusStyle(order.displayFulfillmentStatus).text}
@@ -120,7 +120,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex flex-col gap-1">
-                            <div className="text-xs uppercase text-grey-800">Total</div>
+                            <div className="text-grey-800 text-xs uppercase">Total</div>
                             <div className="text-primary-900">${order.totalPrice}</div>
                           </div>
                           <div className="ml-4">

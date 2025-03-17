@@ -115,7 +115,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
   }, [editor])
 
   return (
-    <div className="flex border-b border-grey-400 py-1 text-primary-900">
+    <div className="border-grey-400 text-primary-900 flex border-b py-1">
       <ToggleGroup size="xs" type="multiple" className="px-1">
         {formatting.map(({ value, icon: Icon, ariaLabel, tooltip }) => (
           <ToggleGroupItem
@@ -130,7 +130,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
         ))}
       </ToggleGroup>
 
-      <ToggleGroup size="xs" type="single" className="border-l border-grey-400 px-1">
+      <ToggleGroup size="xs" type="single" className="border-grey-400 border-l px-1">
         {alignment.map(({ value, icon: Icon, ariaLabel }) => (
           <ToggleGroupItem
             key={value}
@@ -152,7 +152,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <ToggleGroup size="xs" type="single" className="border-l border-grey-400 px-1">
+      <ToggleGroup size="xs" type="single" className="border-grey-400 border-l px-1">
         <ToggleGroupItem
           value="quote"
           data-state={editor?.isActive("blockquote") ? "on" : "off"}
@@ -193,14 +193,14 @@ export const TextEditor: React.FC<TextEditorProps> = ({ onChange, value }) => {
   }, [value, editor])
 
   return (
-    <div className="rounded-xl border border-grey-400 bg-white">
+    <div className="border-grey-400 rounded-xl border bg-white">
       <Toolbar editor={editor} />
       <EditorContent
         editor={editor}
         onChange={(e) => {
           console.log(e.target)
         }}
-        className="[&>div:focus-visible]:outline-none [&>div:focus-visible]:ring-2 [&>div:focus-visible]:ring-offset-2 [&>div]:max-h-56 [&>div]:min-h-56 [&>div]:overflow-y-auto [&>div]:rounded-b-xl [&>div]:p-2 [&>div]:ring-ring [&>div]:ring-offset-background"
+        className="[&>div]:ring-ring [&>div]:ring-offset-background [&>div]:max-h-56 [&>div]:min-h-56 [&>div]:overflow-y-auto [&>div]:rounded-b-xl [&>div]:p-2 [&>div:focus-visible]:ring-2 [&>div:focus-visible]:ring-offset-2 [&>div:focus-visible]:outline-hidden"
       />
     </div>
   )

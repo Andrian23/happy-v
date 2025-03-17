@@ -48,14 +48,14 @@ const RecommendationsAndTemplatesTab: React.FC<RecommendationsAndTemplatesTabPro
   }
 
   return (
-    <div className="mb-4 grid w-full grid-cols-[0.9fr_1fr_0.6fr_auto] content-between items-center justify-between rounded-xl bg-grey-200 p-4 last-of-type:mb-0">
+    <div className="bg-grey-200 mb-4 grid w-full grid-cols-[0.9fr_1fr_0.6fr_auto] content-between items-center justify-between rounded-xl p-4 last-of-type:mb-0">
       <div>
-        <h3 className="text-sm font-medium text-primary-900">
+        <h3 className="text-primary-900 text-sm font-medium">
           {isTemplate
             ? data?.basicInfo.recommendationName
             : `${data?.clients[0].firstName} ${data?.clients[0].lastName}`}
         </h3>
-        <p className="text-sm font-medium text-grey-800">
+        <p className="text-grey-800 text-sm font-medium">
           Created: {new Date(data?.created).toLocaleDateString("en-GB")}
         </p>
       </div>
@@ -64,7 +64,7 @@ const RecommendationsAndTemplatesTab: React.FC<RecommendationsAndTemplatesTabPro
           <div className="relative" key={idx}>
             <div
               className={cn(
-                "pointer-events-none absolute left-1/2 top-1/2 z-[2] w-max max-w-[168px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white/[.56] p-[5px] text-center text-sm font-medium text-primary-900 opacity-0 transition-opacity duration-300",
+                "text-primary-900 pointer-events-none absolute top-1/2 left-1/2 z-2 w-max max-w-[168px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white/[.56] p-[5px] text-center text-sm font-medium opacity-0 transition-opacity duration-300",
                 showProductName === `${index}-${product.id}-${idx}` && "opacity-80"
               )}
             >
@@ -92,14 +92,14 @@ const RecommendationsAndTemplatesTab: React.FC<RecommendationsAndTemplatesTabPro
         ))}
         {data?.selectedProducts.length > 4 && (
           <div
-            className="group relative flex w-[75px] cursor-pointer items-center justify-center rounded-md border border-grey-400 px-2.5 py-2 text-sm font-semibold text-primary-900 hover:bg-grey-200"
+            className="group border-grey-400 text-primary-900 hover:bg-grey-200 relative flex w-[75px] cursor-pointer items-center justify-center rounded-md border px-2.5 py-2 text-sm font-semibold"
             onMouseEnter={toggleMoreInfo}
             onMouseLeave={toggleMoreInfo}
           >
             +{data.selectedProducts.length - 4} more
             {showMoreInfo && (
               <div className="relative">
-                <div className="absolute bottom-[34px] hidden w-[167px] -translate-x-[65%] translate-y-0 flex-col items-start gap-1.5 rounded-lg bg-white p-3 text-sm font-medium text-primary-900 group-hover:flex">
+                <div className="text-primary-900 absolute bottom-[34px] hidden w-[167px] -translate-x-[65%] translate-y-0 flex-col items-start gap-1.5 rounded-lg bg-white p-3 text-sm font-medium group-hover:flex">
                   {data.selectedProducts.slice(4).map((product, idx) => (
                     <p key={idx}>{product?.title}</p>
                   ))}
@@ -113,14 +113,14 @@ const RecommendationsAndTemplatesTab: React.FC<RecommendationsAndTemplatesTabPro
       {!isTemplate && (
         <div className="flex items-center gap-2">
           <StatusIcon isActive={data?.status === "ordered"} />
-          <p className="text-sm font-medium text-primary-900">
+          <p className="text-primary-900 text-sm font-medium">
             {data?.status === "ordered" ? "Ordered" : "Not Ordered"}
           </p>
         </div>
       )}
       {isTemplate && (
         <div
-          className="ml-auto mr-[12px] cursor-pointer rounded-full bg-primary-500 px-[16px] py-[6px] text-sm font-normal text-white"
+          className="bg-primary-500 mr-[12px] ml-auto cursor-pointer rounded-full px-[16px] py-[6px] text-sm font-normal text-white"
           onClick={() => handleUseTemplate(data)}
         >
           Send to client
@@ -133,7 +133,7 @@ const RecommendationsAndTemplatesTab: React.FC<RecommendationsAndTemplatesTabPro
         </PopoverTrigger>
         <PopoverContent className="w- w-39 gap-0 p-0">
           <button
-            className="flex h-12 cursor-pointer items-center self-stretch rounded-t-lg px-4 py-0 pb-2 pt-4 text-sm font-normal text-primary-900 ring-transparent hover:bg-[rgba(220,221,222,0.43)] focus:outline-none"
+            className="text-primary-900 flex h-12 cursor-pointer items-center self-stretch rounded-t-lg px-4 py-0 pt-4 pb-2 text-sm font-normal ring-transparent hover:bg-[rgba(220,221,222,0.43)] focus:outline-hidden"
             onClick={() =>
               isTemplate
                 ? router.push(`/recommendations/templates//edit?tempId=${data?.id}`)
@@ -143,7 +143,7 @@ const RecommendationsAndTemplatesTab: React.FC<RecommendationsAndTemplatesTabPro
             Edit
           </button>
           <button
-            className="flex h-12 cursor-pointer items-center self-stretch rounded-b-lg px-4 py-0 pb-4 pt-2 text-sm font-normal text-[#eb5757] hover:bg-[rgba(220,221,222,0.43)] focus:outline-none"
+            className="flex h-12 cursor-pointer items-center self-stretch rounded-b-lg px-4 py-0 pt-2 pb-4 text-sm font-normal text-[#eb5757] hover:bg-[rgba(220,221,222,0.43)] focus:outline-hidden"
             onClick={() => handleOpenDeletingRecommendationModal(data?.id)}
           >
             Delete
