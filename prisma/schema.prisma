@@ -1,11 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client-js"
   clientImport = "prisma/client"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   // directUrl = env("DIRECT_URL")
 }
 
@@ -32,7 +32,16 @@ model User {
   defaultShippingAddress Int?
   topics                 Topic[]
   replies                Reply[]
-  likes                  Like[]   // One-to-many relationship with likes
+  likes                  Like[]
+  referralLink           String?               @unique
+  referralCode           String?               @unique
+  lastActiveAt           DateTime?             @updatedAt
+  isVerified             Boolean               @default(false)
+  npiNumber              String?               @unique
+  totalCommissionEarned  Float                 @default(0)
+  commissionRate         Float                 @default(0.15)
+  patientReferrals       PatientReferral[]
+  commissions            Commission[]
 }
 
 model Account {
@@ -97,7 +106,7 @@ model Topic {
   author    User      @relation(fields: [authorId], references: [id])
   authorId  String
   replies   Reply[] // One-to-many relationship with replies
-  likes     Like[]   // One-to-many relationship with likes
+  likes     Like[] // One-to-many relationship with likes
 }
 
 model Reply {
@@ -111,18 +120,19 @@ model Reply {
   parentReply   Reply?   @relation("ReplyToReply", fields: [parentReplyId], references: [id])
   parentReplyId String?
   childReplies  Reply[]  @relation("ReplyToReply")
-  likes         Like[]   // One-to-many relationship with likes
+  likes         Like[] // One-to-many relationship with likes
 }
 
 model Like {
-  id          String       @id @default(cuid())
-  user        User      @relation(fields: [userId], references: [id])
-  userId      String
-  topic       Topic?    @relation(fields: [topicId], references: [id])
-  topicId     String?
-  reply       Reply?    @relation(fields: [replyId], references: [id])
-  replyId     String?
-  createdAt   DateTime  @default(now())
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  topic     Topic?   @relation(fields: [topicId], references: [id])
+  topicId   String?
+  reply     Reply?   @relation(fields: [replyId], references: [id])
+  replyId   String?
+  createdAt DateTime @default(now())
+
   @@unique([userId, topicId]) // Ensure a user can only like a topic once
   @@unique([userId, replyId]) // Ensure a user can only like a reply once
 }
@@ -211,6 +221,42 @@ model ShippingAddress {
   postalZipCode  String
   phone          String
   email          String
+}
+
+model PatientReferral {
+  id           String       @id @default(cuid())
+  doctorId     String
+  doctor       User         @relation(fields: [doctorId], references: [id])
+  patientEmail String
+  cookieId     String?
+  referredAt   DateTime     @default(now())
+  commissions  Commission[]
+
+  @@unique([doctorId, patientEmail])
+}
+
+model Commission {
+  id                String           @id @default(cuid())
+  doctorId          String
+  doctor            User             @relation(fields: [doctorId], references: [id])
+  patientReferralId String
+  patientReferral   PatientReferral  @relation(fields: [patientReferralId], references: [id])
+  shopifyOrderId    String
+  amount            Float
+  orderTotal        Float
+  status            CommissionStatus @default(PENDING)
+  orderDate         DateTime         @default(now())
+  paidAt            DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([doctorId, shopifyOrderId])
+}
+
+enum CommissionStatus {
+  PENDING
+  PAID
+  CANCELLED
 }
 
 enum UserRole {
