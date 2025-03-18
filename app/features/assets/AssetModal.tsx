@@ -16,7 +16,7 @@ interface AssetModalProps {
 type AssetType = "pdf" | "video" | "image" | "gif"
 
 const renderImageContent = (file: string) => (
-  <div className="relative aspect-[6/12] max-h-[80vh] w-full md:aspect-video">
+  <div className="relative aspect-6/12 max-h-[80vh] w-full md:aspect-video">
     <Image src={file} alt="Asset" fill objectFit="contain" />
   </div>
 )
@@ -44,14 +44,14 @@ const AssetModal: FC<AssetModalProps> = ({ isModalOpen, currentAsset, onClose, o
   const renderAssetContent = assetRenderers[currentAsset.type as AssetType] || assetRenderers.image
 
   return (
-    <div className="fixed inset-0 z-50 flex max-h-screen flex-col bg-black bg-opacity-70">
+    <div className="fixed inset-0 z-50 flex max-h-screen flex-col bg-black/70">
       <div className="mb-2 flex w-full items-center justify-between gap-2 p-4">
         <div className="flex items-center">
           <div className="ml-2 text-white">{currentAsset.file.split("/").pop()}</div>
         </div>
         <div className="flex items-center">
           <div
-            className="flex w-full cursor-pointer items-center justify-center rounded-full border border-grey-400 bg-grey-400 px-4 py-2"
+            className="border-grey-400 bg-grey-400 flex w-full cursor-pointer items-center justify-center rounded-full border px-4 py-2"
             onClick={onDownload}
           >
             <div className="text-sm">Download</div>

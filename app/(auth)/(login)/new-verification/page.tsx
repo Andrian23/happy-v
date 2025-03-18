@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { BeatLoader } from "react-spinners"
@@ -9,7 +9,7 @@ import { newVerification } from "@/actions/newVerification"
 import { FormError } from "@/components/FormError"
 import { FormSuccess } from "@/components/FormSuccess"
 
-const NewVerificationPage = () => {
+const NewVerificationPageContent = () => {
   const [error, setError] = useState<string | undefined>()
   const [success, setSuccess] = useState<string | undefined>()
   const searchParams = useSearchParams()
@@ -52,6 +52,14 @@ const NewVerificationPage = () => {
         </Link>
       </div>
     </div>
+  )
+}
+
+const NewVerificationPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewVerificationPageContent />
+    </Suspense>
   )
 }
 

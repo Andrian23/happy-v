@@ -55,30 +55,30 @@ const SearchableSelect = forwardRef<HTMLButtonElement, SearchableSelectProps>(
             {...props}
             onClick={handleTogglePopover}
             className={cn(
-              "flex h-10 w-full items-center justify-between rounded-xl border border-grey-400 bg-white px-3 py-2 text-sm text-primary-900 ring-ring ring-offset-background hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+              "border-grey-400 text-primary-900 ring-ring ring-offset-background focus:ring-ring flex h-10 w-full items-center justify-between rounded-xl border bg-white px-3 py-2 text-sm hover:bg-transparent focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
               className
             )}
           >
             {selectedValue ? (
               <div className="flex w-full items-center justify-between">
                 <p
-                  className="flex items-center overflow-hidden text-ellipsis text-primary-900"
+                  className="text-primary-900 flex items-center overflow-hidden text-ellipsis"
                   style={{ maxWidth: "calc(100% - 1.5rem)" }}
                 >
                   {selectedValue}
                 </p>
-                <ChevronDown className="h-5 w-5 min-w-5 cursor-pointer text-primary-900" />
+                <ChevronDown className="text-primary-900 h-5 w-5 min-w-5 cursor-pointer" />
               </div>
             ) : (
               <div className="mx-auto flex w-full items-center justify-between">
-                <span className="overflow-hidden text-ellipsis text-sm text-grey-800">{placeholder}</span>
-                <ChevronDown className="h-5 w-5 min-w-5 cursor-pointer text-primary-800" />
+                <span className="text-grey-800 overflow-hidden text-sm text-ellipsis">{placeholder}</span>
+                <ChevronDown className="text-primary-800 h-5 w-5 min-w-5 cursor-pointer" />
               </div>
             )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="p-0" align="start" onEscapeKeyDown={() => setIsPopoverOpen(false)}>
-          <Command className="rounded-lg bg-popover shadow-md">
+          <Command className="bg-popover rounded-lg shadow-md">
             <CommandInput placeholder="Search..." />
             <CommandList style={{ scrollbarWidth: "none" }}>
               <CommandEmpty>No results found.</CommandEmpty>

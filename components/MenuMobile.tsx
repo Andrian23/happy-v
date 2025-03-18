@@ -48,16 +48,16 @@ const MenuMobile: React.FC = () => {
         </div>
         <div className="relative block h-12 w-8">
           <Link href="/cart">
-            <Image src={cartIcon} alt="Cart" className="absolute right-[5px] top-[5px] h-6 w-6" />
-            <div className="absolute right-0 top-0 z-[2] h-[14px] w-[14px] rounded-full bg-primary-500"></div>
-            <div className="absolute right-[1px] top-[-1px] z-[3] rounded-full px-[3px] text-[10px] text-white">
+            <Image src={cartIcon} alt="Cart" className="absolute top-[5px] right-[5px] h-6 w-6" />
+            <div className="bg-primary-500 absolute top-0 right-0 z-2 h-[14px] w-[14px] rounded-full"></div>
+            <div className="absolute top-[-1px] right-[1px] z-3 rounded-full px-[3px] text-[10px] text-white">
               {totalItemCount}
             </div>
           </Link>
         </div>
       </div>
       {isOpen ? (
-        <div className="absolute top-[70px] z-[99999] w-full">
+        <div className="absolute top-[70px] z-99999 w-full">
           <SidebarMobile />
         </div>
       ) : (

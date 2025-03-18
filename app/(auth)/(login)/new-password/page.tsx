@@ -1,6 +1,6 @@
 "use client"
 
-import { startTransition, useState, useTransition } from "react"
+import { startTransition, Suspense, useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -16,7 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/components/ui/useToast"
 import { NewPasswordSchema } from "@/schemas"
 
-const NewPasswordPage = () => {
+const NewPasswordPageContent = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
@@ -109,6 +109,14 @@ const NewPasswordPage = () => {
         </Form>
       </div>
     </div>
+  )
+}
+
+const NewPasswordPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewPasswordPageContent />
+    </Suspense>
   )
 }
 

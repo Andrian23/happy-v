@@ -30,7 +30,7 @@ const CustomSearchInput: React.FC<CustomSearchInputProps> = ({ value, inputStyle
         style={inputStyle}
         onChange={onChange}
         type="text"
-        className="w-full rounded-[12px] border border-grey-400 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        className="border-grey-400 focus:ring-primary-500 w-full rounded-[12px] border py-2 pr-4 pl-10 focus:ring-2 focus:outline-hidden"
         placeholder={props.placeholder}
       />
       {value && (

@@ -280,20 +280,20 @@ const NewRecommendationPage = () => {
 
       <div className="mt-5 grid grid-cols-[65%_32%] gap-5">
         <div>
-          <div className="mb-5 flex flex-col items-start gap-2.5 self-stretch rounded-[20px] bg-grey-200 p-6">
-            <h2 className="mb-2.5 text-xl font-bold leading-normal text-primary-900">Client Information</h2>
+          <div className="bg-grey-200 mb-5 flex flex-col items-start gap-2.5 self-stretch rounded-[20px] p-6">
+            <h2 className="text-primary-900 mb-2.5 text-xl leading-normal font-bold">Client Information</h2>
 
             {formData.clients.map((client, index) => (
               <div key={client.id} className="w-full">
                 {formData.clients.length > 1 && (
                   <div className="flex items-center justify-between">
-                    <h3 className="mx-0 my-2.5 text-sm font-semibold text-primary-900">Client {index + 1}</h3>
+                    <h3 className="text-primary-900 mx-0 my-2.5 text-sm font-semibold">Client {index + 1}</h3>
                     <RemoveIcon className="cursor-pointer" onClick={() => removeClient(index)} />
                   </div>
                 )}
                 <div className="grid w-full grid-cols-2 items-center justify-between gap-5">
                   <div>
-                    <label className="mb-2.5 text-sm font-semibold text-primary-900" htmlFor={`fname-${index + 1}`}>
+                    <label className="text-primary-900 mb-2.5 text-sm font-semibold" htmlFor={`fname-${index + 1}`}>
                       First name
                     </label>
                     <Input
@@ -305,7 +305,7 @@ const NewRecommendationPage = () => {
                   </div>
 
                   <div>
-                    <label className="mb-2.5 text-sm font-semibold text-primary-900" htmlFor={`lname-${index + 1}`}>
+                    <label className="text-primary-900 mb-2.5 text-sm font-semibold" htmlFor={`lname-${index + 1}`}>
                       Last name
                     </label>
                     <Input
@@ -318,7 +318,7 @@ const NewRecommendationPage = () => {
                 </div>
 
                 <div className="grid w-full items-center" style={{ marginTop: 16 }}>
-                  <label className="mb-2.5 text-sm font-semibold text-primary-900" htmlFor={`email-${index + 1}`}>
+                  <label className="text-primary-900 mb-2.5 text-sm font-semibold" htmlFor={`email-${index + 1}`}>
                     Enter email
                   </label>
                   <Input
@@ -330,7 +330,7 @@ const NewRecommendationPage = () => {
                 </div>
 
                 {formData.clients.length > 1 && index < formData.clients.length - 1 && (
-                  <hr className="mt-6 h-px w-full bg-grey-400"></hr>
+                  <hr className="bg-grey-400 mt-6 h-px w-full"></hr>
                 )}
               </div>
             ))}
@@ -341,11 +341,11 @@ const NewRecommendationPage = () => {
             </Button>
           </div>
 
-          <div className="mb-5 flex flex-col items-start gap-2.5 self-stretch rounded-[20px] bg-grey-200 p-6">
-            <h2 className="text-xl font-bold leading-normal text-primary-900">Basic Info</h2>
+          <div className="bg-grey-200 mb-5 flex flex-col items-start gap-2.5 self-stretch rounded-[20px] p-6">
+            <h2 className="text-primary-900 text-xl leading-normal font-bold">Basic Info</h2>
 
             <div className="grid w-full items-center">
-              <label className="mb-2.5 text-sm font-semibold text-primary-900" htmlFor="recommendation-name">
+              <label className="text-primary-900 mb-2.5 text-sm font-semibold" htmlFor="recommendation-name">
                 Name the recommendation
               </label>
               <Input
@@ -358,7 +358,7 @@ const NewRecommendationPage = () => {
             </div>
 
             <div className="grid w-full items-center">
-              <label className="mb-2.5 mt-2.5 text-sm font-semibold text-primary-900" htmlFor="recommendation-details">
+              <label className="text-primary-900 mt-2.5 mb-2.5 text-sm font-semibold" htmlFor="recommendation-details">
                 Recommendation details
               </label>
               <Textarea
@@ -370,8 +370,8 @@ const NewRecommendationPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-col items-start gap-2.5 self-stretch rounded-[20px] bg-grey-200 p-6">
-            <h2 className="mb-5 text-xl font-bold leading-normal text-primary-900">Products</h2>
+          <div className="bg-grey-200 flex flex-col items-start gap-2.5 self-stretch rounded-[20px] p-6">
+            <h2 className="text-primary-900 mb-5 text-xl leading-normal font-bold">Products</h2>
 
             <div className="w-full">
               {formData.selectedProducts.map((product, index) => (
@@ -381,11 +381,11 @@ const NewRecommendationPage = () => {
                 >
                   <Popover>
                     <PopoverTrigger asChild>
-                      <MenuIcon className="absolute right-[18px] top-3 cursor-pointer" />
+                      <MenuIcon className="absolute top-3 right-[18px] cursor-pointer" />
                     </PopoverTrigger>
                     <PopoverContent className="w- w-39 gap-0 p-0">
                       <button
-                        className="flex h-12 cursor-pointer items-center self-stretch rounded-lg px-4 py-4 text-sm font-normal text-[#eb5757] hover:bg-[rgba(220,221,222,0.43)] focus:outline-none"
+                        className="flex h-12 cursor-pointer items-center self-stretch rounded-lg px-4 py-4 text-sm font-normal text-[#eb5757] hover:bg-[rgba(220,221,222,0.43)] focus:outline-hidden"
                         onClick={() => handleOpenDeletingModal(product?.id)}
                       >
                         Delete
@@ -410,15 +410,15 @@ const NewRecommendationPage = () => {
                       />
                     )}
 
-                    <p className="mt-4 text-sm font-semibold text-primary-900">
+                    <p className="text-primary-900 mt-4 text-sm font-semibold">
                       {product?.title.length > 35 ? `${product?.title.substring(0, 35)}...` : product?.title}
                     </p>
-                    <p className="mx-0 mb-1.5 mt-0.5 text-xs font-medium leading-normal text-grey-800">
+                    <p className="text-grey-800 mx-0 mt-0.5 mb-1.5 text-xs leading-normal font-medium">
                       Servings: {product?.variants.edges[0].node.inventoryQuantity}
                     </p>
-                    <p className="text-xs font-medium leading-normal text-grey-800">
+                    <p className="text-grey-800 text-xs leading-normal font-medium">
                       <span className="mr-1.5 line-through">${product?.variants.edges[0].node.price}</span>
-                      <span className="text-sm font-semibold text-primary-900">
+                      <span className="text-primary-900 text-sm font-semibold">
                         ${product?.variants.edges[0].node.price}
                       </span>
                     </p>
@@ -428,7 +428,7 @@ const NewRecommendationPage = () => {
                     <div className="grid w-full grid-cols-2 items-center justify-between gap-5">
                       <div>
                         <label
-                          className="mb-2.5 text-sm font-semibold text-primary-900"
+                          className="text-primary-900 mb-2.5 text-sm font-semibold"
                           htmlFor={`amount-${index + 1}`}
                         >
                           Amount *
@@ -444,7 +444,7 @@ const NewRecommendationPage = () => {
 
                       <div>
                         <label
-                          className="mb-2.5 text-sm font-semibold text-primary-900"
+                          className="text-primary-900 mb-2.5 text-sm font-semibold"
                           htmlFor={`frequency-${index + 1}`}
                         >
                           Frequency *
@@ -485,8 +485,8 @@ const NewRecommendationPage = () => {
               <div className="grid min-h-[325px] w-full content-center items-center justify-center justify-items-center rounded-lg bg-white">
                 <Image className="mb-4" src={pills} alt="pills" width={74} height={74} />
 
-                <h4 className="text-base font-bold text-primary-900">Add a Product Recommendation</h4>
-                <p className="px-0 pb-4 pt-2 text-sm font-medium text-grey-800">
+                <h4 className="text-primary-900 text-base font-bold">Add a Product Recommendation</h4>
+                <p className="text-grey-800 px-0 pt-2 pb-4 text-sm font-medium">
                   Add any available products from the catalog for your clients
                 </p>
 
@@ -499,17 +499,17 @@ const NewRecommendationPage = () => {
           </div>
         </div>
 
-        <div className="sticky top-0 flex h-fit flex-col items-start gap-2.5 self-stretch rounded-[20px] bg-grey-200 p-6">
-          <div className="flex flex-col items-start gap-2.5 self-stretch rounded-[20px] bg-grey-200">
-            <h2 className="mb-3 text-xl font-bold leading-normal text-primary-900">Discount Option</h2>
+        <div className="bg-grey-200 sticky top-0 flex h-fit flex-col items-start gap-2.5 self-stretch rounded-[20px] p-6">
+          <div className="bg-grey-200 flex flex-col items-start gap-2.5 self-stretch rounded-[20px]">
+            <h2 className="text-primary-900 mb-3 text-xl leading-normal font-bold">Discount Option</h2>
 
             <div className="mt-0.5 flex h-9 flex-row items-center justify-center gap-2.5">
               {percentages.map((percentage, index) => (
                 <div
                   key={index}
                   className={cn(
-                    "flex h-9 shrink-0 grow basis-0 cursor-pointer flex-col items-center justify-center gap-2.5 border border-grey-400 bg-white px-3 py-2 text-sm font-medium text-grey-800 first-of-type:rounded-l-xl last-of-type:rounded-r-xl",
-                    percentage === formData.discount && "border border-primary-500 bg-primary-500 text-white"
+                    "border-grey-400 text-grey-800 flex h-9 shrink-0 grow basis-0 cursor-pointer flex-col items-center justify-center gap-2.5 border bg-white px-3 py-2 text-sm font-medium first-of-type:rounded-l-xl last-of-type:rounded-r-xl",
+                    percentage === formData.discount && "border-primary-500 bg-primary-500 border text-white"
                   )}
                   onClick={() => handleDiscountChange(percentage)}
                 >
@@ -518,22 +518,22 @@ const NewRecommendationPage = () => {
               ))}
             </div>
 
-            <p className="mb-6 mt-2.5 text-xs font-medium leading-normal text-grey-800">
+            <p className="text-grey-800 mt-2.5 mb-6 text-xs leading-normal font-medium">
               The percentage of the discount that you give to the client will be calculated from your income
             </p>
 
-            <h2 className="mb-3 text-xl font-bold leading-normal text-primary-900">Price</h2>
+            <h2 className="text-primary-900 mb-3 text-xl leading-normal font-bold">Price</h2>
 
             <div className="grid w-full grid-cols-[repeat(2,auto)] items-center justify-between">
-              <h4 className="text-sm font-medium text-grey-800">Client discount ({formData.discount}%)</h4>
-              <h4 className="text-sm font-medium text-grey-800">
+              <h4 className="text-grey-800 text-sm font-medium">Client discount ({formData.discount}%)</h4>
+              <h4 className="text-grey-800 text-sm font-medium">
                 -${(calculateTotalPrice() * (formData.discount / 100)).toFixed(2)}
               </h4>
             </div>
 
             <div className="grid w-full grid-cols-[repeat(2,auto)] items-center justify-between">
-              <h4 className="text-sm font-semibold text-primary-900">Total starts at</h4>
-              <h4 className="text-sm font-semibold text-primary-900">
+              <h4 className="text-primary-900 text-sm font-semibold">Total starts at</h4>
+              <h4 className="text-primary-900 text-sm font-semibold">
                 ${(calculateTotalPrice() - calculateTotalPrice() * (formData.discount / 100)).toFixed(2)}
               </h4>
             </div>
@@ -546,19 +546,19 @@ const NewRecommendationPage = () => {
       </div>
 
       {productRecommendationModal && (
-        <div className="fixed left-0 top-0 z-[2] h-screen w-screen bg-black/50">
-          <div className="relative left-1/2 top-1/2 z-[1] h-[85%] w-full max-w-[1093px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl border-b border-grey-400 bg-white">
-            <div className="border-b border-grey-400 p-6">
-              <h2 className="text-[28px] font-bold leading-normal text-primary-900">Add recommendation products</h2>
+        <div className="fixed top-0 left-0 z-2 h-screen w-screen bg-black/50">
+          <div className="border-grey-400 relative top-1/2 left-1/2 z-1 h-[85%] w-full max-w-[1093px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl border-b bg-white">
+            <div className="border-grey-400 border-b p-6">
+              <h2 className="text-primary-900 text-[28px] leading-normal font-bold">Add recommendation products</h2>
               <div
-                className="absolute right-6 top-6 h-6 w-6 cursor-pointer"
+                className="absolute top-6 right-6 h-6 w-6 cursor-pointer"
                 onClick={handleCloseProductRecommendationModal}
               >
                 <CloseIcon />
               </div>
             </div>
 
-            <div className="relative h-full overflow-y-auto px-6 pb-6 pt-3">
+            <div className="relative h-full overflow-y-auto px-6 pt-3 pb-6">
               <div className="main-products mt-4">
                 <div className="flex w-full items-center justify-between max-md:block">
                   <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />
@@ -601,22 +601,22 @@ const NewRecommendationPage = () => {
             </div>
 
             {formData.selectedProducts.length > 0 && (
-              <div className="absolute bottom-0 grid min-h-[68px] w-full grid-cols-[repeat(2,auto)] items-center justify-between gap-[30px] rounded-b-xl border-t border-grey-400 bg-white px-6 py-3 shadow-[0_-2px_31px_0_rgba(55,58,64,0.08)]">
+              <div className="border-grey-400 absolute bottom-0 grid min-h-[68px] w-full grid-cols-[repeat(2,auto)] items-center justify-between gap-[30px] rounded-b-xl border-t bg-white px-6 py-3 shadow-[0_-2px_31px_0_rgba(55,58,64,0.08)]">
                 <div className="flex flex-row items-center justify-center gap-[18px]">
-                  <h4 className="w-[121px] text-sm font-medium text-primary-900">
+                  <h4 className="text-primary-900 w-[121px] text-sm font-medium">
                     {formData.selectedProducts?.length} Products Added
                   </h4>
                   <div className="flex flex-row justify-center gap-2.5">
                     {formData.selectedProducts.slice(0, 4).map((product) => (
                       <div
-                        className="flex min-h-[44px] w-[168px] flex-row items-center justify-center gap-2.5 rounded-md border border-grey-400 px-2 py-0"
+                        className="border-grey-400 flex min-h-[44px] w-[168px] flex-row items-center justify-center gap-2.5 rounded-md border px-2 py-0"
                         key={product?.id}
                         onMouseEnter={() => handleMouseEnter(product?.id)}
                         onMouseLeave={handleMouseLeave}
                       >
                         {hoveredProductId === product?.id && (
                           <div className="absolute">
-                            <div className="absolute bottom-[44px] flex w-[167px] -translate-x-1/2 translate-y-0 flex-col items-start gap-1.5 rounded-lg bg-white p-3 text-sm font-medium text-primary-900">
+                            <div className="text-primary-900 absolute bottom-[44px] flex w-[167px] -translate-x-1/2 translate-y-0 flex-col items-start gap-1.5 rounded-lg bg-white p-3 text-sm font-medium">
                               <p>{product?.title}</p>
                             </div>
                             <TriangleDownIcon className="absolute bottom-7 left-0 -translate-x-1/2 -translate-y-[60%] group-hover:block" />
@@ -631,7 +631,7 @@ const NewRecommendationPage = () => {
                             height={32}
                           />
                         )}
-                        <p className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold text-primary-900">
+                        <p className="text-primary-900 max-w-full overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap">
                           {product?.title}
                         </p>
                         <CrossIcon
@@ -642,14 +642,14 @@ const NewRecommendationPage = () => {
                     ))}
                     {formData.selectedProducts.length > 4 && (
                       <div
-                        className="group relative flex w-[75px] cursor-pointer items-center justify-center rounded-md border border-grey-400 px-2.5 py-2 text-sm font-semibold text-primary-900 hover:bg-grey-200"
+                        className="group border-grey-400 text-primary-900 hover:bg-grey-200 relative flex w-[75px] cursor-pointer items-center justify-center rounded-md border px-2.5 py-2 text-sm font-semibold"
                         onMouseEnter={toggleMoreInfo}
                         onMouseLeave={toggleMoreInfo}
                       >
                         +{formData.selectedProducts.length - 4} more
                         {showMoreInfo && (
                           <div className="relative">
-                            <div className="absolute bottom-[44px] hidden w-[167px] -translate-x-[65%] translate-y-0 flex-col items-start gap-1.5 rounded-lg bg-white p-3 text-sm font-medium text-primary-900 group-hover:flex">
+                            <div className="text-primary-900 absolute bottom-[44px] hidden w-[167px] -translate-x-[65%] translate-y-0 flex-col items-start gap-1.5 rounded-lg bg-white p-3 text-sm font-medium group-hover:flex">
                               {formData.selectedProducts.slice(4).map((product, index) => (
                                 <p key={index}>{product?.title}</p>
                               ))}
@@ -668,7 +668,7 @@ const NewRecommendationPage = () => {
             )}
           </div>
 
-          <div className="absolute left-0 top-0 h-full w-full" onClick={handleCloseProductRecommendationModal}></div>
+          <div className="absolute top-0 left-0 h-full w-full" onClick={handleCloseProductRecommendationModal}></div>
         </div>
       )}
     </div>

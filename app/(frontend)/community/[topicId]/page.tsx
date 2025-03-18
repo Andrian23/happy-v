@@ -1,12 +1,9 @@
 import { getTopicById } from "@/actions/topic"
 import { TopicDetails } from "@/app/features/community/TopicDetails"
 
-type Props = {
-  params: { topicId: string }
-}
-
-export default async function TopicDetailsPage({ params }: Props) {
-  const topic = await getTopicById(params.topicId)
+export default async function TopicDetailsPage({ params }: { params: Promise<{ topicId: string }> }) {
+  const topicId = (await params).topicId
+  const topic = await getTopicById(topicId)
 
   return <TopicDetails topic={topic} />
 }

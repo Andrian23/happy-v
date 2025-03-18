@@ -17,8 +17,8 @@ const FaqsPage = () => {
 
       <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:gap-28">
         <div className="flex flex-col gap-2">
-          <div className="text-2xl font-bold text-primary-900">Most Frequency Questions</div>
-          <div className="text-sm text-grey-800">
+          <div className="text-primary-900 text-2xl font-bold">Most Frequency Questions</div>
+          <div className="text-grey-800 text-sm">
             If you have additional questions or questions to which you did not find an answer, please contact Us
           </div>
           <Button variant="secondary" className="mr-auto" onClick={() => router.push("/contact")}>
@@ -31,7 +31,7 @@ const FaqsPage = () => {
             <AccordionItem
               key={i}
               value={`${i}`}
-              className="rounded-xl border border-grey-400 p-4 text-primary-900 transition-colors duration-300 [&[data-state=open]]:bg-grey-200"
+              className="border-grey-400 text-primary-900 data-[state=open]:bg-grey-200 rounded-xl border p-4 transition-colors duration-300"
             >
               <AccordionTrigger className="font-base p-0">Question {i + 1}</AccordionTrigger>
               <AccordionContent className="mt-2 p-0 text-sm">

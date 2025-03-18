@@ -10,7 +10,7 @@ interface ContractModalProps {
 }
 
 const ContractModal: FC<ContractModalProps> = ({ onClose, onDownload }) => (
-  <div className="fixed inset-0 z-50 bg-black bg-opacity-70">
+  <div className="fixed inset-0 z-50 bg-black/70">
     <div className="mb-2 flex h-auto w-full items-center justify-between p-4">
       <div className="flex items-center">
         <Image src={pdfIcon} alt="pdf" className="h-5 w-5" />
@@ -18,7 +18,7 @@ const ContractModal: FC<ContractModalProps> = ({ onClose, onDownload }) => (
       </div>
       <div className="flex items-center">
         <div
-          className="mt-2 flex h-auto w-full cursor-pointer items-center justify-center rounded-full border border-grey-400 bg-grey-400 px-4 py-2"
+          className="border-grey-400 bg-grey-400 mt-2 flex h-auto w-full cursor-pointer items-center justify-center rounded-full border px-4 py-2"
           onClick={onDownload}
         >
           <div className="text-sm">Download</div>

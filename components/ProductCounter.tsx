@@ -30,13 +30,13 @@ export const ProductCounter: React.FC<ProductCounterProps> = ({
 
   return (
     <div
-      className={`flex h-9 items-center gap-4 rounded-6xl border border-grey-400 px-3 py-2 font-semibold text-primary-900 ${idDisabled ? "cursor-not-allowed opacity-50" : ""} `}
+      className={`rounded-6xl border-grey-400 text-primary-900 flex h-9 items-center gap-4 border px-3 py-2 font-semibold ${idDisabled ? "cursor-not-allowed opacity-50" : ""} `}
     >
       <span
         role="button"
         aria-disabled={count === 1}
         onClick={handleDecrement}
-        className="[&[aria-disabled=true]]:cursor-not-allowed [&[aria-disabled=true]]:opacity-40"
+        className="aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
       >
         <Minus className="h-3 w-3" />
       </span>
@@ -44,7 +44,7 @@ export const ProductCounter: React.FC<ProductCounterProps> = ({
       <span
         role="button"
         onClick={handleIncrement}
-        className="[&[aria-disabled=true]]:cursor-not-allowed [&[aria-disabled=true]]:opacity-40"
+        className="aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
       >
         <Plus className="h-3 w-3" />
       </span>
