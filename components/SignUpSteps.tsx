@@ -16,25 +16,27 @@ const icons = {
 
 const steps = [
   {
-    title: "Create Professional Account",
-    description: "Tell us a bit about yourself",
+    title: "Let’s Set Up Your Profile",
+    description:
+      "To get started, we just need a few details from you. This helps us personalize your experience and connect you with the right opportunities.",
   },
   {
-    title: "Choose your Sign up method",
-    description: "Choose the most convenient option for you",
+    title: "Choose Your Sign-Up Method",
+    description: "To make things faster and easier, select how you’d like to sign up.",
   },
   {
-    title: "Upload your Professional Credentials",
-    description: "Upload your Professional Credentials",
+    title: "Tell Us About Your Practice",
+    description: "Let us know more about your professional background so we can provide a tailored experience for you.",
   },
   {
-    title: "Review our Terms",
-    description: "Last review our terms and launch account",
+    title: "Upload Credentials",
+    description:
+      "To confirm your professional background, please upload your credentials. This helps us ensure we’re partnering with qualified experts.",
   },
 ]
 
 export const SignUpSteps = ({ currentStep }: SignUpStepsProps) => (
-  <div className="text-primary-900">
+  <div className="text-primary-900 mt-[30px]">
     {steps.map(({ title, description }, i) => {
       let icon
       if (i < currentStep) {
@@ -46,11 +48,11 @@ export const SignUpSteps = ({ currentStep }: SignUpStepsProps) => (
       }
 
       return (
-        <div key={i} className={`mt-[24px] flex justify-start items-start${i !== 0 ? "mt-[24px]" : ""}`}>
+        <div key={i} className={`mt-[32px] flex justify-start items-start${i !== 0 ? "mt-[24px]" : ""}`}>
           <Image src={icon} alt="Check icon" className="h-6 w-6" />
           <div className="ml-2">
-            <div className="text-sm font-semibold text-primary-900">{title}</div>
-            <div className="mt-1 text-[12px] font-medium text-grey-800">{description}</div>
+            <div className="text-primary-900 text-sm font-semibold">{title}</div>
+            <div className="text-grey-800 mt-1 text-[12px] font-medium">{description}</div>
           </div>
         </div>
       )

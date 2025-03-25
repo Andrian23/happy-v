@@ -21,7 +21,7 @@ export const resetPasswordSettings = async (values: z.infer<typeof ResetPassword
 
     const { currentPassword, newPassword, confirmPassword } = validatedFields.data
     if (newPassword !== confirmPassword) {
-      return { error: "Passwords do not match" }
+      return { error: "Passwords don’t match. Please double-check and try again" }
     }
 
     const userId = session.user.id

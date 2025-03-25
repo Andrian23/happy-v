@@ -1,83 +1,149 @@
 "use client"
 
-import { ChangeEvent, useEffect, useState, useTransition } from "react"
+import { startTransition, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
+import * as z from "zod"
 
-import AuthFileInput from "@/components/AuthFileInput"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+import { signUp } from "@/actions/signUp"
 import { FormError } from "@/components/FormError"
 import { FormSuccess } from "@/components/FormSuccess"
 import { SignUpLayout } from "@/components/SignUpLayout"
 import { Button } from "@/components/ui/Button"
-import { Form } from "@/components/ui/Form"
-import { useToast } from "@/components/ui/useToast"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
+import { Input } from "@/components/ui/Input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
+import { RegisterSchema, RegisterThirdSchema } from "@/schemas"
+
+const professions = [
+  "Certified Nutritionist",
+  "Clinical Nutritionist",
+  "Health Coach",
+  "Holistic Practitioner",
+  "Medial Doctor",
+  "OBGYN",
+  "Physician's Assistant",
+  "Registered Dietician",
+  "Registered Nurse",
+]
+
+const practiceSizes = ["<50 patients", "50-100 patients", "100-500 patients", "500-1000 patients", "1000+ patients"]
 
 const SignUpSecondPage = () => {
   const router = useRouter()
   const [isPending] = useTransition()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | undefined>("")
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [success, setSuccess] = useState<string | undefined>("")
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [formData, setFormData] = useState({}) // Initialize formData as an empty object
-  const [fileName, setFileName] = useState("")
-  const [fileUploaded, setFileUploaded] = useState(false) // Track if a file is uploaded
-  const { toast } = useToast()
+  const form = useForm<z.infer<typeof RegisterThirdSchema>>({
+    resolver: zodResolver(RegisterThirdSchema),
+    defaultValues: {
+      type_proffesion: "",
+      practical_size: "",
+      place_work: "",
+    },
+  })
 
-  useEffect(() => {
-    const storedData = localStorage.getItem("formData") // Access localStorage only after component mounts
-    const initialFormData = storedData ? JSON.parse(storedData) : {}
-    setFormData(initialFormData)
-  }, [])
+  const onSubmit = (values: z.infer<typeof RegisterThirdSchema>) => {
+    setError("")
+    setSuccess("")
 
-  const form = useForm()
+    const savedData = localStorage.getItem("formData")
+    const fullForm: z.infer<typeof RegisterSchema> = savedData ? { ...JSON.parse(savedData), ...values } : {}
+    localStorage.setItem("formData", JSON.stringify(fullForm))
 
-  const onSubmit = () => {
-    localStorage.setItem("fileName", fileName)
-    router.push("/sign-up-review")
-  }
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files || event.target.files.length === 0) {
-      toast({ title: "Failed to upload file" })
-      setFileUploaded(false) // No file uploaded
-      return
-    }
-    const file = event.target.files[0]
-    console.log(file.name)
-    setFileUploaded(true) // File uploaded
+    startTransition(() => {
+      signUp(fullForm).then((data) => {
+        setError(data.error)
+        setSuccess(data.success)
+        if (data.success) {
+          router.push("/sign-up-4")
+        }
+      })
+    })
   }
 
   return (
     <SignUpLayout currentStep={2}>
-      <div className="text-center text-[32px] font-bold text-primary-900">Upload your professional credentials</div>
-      <div className="mt-[8px] text-sm text-grey-800">Access your account after confirming your credentials</div>
+      <div className="text-primary-900 text-center text-[32px] font-bold">Tell Us About Your Practice</div>
+      <div className="text-grey-800 mt-[8px] text-center text-sm">
+        Let us know more about your professional background so we can provide a tailored experience for you.
+      </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto mt-[32px] block w-[90%]">
-          <div className="mx-auto mb-[24px] mt-[32px] block w-full">
-            <AuthFileInput
-              onChange={handleFileChange}
-              fileName={fileName}
-              setFileName={setFileName}
-              disabled={isPending}
-            />
-          </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-[32px] w-full">
+          <FormField
+            control={form.control}
+            name="type_proffesion"
+            render={({ field }) => (
+              <FormItem className="mb-[20px]">
+                <FormLabel className="text-primary-900 text-sm">Type of professional</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="rounded-[8px]">
+                      <SelectValue placeholder="Select your type of professional" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {professions.map((profession) => (
+                      <SelectItem key={profession} value={profession}>
+                        {profession}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="practical_size"
+            render={({ field }) => (
+              <FormItem className="mb-[20px]">
+                <FormLabel className="text-primary-900 text-sm">Practice size</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="rounded-[8px]">
+                      <SelectValue placeholder="Select your practice size" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {practiceSizes.map((size) => (
+                      <SelectItem key={size} value={size}>
+                        {size}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="place_work"
+            render={({ field }) => (
+              <FormItem className="mb-[20px]">
+                <FormLabel>Place of Work</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your place of work" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-          <div className="mt-3 text-left text-sm font-normal text-primary-900">
-            <span className="font-semibold">For licensed healthcare practitioner:</span> Healthcare license or
-            registration (with name and expiry)
-          </div>
-          <div className="mt-3 text-left text-sm font-normal text-primary-900">
-            <span className="font-semibold">If you are not licensed healthcare practitioner: </span> Healthcare degree,
-            diploma, certificate, etc.
-          </div>
-          <FormError message={error} />
           <FormSuccess message={success} />
-          <Button type="submit" variant="primary" disabled={isPending || !fileUploaded} className="mt-6 w-full">
-            Continue to Terms Review
+          <FormError message={error} />
+          <Button
+            type="submit"
+            disabled={isPending}
+            variant="primary"
+            className="bg-primary-900 hover:bg-primary-900/80 mb-4 w-full"
+          >
+            Next: Upload credentials
           </Button>
         </form>
       </Form>

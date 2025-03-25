@@ -57,24 +57,25 @@ const SignInPage = () => {
 
   return (
     <div className="form-container m-auto w-[35%] max-lg:mt-12 max-lg:w-[100%]">
-      <div className="flex flex-col items-center justify-center max-md:mt-2">
-        <div className="text-center text-[32px] font-semibold text-primary-900">Sign in to your account</div>
-        <div className="mt-2 text-sm text-grey-800">
+      <div className="flex flex-col items-center justify-center max-md:mt-4">
+        <div className="text-primary-900 text-center text-[32px] font-semibold">Sign in to your account</div>
+        <div className="text-grey-800 mt-2 text-sm">
           Don&apos;t have account yet?{" "}
-          <Link className="text-primary-500" href="/sign-up">
+          <Link className="text-primary-900 font-semibold" href="/sign-up">
             Sign up
           </Link>
         </div>
         <div
-          className="mt-[32px] flex w-full cursor-pointer items-center justify-center rounded-3xl border py-2 text-center text-sm hover:bg-primary-500 hover:bg-opacity-[4%]"
+          className="hover:bg-opacity-[4%] mt-[32px] flex w-full cursor-pointer items-center justify-center rounded-3xl border py-2 text-center text-sm"
           onClick={() => onClickGoogle("google")}
         >
-          <FcGoogle className="mr-2 h-5 w-5" /> Continue with Google
+          <FcGoogle className="mr-2 h-5 w-5" />
+          <span className="text-primary-900 font-semibold"> Continue with Google</span>
         </div>
 
         <div className="mt-[20px] flex w-full">
           <Divider />
-          <div className="mx-[12px] text-sm text-grey-800">OR</div>
+          <div className="text-grey-800 mx-[12px] text-sm">OR</div>
           <Divider />
         </div>
 
@@ -85,14 +86,14 @@ const SignInPage = () => {
               name="email"
               render={({ field }) => (
                 <FormItem className="">
-                  <FormLabel className="text-sm text-primary-900">Email</FormLabel>
+                  <FormLabel className="text-primary-900 text-sm">Email</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       disabled={isPending}
                       placeholder="Enter your email address"
                       type="email"
-                      className="mb-[20px] mt-[6px] rounded-[12px]"
+                      className="mt-[6px] mb-[20px] rounded-[8px]"
                     />
                   </FormControl>
                   <FormMessage />
@@ -104,23 +105,23 @@ const SignInPage = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm text-primary-900">Password</FormLabel>
+                  <FormLabel className="text-primary-900 text-sm">Password</FormLabel>
                   <FormControl>
                     <PasswordInput
                       {...field}
                       disabled={isPending}
                       placeholder="Enter your password"
-                      className="mt-[6px] rounded-[12px]"
+                      className="mt-[6px] rounded-[8px]"
                     />
                   </FormControl>
                   <FormMessage />
                   <div className="mt-[20px] flex items-center justify-between">
                     <div className="flex items-center justify-start">
                       <Checkbox />
-                      <div className="ml-2 text-sm text-primary-900">Remember this device</div>
+                      <div className="text-primary-900 ml-2 text-sm">Remember this device</div>
                     </div>
-                    <Button variant="link" asChild className="px-0 font-normal text-primary-500">
-                      <Link href="/forgot" className="text-primary-500">
+                    <Button variant="link" asChild className="text-primary-900 px-0 font-normal">
+                      <Link href="/forgot" className="text-primary-900 font-semibold">
                         Forgot your password?
                       </Link>
                     </Button>
@@ -130,7 +131,12 @@ const SignInPage = () => {
             />
             <FormError message={error} />
             <FormSuccess message={success} />
-            <Button type="submit" variant="primary" disabled={isPending} className="mt-5 w-full">
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isPending}
+              className="bg-primary-900 hover:bg-primary-900/80 mt-5 w-full text-white"
+            >
               Sign in
             </Button>
           </form>
