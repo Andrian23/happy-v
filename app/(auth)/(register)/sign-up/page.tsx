@@ -58,7 +58,7 @@ const SignUpPage = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-[32px] w-full">
-          <div className="my-1 mb-[20px] flex items-center justify-between">
+          <div className="my-1 mb-[20px] flex items-start justify-between">
             <div className="w-[49%]">
               <FormField
                 control={form.control}
@@ -74,7 +74,7 @@ const SignUpPage = () => {
                         disabled={isPending}
                         placeholder="Enter your first name"
                         type="text"
-                        className="rounded-[8px]"
+                        className="rounded-lg"
                       />
                     </FormControl>
                     <FormMessage />
@@ -97,7 +97,7 @@ const SignUpPage = () => {
                         disabled={isPending}
                         placeholder="Enter your last name"
                         type="text"
-                        className="rounded-[8px]"
+                        className="rounded-lg"
                       />
                     </FormControl>
                     <FormMessage />
@@ -120,7 +120,7 @@ const SignUpPage = () => {
                     disabled={isPending}
                     placeholder="Enter your phone number"
                     type="text"
-                    className="rounded-[8px]"
+                    className="rounded-lg"
                   />
                 </FormControl>
                 <FormMessage />

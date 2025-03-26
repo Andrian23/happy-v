@@ -67,10 +67,6 @@ export const RegisterSchema = z.object({
   newsletter: z.boolean().optional(),
   marketing: z.boolean().optional(),
 })
-// .refine((data) => data.password === data.confirmPassword, {
-//   message: "Passwords don’t match. Please double-check and try again",
-//   path: ["confirmPassword"],
-// })
 
 export const RegisterFirstSchema = z.object({
   name: z.string().min(1, {
@@ -155,7 +151,7 @@ export const NewPasswordSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don’t match. Please double-check and try again",
-    path: ["confirmPassword"], // Це вказує, де показувати повідомлення про помилку
+    path: ["confirmPassword"],
   })
 
 export const ResetPasswordSettings = z
@@ -188,7 +184,7 @@ export const ResetPasswordSettings = z
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords don’t match. Please double-check and try again",
-    path: ["confirmPassword"], // Це вказує, де показувати повідомлення про помилку
+    path: ["confirmPassword"],
   })
 
 export const MarketingAssetsSchema = z.object({

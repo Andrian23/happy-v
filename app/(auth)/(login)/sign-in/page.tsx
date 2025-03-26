@@ -93,7 +93,7 @@ const SignInPage = () => {
                       disabled={isPending}
                       placeholder="Enter your email address"
                       type="email"
-                      className="mt-[6px] mb-[20px] rounded-[8px]"
+                      className="mt-1.5 mb-[20px] rounded-lg"
                     />
                   </FormControl>
                   <FormMessage />
@@ -111,7 +111,7 @@ const SignInPage = () => {
                       {...field}
                       disabled={isPending}
                       placeholder="Enter your password"
-                      className="mt-[6px] rounded-[8px]"
+                      className="mt-1.5 rounded-lg"
                     />
                   </FormControl>
                   <FormMessage />

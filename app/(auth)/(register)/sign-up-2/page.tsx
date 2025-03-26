@@ -58,7 +58,7 @@ const SignUpSecondPage = () => {
   }
 
   const onClickGoogle = async (provider: "google") => {
-    const DEFAULT_LOGIN_REDIRECT = "/dashboard" // Define the missing constant
+    const DEFAULT_LOGIN_REDIRECT = "/dashboard"
     try {
       await signIn(provider, {
         callbackUrl: DEFAULT_LOGIN_REDIRECT,
@@ -106,7 +106,7 @@ const SignUpSecondPage = () => {
                     disabled={isPending}
                     placeholder="Enter your email address"
                     type="email"
-                    className="rounded-[8px]"
+                    className="rounded-lg"
                   />
                 </FormControl>
                 <FormMessage />
@@ -122,12 +122,7 @@ const SignUpSecondPage = () => {
                   Password<span className="text-error-500">*</span>
                 </FormLabel>
                 <FormControl>
-                  <PasswordInput
-                    {...field}
-                    disabled={isPending}
-                    placeholder="Enter password"
-                    className="rounded-[8px]"
-                  />
+                  <PasswordInput {...field} disabled={isPending} placeholder="Enter password" className="rounded-lg" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

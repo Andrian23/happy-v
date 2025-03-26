@@ -84,7 +84,7 @@ const AuthFileInput: React.FC<AuthFileInputProps> = ({ onChange, fileName, setFi
         </div>
       )}
       {fileName && (
-        <div className="bg-grey-200 mb-[24px] flex items-center justify-start rounded-[8px] p-4">
+        <div className="bg-grey-200 mb-[24px] flex items-center justify-start rounded-lg p-4">
           <Image src={fileIcon} alt="Auth Input File" className="mr-2 h-[18px] w-[15px]" />
           <span className="text-primary-900 text-sm font-semibold">{fileName}</span>
           <button onClick={handleRemoveFile} className="text-primary-900 ml-auto cursor-pointer font-semibold">

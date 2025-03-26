@@ -9,7 +9,7 @@ import { ResetPasswordSettings } from "@/schemas"
 
 export const resetPasswordSettings = async (values: z.infer<typeof ResetPasswordSettings>) => {
   try {
-    const session = await auth() // Get the session
+    const session = await auth()
     if (!session || !session.user) {
       return { error: "User not authenticated" }
     }

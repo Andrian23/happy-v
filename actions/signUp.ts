@@ -26,10 +26,6 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
       return { error: "Email is already in use!" }
     }
 
-    // if (password !== confirmPassword) {
-    //   return { error: "Passwords do not match" }
-    // }
-
     await db.user.create({
       data: {
         name,

@@ -28,7 +28,7 @@ const SignUpSecondPage = () => {
   const { toast } = useToast()
 
   useEffect(() => {
-    const storedData = localStorage.getItem("formData") // Access localStorage only after component mounts
+    const storedData = localStorage.getItem("formData")
     const initialFormData = storedData ? JSON.parse(storedData) : {}
     setFormData(initialFormData)
   }, [])
@@ -86,7 +86,7 @@ const SignUpSecondPage = () => {
             diploma, certificate, etc.
           </div>
 
-          <div className="bg-grey-200 text-primary-900 mt-6 flex justify-items-start gap-2 rounded-[8px] p-[16px] text-sm">
+          <div className="bg-grey-200 text-primary-900 mt-6 flex justify-items-start gap-2 rounded-lg p-[16px] text-sm">
             <div>
               <Info className="h-5 w-5" />
             </div>

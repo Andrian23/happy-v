@@ -20,7 +20,7 @@ export default async function LoginLayout({ children }: Readonly<{ children: Rea
       </div>
 
       <div className="mim-lg:p-4 flex h-full justify-center p-4">
-        <div className="bg-grey-200 flex h-[96vh] w-[446px] flex-col flex-nowrap justify-between rounded-2xl p-[32px] max-lg:hidden min-[1900px]:h-[98vh]">
+        <div className="bg-grey-200 flex max-h-full min-h-[96vh] w-[446px] flex-col flex-nowrap justify-between rounded-2xl p-[32px] max-lg:hidden min-[1900px]:h-[98vh]">
           <div className="logo">
             <Image src={logo} alt="HAPPY V" className="h-[50px] w-[120px]" />
           </div>

@@ -44,7 +44,7 @@ const NewPasswordPageContent = () => {
         if (!data?.error) {
           setSuccess("Password successfully updated")
           setTimeout(() => {
-            router.push("/sign-in") // Redirect to sign-in after 3 seconds
+            router.push("/sign-in")
           }, 3000)
         }
       })
@@ -71,7 +71,7 @@ const NewPasswordPageContent = () => {
                       {...field}
                       disabled={isPending}
                       placeholder="Enter new password"
-                      className="mt-[6px] rounded-[8px]"
+                      className="mt-1.5 rounded-lg"
                     />
                   </FormControl>
                   <FormMessage />
@@ -89,7 +89,7 @@ const NewPasswordPageContent = () => {
                       {...field}
                       disabled={isPending}
                       placeholder="Enter a new password again"
-                      className="mt-[6px] rounded-[8px]"
+                      className="mt-1.5 rounded-lg"
                     />
                   </FormControl>
                   <FormMessage />

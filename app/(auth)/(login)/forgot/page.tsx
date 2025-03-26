@@ -71,7 +71,7 @@ const ForgotPasswordPage = () => {
                       disabled={isPending}
                       placeholder="Enter your email address"
                       type="email"
-                      className="mt-[6px] rounded-[8px]"
+                      className="mt-1.5 rounded-lg"
                       onChange={(e) => {
                         field.onChange(e)
                         handleInputChange()

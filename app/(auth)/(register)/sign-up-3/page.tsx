@@ -82,7 +82,7 @@ const SignUpSecondPage = () => {
                 <FormLabel className="text-primary-900 text-sm">Type of professional</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-[8px]">
+                    <SelectTrigger className="rounded-lg">
                       <SelectValue placeholder="Select your type of professional" />
                     </SelectTrigger>
                   </FormControl>
@@ -106,7 +106,7 @@ const SignUpSecondPage = () => {
                 <FormLabel className="text-primary-900 text-sm">Practice size</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-[8px]">
+                    <SelectTrigger className="rounded-lg">
                       <SelectValue placeholder="Select your practice size" />
                     </SelectTrigger>
                   </FormControl>

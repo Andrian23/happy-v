@@ -34,7 +34,7 @@ export const SignUpLayout = ({ currentStep, children }: SignUpLayoutProps) => {
       </div>
 
       <div className="mim-lg:p-4 flex justify-center p-4">
-        <div className="bg-grey-200 flex h-[96vh] w-[466px] flex-col flex-nowrap justify-between rounded-2xl p-[32px] max-lg:hidden min-[1900px]:h-[98vh]">
+        <div className="bg-grey-200 flex max-h-full min-h-[96vh] w-[466px] flex-col flex-nowrap justify-between rounded-2xl p-[32px] max-lg:hidden min-[1900px]:h-[98vh]">
           <div className="logo flex flex-col flex-nowrap justify-between">
             <Image src={logo} alt="HAPPY V" className="h-[50px] w-[120px] object-contain" />
 
@@ -55,7 +55,7 @@ export const SignUpLayout = ({ currentStep, children }: SignUpLayoutProps) => {
         <div
           className={`flex w-[35%] flex-col justify-center max-lg:w-[100%] ${isLastStep ? "m-auto" : "mx-auto"} max-lg:mt-16`}
         >
-          <div className="mb-4 flex flex-col items-center justify-center max-md:mt-6">
+          <div className="relative flex flex-col items-center justify-center pb-[70px] max-md:mt-6">
             {children}
             {!isLastStep && <SignUpStepIndicator currentStep={currentStep} />}
           </div>
