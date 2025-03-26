@@ -12,7 +12,7 @@ interface SignUpStepIndicatorProps {
 const totalSteps = 4
 
 export const SignUpStepIndicator = ({ currentStep }: SignUpStepIndicatorProps) => (
-  <div className="absolute bottom-[44px] max-lg:hidden">
+  <div className="absolute bottom-0 max-lg:hidden">
     <div className="flex items-center justify-center">
       {Array.from({ length: totalSteps }, (_, i) => (
         <Link
