@@ -34,6 +34,8 @@ model User {
   referralLink              String?               @unique
   totalCommissionEarned     Float                 @default(0)
   lastInactivityEmailSentAt DateTime?
+  signUpStep3Completed      Boolean               @default(false)
+  signUpStep4Completed      Boolean               @default(false)
   Commission                Commission[]
   likes                     Like[]
   PatientReferral           PatientReferral[]
