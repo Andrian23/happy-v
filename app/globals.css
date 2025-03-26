@@ -159,7 +159,7 @@
     --green-100: 9 189 48; /* success color */
 
     /* Red Colors */
-    --error-500: 255 106 106; /* error color */
+    --error-500: 236, 138, 174; /* error color */
 
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -188,6 +188,7 @@
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 201, 60%, 64%;
+    --ring-900: var(--primary-900);
 
     --radius: 0.5rem;
   }

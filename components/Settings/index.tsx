@@ -28,7 +28,7 @@ type TabNames = (typeof tabs)[number]
 
 const updateMessages: Record<TabNames, string> = {
   "Basic Info": "Your basic information has been successfully updated.",
-  "Change Password": "Your password has been successfully changed.",
+  "Change Password": "Your password has been updated!",
   "Shipping Address": "Your shipping information has been successfully updated.",
 }
 

@@ -44,7 +44,7 @@ const NewPasswordPageContent = () => {
         if (!data?.error) {
           setSuccess("Password successfully updated")
           setTimeout(() => {
-            router.push("/sign-in") // Redirect to sign-in after 3 seconds
+            router.push("/sign-in")
           }, 3000)
         }
       })
@@ -55,8 +55,8 @@ const NewPasswordPageContent = () => {
 
   return (
     <div className="form-container m-auto w-[35%] max-lg:mt-12 max-lg:w-[100%]">
-      <div className="flex flex-col items-center justify-center max-md:mt-2">
-        <div className="mb-[32px] text-center text-[32px] font-bold text-primary-900">Enter a new password</div>
+      <div className="flex flex-col items-center justify-center max-md:mt-8">
+        <div className="text-primary-900 mb-[32px] text-center text-[32px] font-bold">Reset your password</div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
@@ -65,13 +65,13 @@ const NewPasswordPageContent = () => {
               name="password"
               render={({ field }) => (
                 <FormItem className="mb-[32px]">
-                  <FormLabel className="text-sm text-primary-900">Password *</FormLabel>
+                  <FormLabel className="text-primary-900 text-sm">New password*</FormLabel>
                   <FormControl>
                     <PasswordInput
                       {...field}
                       disabled={isPending}
-                      placeholder="Enter your new password"
-                      className="mt-[6px] rounded-[12px]"
+                      placeholder="Enter new password"
+                      className="mt-1.5 rounded-lg"
                     />
                   </FormControl>
                   <FormMessage />
@@ -83,13 +83,13 @@ const NewPasswordPageContent = () => {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem className="mb-[32px]">
-                  <FormLabel className="mt-[20px] text-sm text-primary-900">Repeat * </FormLabel>
+                  <FormLabel className="text-primary-900 mt-[20px] text-sm">Confirm new password* </FormLabel>
                   <FormControl>
                     <PasswordInput
                       {...field}
                       disabled={isPending}
-                      placeholder="Confirm your new password"
-                      className="mt-[6px] rounded-[12px]"
+                      placeholder="Enter a new password again"
+                      className="mt-1.5 rounded-lg"
                     />
                   </FormControl>
                   <FormMessage />
@@ -101,7 +101,7 @@ const NewPasswordPageContent = () => {
             <Button
               type="submit"
               disabled={isPending}
-              className="mt-4 w-full cursor-pointer rounded-3xl border bg-primary-500 py-2 text-center text-white hover:bg-primary-500/80"
+              className="bg-primary-900 hover:bg-primary-900/80 mt-4 w-full cursor-pointer rounded-3xl border py-2 text-center text-white"
             >
               Reset Password
             </Button>

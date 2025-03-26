@@ -23,10 +23,10 @@ const SignUpReviewPage = () => {
 
   return (
     <SignUpLayout currentStep={3}>
-      <div className="text-center text-[32px] font-bold text-primary-900">Review our terms</div>
-      <div className="mt-2 text-sm text-grey-800">Last review our terms and launch account</div>
+      <div className="text-primary-900 text-center text-[32px] font-bold">Review our terms</div>
+      <div className="text-grey-800 mt-2 text-sm">Last review our terms and launch account</div>
 
-      <div className="mb-[20px] mt-[32px] rounded-[8px] bg-grey-200 p-[16px] text-sm text-primary-900">
+      <div className="bg-grey-200 text-primary-900 mt-[32px] mb-[20px] rounded-lg p-[16px] text-sm">
         By creating an account, I agree to the Happy V{" "}
         <Link href="https://happyv.com/policies/terms-of-service" target="_blank" className="text-primary-500">
           Terms of Service
@@ -46,7 +46,7 @@ const SignUpReviewPage = () => {
               setNewsletterChecked(checked === "indeterminate" ? newsletterChecked : checked)
             }
           />
-          <div className="ml-2 text-primary-900 lg:text-sm">
+          <div className="text-primary-900 ml-2 lg:text-sm">
             I agree to receive Happy V newsletter with thoughtful content for woman’s wellness - you can unsubscribe in
             one click
           </div>
@@ -57,7 +57,7 @@ const SignUpReviewPage = () => {
             checked={marketingChecked}
             onCheckedChange={(checked) => setMarketingChecked(checked === "indeterminate" ? marketingChecked : checked)}
           />
-          <div className="ml-2 text-primary-900 lg:text-sm">
+          <div className="text-primary-900 ml-2 lg:text-sm">
             I agree to receive account updates and other marketing emails
           </div>
         </div>
