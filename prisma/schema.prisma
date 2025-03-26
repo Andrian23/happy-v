@@ -1,38 +1,47 @@
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client-js"
   clientImport = "prisma/client"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id                     String                @id @default(cuid())
-  name                   String?
-  lastName               String?
-  email                  String?               @unique
-  emailVerified          DateTime?
-  image                  String?
-  password               String?
-  telephone              String?
-  type_proffesion        String?
-  place_work             String?
-  practical_size         String?
-  role                   UserRole              @default(USER)
-  createdAt              DateTime              @default(now())
-  updatedAt              DateTime              @updatedAt
-  isTwoFactorEnable      Boolean               @default(false)
-  TwoFactorConfimation   TwoFactorConfimation?
-  accounts               Account[]
-  stripeCustomerId       String?
-  shippingAddresses      ShippingAddress[]
-  defaultShippingAddress Int?
-  topics                 Topic[]
-  replies                Reply[]
-  likes                  Like[]   // One-to-many relationship with likes
+  id                        String                @id @default(cuid())
+  lastName                  String?
+  email                     String?               @unique
+  emailVerified             DateTime?
+  image                     String?
+  password                  String?
+  type_proffesion           String?
+  place_work                String?
+  practical_size            String?
+  role                      UserRole              @default(USER)
+  createdAt                 DateTime              @default(now())
+  updatedAt                 DateTime              @updatedAt
+  isTwoFactorEnable         Boolean               @default(false)
+  name                      String?
+  telephone                 String?
+  defaultShippingAddress    Int?
+  stripeCustomerId          String?
+  commissionRate            Float                 @default(0.15)
+  isVerified                Boolean               @default(false)
+  lastActiveAt              DateTime?
+  npiNumber                 String?               @unique
+  referralCode              String?               @unique
+  referralLink              String?               @unique
+  totalCommissionEarned     Float                 @default(0)
+  lastInactivityEmailSentAt DateTime?
+  Commission                Commission[]
+  likes                     Like[]
+  PatientReferral           PatientReferral[]
+  replies                   Reply[]
+  shippingAddresses         ShippingAddress[]
+  topics                    Topic[]
+  TwoFactorConfimation      TwoFactorConfimation?
+  accounts                  Account[]
 }
 
 model Account {
@@ -90,41 +99,42 @@ model TwoFactorConfimation {
 model Topic {
   id        String    @id @default(cuid())
   title     String
-  content   String
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  type      TopicType // Enum for type of topic (ask, suggestion, news)
-  author    User      @relation(fields: [authorId], references: [id])
   authorId  String
-  replies   Reply[] // One-to-many relationship with replies
-  likes     Like[]   // One-to-many relationship with likes
+  content   String
+  type      TopicType
+  updatedAt DateTime  @updatedAt
+  likes     Like[]
+  replies   Reply[]
+  author    User      @relation(fields: [authorId], references: [id])
 }
 
 model Reply {
   id            String   @id @default(cuid())
   content       String
   createdAt     DateTime @default(now())
-  topic         Topic    @relation(fields: [topicId], references: [id])
   topicId       String
-  author        User     @relation(fields: [authorId], references: [id])
   authorId      String
-  parentReply   Reply?   @relation("ReplyToReply", fields: [parentReplyId], references: [id])
   parentReplyId String?
+  likes         Like[]
+  author        User     @relation(fields: [authorId], references: [id])
+  parentReply   Reply?   @relation("ReplyToReply", fields: [parentReplyId], references: [id])
   childReplies  Reply[]  @relation("ReplyToReply")
-  likes         Like[]   // One-to-many relationship with likes
+  topic         Topic    @relation(fields: [topicId], references: [id])
 }
 
 model Like {
-  id          String       @id @default(cuid())
-  user        User      @relation(fields: [userId], references: [id])
-  userId      String
-  topic       Topic?    @relation(fields: [topicId], references: [id])
-  topicId     String?
-  reply       Reply?    @relation(fields: [replyId], references: [id])
-  replyId     String?
-  createdAt   DateTime  @default(now())
-  @@unique([userId, topicId]) // Ensure a user can only like a topic once
-  @@unique([userId, replyId]) // Ensure a user can only like a reply once
+  id        String   @id @default(cuid())
+  userId    String
+  topicId   String?
+  replyId   String?
+  createdAt DateTime @default(now())
+  reply     Reply?   @relation(fields: [replyId], references: [id])
+  topic     Topic?   @relation(fields: [topicId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, topicId])
+  @@unique([userId, replyId])
 }
 
 model CartOrder {
@@ -133,12 +143,12 @@ model CartOrder {
   createdAt       DateTime @default(now())
   email           String
   shippingAddress Json
-  shippingMethod  Json
   billingAddress  Json
   paymentMethod   String
   products        Json
   totalPrice      Float
   status          String
+  shippingMethod  Json
 }
 
 model Recommendation {
@@ -189,17 +199,8 @@ model SocialAssets {
   title     String
 }
 
-model Affiliate {
-  id           String   @id @default(cuid())
-  userId       String
-  discountCode String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
-
 model ShippingAddress {
   id             Int     @id @default(autoincrement())
-  user           User    @relation(fields: [userId], references: [id])
   userId         String
   firstName      String
   lastName       String
@@ -211,6 +212,37 @@ model ShippingAddress {
   postalZipCode  String
   phone          String
   email          String
+  user           User    @relation(fields: [userId], references: [id])
+}
+
+model Commission {
+  id                String           @id
+  doctorId          String
+  patientReferralId String
+  shopifyOrderId    String
+  amount            Float
+  orderTotal        Float
+  status            CommissionStatus @default(PENDING)
+  orderDate         DateTime         @default(now())
+  paidAt            DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime
+  User              User             @relation(fields: [doctorId], references: [id])
+  PatientReferral   PatientReferral  @relation(fields: [patientReferralId], references: [id])
+
+  @@unique([doctorId, shopifyOrderId])
+}
+
+model PatientReferral {
+  id           String       @id
+  doctorId     String
+  patientEmail String
+  cookieId     String?
+  referredAt   DateTime     @default(now())
+  Commission   Commission[]
+  User         User         @relation(fields: [doctorId], references: [id])
+
+  @@unique([doctorId, patientEmail])
 }
 
 enum UserRole {
@@ -222,4 +254,10 @@ enum TopicType {
   ASK
   SUGGESTION
   NEWS
+}
+
+enum CommissionStatus {
+  PENDING
+  PAID
+  CANCELLED
 }
