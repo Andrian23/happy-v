@@ -8,7 +8,7 @@ export const authRoutes = [
   "/new-password",
   "/sign-up-2",
   "/sign-up-3",
-  "/sign-up-review",
+  "/sign-up-4",
   "/sign-up-success",
 ]
 

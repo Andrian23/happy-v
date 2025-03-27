@@ -16,50 +16,42 @@ export const LoginSchema = z.object({
   code: z.optional(z.string()),
 })
 
-export const RegisterSchema = z
-  .object({
-    email: z.string().email({
-      message: "Email is required",
-    }),
-    password: z.string().min(6, {
-      message: "Minimum 6 characters required",
-    }),
-    confirmPassword: z.string().min(6, {
-      message: "Minimum 6 characters required",
-    }),
-    name: z.string().min(1, {
-      message: "Name is required",
-    }),
-    lastName: z.string().min(1, {
-      message: "Name is required",
-    }),
-    telephone: z
-      .string()
-      .min(10, { message: "Phone must be at least 10 digits" })
-      .max(15, { message: "Phone must be less than 15 digits" })
-      .regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
-    type_proffesion: z.string().min(1, {
-      message: "Type profession is required",
-    }),
-    practical_size: z.string().min(1, {
-      message: "Practice size is required",
-    }),
-    place_work: z.string().min(1, {
-      message: "Place work is required",
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  })
+export const RegisterSchema = z.object({
+  email: z.string().email({
+    message: "Email is required",
+  }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long." })
+    .refine(
+      (password) => {
+        const hasUpperCase = /[A-Z]/.test(password)
+        const hasLowerCase = /[a-z]/.test(password)
+        const hasNumbers = /[0-9]/.test(password)
+        const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(password)
 
-export const RegisterFirstSchema = z.object({
+        if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSymbols) {
+          return false
+        }
+
+        return true
+      },
+      {
+        message:
+          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.",
+      }
+    ),
   name: z.string().min(1, {
-    message: "Name is required",
+    message: "First name is required",
   }),
   lastName: z.string().min(1, {
-    message: "Name is required",
+    message: "Last name is required",
   }),
+  telephone: z
+    .string()
+    .min(10, { message: "Phone must be at least 10 digits" })
+    .max(15, { message: "Phone must be less than 15 digits" })
+    .regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
   type_proffesion: z.string().min(1, {
     message: "Type profession is required",
   }),
@@ -69,19 +61,97 @@ export const RegisterFirstSchema = z.object({
   place_work: z.string().min(1, {
     message: "Place work is required",
   }),
+  policy: z.boolean().refine((val) => val === true, {
+    message: "Policy confirmation is required",
+  }),
+  newsletter: z.boolean().optional(),
+  marketing: z.boolean().optional(),
+})
+
+export const RegisterFirstSchema = z.object({
+  name: z.string().min(1, {
+    message: "First name is required",
+  }),
+  lastName: z.string().min(1, {
+    message: "Last name is required",
+  }),
   telephone: z.string().min(1, {
-    message: "Telephone is required",
+    message: "Phone number is required",
+  }),
+  policy: z.boolean().refine((val) => val === true, {
+    message: "Please agree to ToS and Privacy Policy before continuing",
+  }),
+  newsletter: z.boolean().optional(),
+  marketing: z.boolean().optional(),
+})
+
+export const RegisterSecondSchema = z.object({
+  email: z.string().email({
+    message: "Email is required",
+  }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long." })
+    .refine(
+      (password) => {
+        const hasUpperCase = /[A-Z]/.test(password)
+        const hasLowerCase = /[a-z]/.test(password)
+        const hasNumbers = /[0-9]/.test(password)
+        const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+        if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSymbols) {
+          return false
+        }
+
+        return true
+      },
+      {
+        message:
+          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.",
+      }
+    ),
+})
+
+export const RegisterThirdSchema = z.object({
+  type_proffesion: z.string().min(1, {
+    message: "Type profession is required",
+  }),
+  practical_size: z.string().min(1, {
+    message: "Practice size is required",
+  }),
+  place_work: z.string().min(1, {
+    message: "Place work is required",
   }),
 })
 
 export const NewPasswordSchema = z
   .object({
-    password: z.string().min(8, "Password must be at least 8 characters long"),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long." })
+      .refine(
+        (password) => {
+          const hasUpperCase = /[A-Z]/.test(password)
+          const hasLowerCase = /[a-z]/.test(password)
+          const hasNumbers = /[0-9]/.test(password)
+          const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+          if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSymbols) {
+            return false
+          }
+
+          return true
+        },
+        {
+          message:
+            "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.",
+        }
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"], // Це вказує, де показувати повідомлення про помилку
+    message: "Passwords don’t match. Please double-check and try again",
+    path: ["confirmPassword"],
   })
 
 export const ResetPasswordSettings = z
@@ -89,12 +159,32 @@ export const ResetPasswordSettings = z
     currentPassword: z.string().min(1, {
       message: "Current password is required",
     }),
-    newPassword: z.string().min(8, "Password must be at least 8 characters long"),
+    newPassword: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long." })
+      .refine(
+        (password) => {
+          const hasUpperCase = /[A-Z]/.test(password)
+          const hasLowerCase = /[a-z]/.test(password)
+          const hasNumbers = /[0-9]/.test(password)
+          const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+          if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSymbols) {
+            return false
+          }
+
+          return true
+        },
+        {
+          message:
+            "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.",
+        }
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"], // Це вказує, де показувати повідомлення про помилку
+    message: "Passwords don’t match. Please double-check and try again",
+    path: ["confirmPassword"],
   })
 
 export const MarketingAssetsSchema = z.object({

@@ -21,7 +21,7 @@ export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, tok
   const { password, confirmPassword } = validatedFields.data
 
   if (password !== confirmPassword) {
-    return { error: "Passwords do not match" }
+    return { error: "Passwords don’t match. Please double-check and try again" }
   }
 
   const existingToken = await getPasswordResetTokenByToken(token)
