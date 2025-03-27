@@ -150,7 +150,7 @@ export const sendInactivityNotification = async ({
 }) => {
   const eventData = createEventData(
     email,
-    "Inactivity Notification",
+    "Inactivity Notification Email Sent",
     {
       last_active_date: lastActiveDate,
       days_inactive: daysInactive.toString(),

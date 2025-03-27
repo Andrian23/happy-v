@@ -15,21 +15,23 @@ const queueActivityUpdate = (userEmail: string, req: NextRequest) => {
   fetch(url, {
     method: "POST",
     cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-    },
   }).catch((err) => console.error("Background activity update failed:", err))
 }
 
 export default auth((req) => {
   const { nextUrl } = req
+  const isLoggedIn = !!req.auth
   const userEmail = req.auth?.user?.email
 
   if (nextUrl.pathname.startsWith("/api/cron")) {
     return NextResponse.next()
   }
 
-  if (userEmail) {
+  if (nextUrl.pathname.startsWith("/api/user/activity")) {
+    return NextResponse.next()
+  }
+
+  if (isLoggedIn && userEmail) {
     queueActivityUpdate(userEmail, req)
   }
 
@@ -42,10 +44,12 @@ export default auth((req) => {
   }
 
   if (isAuthRoute) {
-    return userEmail ? NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl)) : NextResponse.next()
+    if (isLoggedIn) {
+      return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+    }
   }
 
-  if (!userEmail && !isPublicRoute) {
+  if (!isLoggedIn && !isPublicRoute) {
     return NextResponse.redirect(new URL("/sign-in", nextUrl))
   }
 
