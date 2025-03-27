@@ -18,7 +18,7 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
       return { error: "Invalid Fields" }
     }
 
-    const { email, password, name, lastName, telephone, place_work, type_proffesion } = validatedFields.data
+    const { email, password, name, lastName, telephone } = validatedFields.data
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const existingUser = await getUserByEmail(email)
@@ -33,8 +33,6 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
         lastName,
         email,
         telephone,
-        place_work,
-        type_proffesion,
         password: hashedPassword,
       },
     })
