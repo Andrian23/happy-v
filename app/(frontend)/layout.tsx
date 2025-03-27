@@ -1,10 +1,18 @@
 import React from "react"
+import { redirect } from "next/navigation"
 
+import { getUncompletedSignUpSteps } from "@/actions/signUp"
 import CartInitializer from "@/app/features/cart/CartInitializer"
 import MenuMobile from "@/components/MenuMobile"
 import Sidebar from "@/components/Sidebar"
 
-export default function FrontendLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function FrontendLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const uncompletedSignUpSteps = await getUncompletedSignUpSteps()
+
+  if (uncompletedSignUpSteps.length) {
+    redirect(uncompletedSignUpSteps[0])
+  }
+
   return (
     <>
       <MenuMobile />

@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useTransition } from "react"
+import { startTransition, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
@@ -9,6 +9,7 @@ import * as z from "zod"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 
+import { signUp } from "@/actions/signUp"
 import Divider from "@/components/Divider"
 import { FormError } from "@/components/FormError"
 import PasswordInput from "@/components/PasswordInput"
@@ -46,15 +47,26 @@ const SignUpSecondPage = () => {
     const savedData = localStorage.getItem("formData")
     const savedForm = savedData ? JSON.parse(savedData) : {}
     localStorage.setItem("formData", JSON.stringify({ ...savedForm, ...values }))
+    return { ...savedForm, ...values }
+  }
+
+  const handleResponse = (data: { error: string; success?: undefined } | { success: string; error?: undefined }) => {
+    setError(data.error)
+    setSuccess(data.success)
+    if (data.success) {
+      router.push("/sign-up-3")
+    }
   }
 
   const onSubmitValues = (values: z.infer<typeof RegisterSecondSchema>) => {
     setError("")
     setSuccess("")
 
-    onSubmitStorage(values)
+    const registrationData = onSubmitStorage(values)
 
-    router.push("/sign-up-3")
+    startTransition(() => {
+      signUp(registrationData).then((data) => handleResponse(data))
+    })
   }
 
   const onClickGoogle = async (provider: "google") => {

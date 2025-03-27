@@ -1,9 +1,10 @@
-import NextAuth from "next-auth"
+import NextAuth, { User } from "next-auth"
 
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { UserRole } from "@prisma/client"
 
 import { sendLoginNotification } from "@/actions/emailEvents"
+import { User as UserInterface } from "@/models/user"
 
 import { getUserById } from "./data/user"
 import { db } from "./lib/db"
@@ -37,7 +38,9 @@ export const {
           lastName: lastName || null,
           emailVerified: new Date(),
           role: UserRole.USER,
-        },
+          signUpStep3Completed: false,
+          signUpStep4Completed: false,
+        } as User,
       })
     },
   },
@@ -94,12 +97,20 @@ export const {
         session.user.telephone = token.telephone as string
       }
 
+      if (typeof token.signUpStep3Completed === "boolean" && session.user) {
+        session.user.signUpStep3Completed = token.signUpStep3Completed
+      }
+
+      if (typeof token.signUpStep4Completed === "boolean" && session.user) {
+        session.user.signUpStep4Completed = token.signUpStep4Completed
+      }
+
       return session
     },
     async jwt({ token }) {
       if (!token.sub) return token
 
-      const existingUser = await getUserById(token.sub)
+      const existingUser: UserInterface | null = await getUserById(token.sub)
 
       if (!existingUser) return token
 
@@ -108,6 +119,10 @@ export const {
       token.defaultShippingAddress = existingUser.defaultShippingAddress || null
 
       token.telephone = existingUser.telephone || null
+
+      token.signUpStep3Completed = existingUser.signUpStep3Completed || false
+
+      token.signUpStep4Completed = existingUser.signUpStep4Completed || false
 
       return token
     },
