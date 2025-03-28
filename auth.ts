@@ -1,10 +1,9 @@
-import NextAuth, { User } from "next-auth"
+import NextAuth from "next-auth"
 
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { UserRole } from "@prisma/client"
 
 import { sendLoginNotification } from "@/actions/emailEvents"
-import { User as UserInterface } from "@/models/user"
 
 import { getUserById } from "./data/user"
 import { db } from "./lib/db"
@@ -40,7 +39,7 @@ export const {
           role: UserRole.USER,
           signUpStep3Completed: false,
           signUpStep4Completed: false,
-        } as User,
+        },
       })
     },
   },
@@ -110,7 +109,7 @@ export const {
     async jwt({ token }) {
       if (!token.sub) return token
 
-      const existingUser: UserInterface | null = await getUserById(token.sub)
+      const existingUser = await getUserById(token.sub)
 
       if (!existingUser) return token
 

@@ -1,5 +1,7 @@
 "use server"
 
+import { signIn } from "next-auth/react"
+
 import { getUserByEmail } from "@/data/user"
 import { getVerificationTokenByToken } from "@/data/verificationToken"
 import { db } from "@/lib/db"
@@ -29,6 +31,12 @@ export const newVerification = async (token: string) => {
       emailVerified: new Date(),
       email: existingToken.email,
     },
+  })
+
+  await signIn("credentials", {
+    email: existingUser.email,
+    password: existingUser.password,
+    redirect: false,
   })
 
   await db.verificationToken.delete({

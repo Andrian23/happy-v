@@ -1,9 +1,8 @@
 "use server"
 
 import { auth } from "@/auth"
+import { db } from "@/lib/db"
 import type { User } from "@/models/user"
-
-import { db } from "../lib/db"
 
 export async function getUserById(userId: string): Promise<User | null> {
   return (await db.user.findUnique({

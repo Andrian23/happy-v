@@ -46,11 +46,11 @@ export default auth((req) => {
 
   if (isAuthRoute) {
     if (isLoggedIn && !isUncompletedSignUpRoute) {
-      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+      return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
     }
   }
 
-  if (!isLoggedIn && !isPublicRoute) {
+  if (!isLoggedIn && !isPublicRoute && !isAuthRoute) {
     return NextResponse.redirect(new URL("/sign-in", nextUrl))
   }
 

@@ -2,7 +2,7 @@
 
 import { startTransition, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import { FcGoogle } from "react-icons/fc"
 import * as z from "zod"
@@ -17,6 +17,7 @@ import { SignUpLayout } from "@/components/SignUpLayout"
 import { Button } from "@/components/ui/Button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
 import { Input } from "@/components/ui/Input"
+import { useToast } from "@/components/ui/useToast"
 import { RegisterSecondSchema } from "@/schemas"
 
 const SignUpSecondPage = () => {
@@ -25,6 +26,8 @@ const SignUpSecondPage = () => {
   const [error, setError] = useState<string | undefined>("")
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [success, setSuccess] = useState<string | undefined>("")
+  const session = useSession()
+  const { toast } = useToast()
 
   const formData = useMemo(() => {
     if (typeof window !== "undefined") {
@@ -54,7 +57,11 @@ const SignUpSecondPage = () => {
     setError(data.error)
     setSuccess(data.success)
     if (data.success) {
-      router.push("/sign-up-3")
+      if (session.data) {
+        router.push("/sign-up-3")
+      } else {
+        toast({ title: "Please verify your email", position: "bottom-right" })
+      }
     }
   }
 
