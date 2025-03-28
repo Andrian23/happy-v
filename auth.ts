@@ -1,13 +1,43 @@
 import NextAuth from "next-auth"
+import Credentials from "next-auth/providers/credentials"
+import Google from "next-auth/providers/google"
+import bcrypt from "bcryptjs"
 
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { UserRole } from "@prisma/client"
 
 import { sendLoginNotification } from "@/actions/emailEvents"
+import { getUserByEmail } from "@/data/user"
+import { db } from "@/lib/db"
+import { LoginSchema } from "@/schemas"
 
-import { getUserById } from "./data/user"
-import { db } from "./lib/db"
-import authConfig from "./auth.config"
+import { authConfig } from "./auth.config"
+
+const providers = [
+  Google({
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  }),
+  Credentials({
+    async authorize(credentials) {
+      const validatedFields = LoginSchema.safeParse(credentials)
+
+      if (validatedFields.success) {
+        const { email, password } = validatedFields.data
+
+        const user = await getUserByEmail(email)
+
+        if (!user || !user.password) return null
+
+        const passwordMatch = await bcrypt.compare(password, user.password)
+
+        if (passwordMatch) return user
+      }
+
+      return null
+    },
+  }),
+]
 
 export const {
   handlers: { GET, POST },
@@ -15,10 +45,10 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
-  pages: {
-    signIn: "/sign-in",
-    error: "/auth-error",
-  },
+  ...authConfig,
+  providers,
+  adapter: PrismaAdapter(db),
+  session: { strategy: "jwt" },
   events: {
     async linkAccount({ user }) {
       await db.user.update({
@@ -77,42 +107,7 @@ export const {
 
       return true
     },
-    async session({ token, session }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub
-      }
-
-      if (token.role && session.user) {
-        session.user.role = token.role as UserRole
-      }
-
-      if (typeof token.defaultShippingAddress === "number" && session.user) {
-        session.user.defaultShippingAddress = token.defaultShippingAddress || null
-      }
-
-      if (token.telephone && session.user) {
-        session.user.telephone = token.telephone as string
-      }
-
-      return session
-    },
-    async jwt({ token }) {
-      if (!token.sub) return token
-
-      const existingUser = await getUserById(token.sub)
-
-      if (!existingUser) return token
-
-      token.role = existingUser.role
-
-      token.defaultShippingAddress = existingUser.defaultShippingAddress || null
-
-      token.telephone = existingUser.telephone || null
-
-      return token
-    },
+    jwt: authConfig.callbacks?.jwt || (({ token }) => token),
+    session: authConfig.callbacks?.session || (({ session }) => session),
   },
-  adapter: PrismaAdapter(db),
-  session: { strategy: "jwt" },
-  ...authConfig,
 })
