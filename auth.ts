@@ -37,6 +37,8 @@ export const {
           lastName: lastName || null,
           emailVerified: new Date(),
           role: UserRole.USER,
+          signUpStep3Completed: false,
+          signUpStep4Completed: false,
         },
       })
     },
@@ -94,6 +96,14 @@ export const {
         session.user.telephone = token.telephone as string
       }
 
+      if (typeof token.signUpStep3Completed === "boolean" && session.user) {
+        session.user.signUpStep3Completed = token.signUpStep3Completed
+      }
+
+      if (typeof token.signUpStep4Completed === "boolean" && session.user) {
+        session.user.signUpStep4Completed = token.signUpStep4Completed
+      }
+
       return session
     },
     async jwt({ token }) {
@@ -108,6 +118,10 @@ export const {
       token.defaultShippingAddress = existingUser.defaultShippingAddress || null
 
       token.telephone = existingUser.telephone || null
+
+      token.signUpStep3Completed = existingUser.signUpStep3Completed || false
+
+      token.signUpStep4Completed = existingUser.signUpStep4Completed || false
 
       return token
     },

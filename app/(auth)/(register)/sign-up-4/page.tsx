@@ -1,9 +1,11 @@
 "use client"
 
-import { ChangeEvent, useEffect, useState, useTransition } from "react"
+import { ChangeEvent, startTransition, useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import { User } from "next-auth"
 import { useForm } from "react-hook-form"
 
+import { updateUser } from "@/actions/user"
 import AuthFileInput from "@/components/AuthFileInput"
 import { FormError } from "@/components/FormError"
 import { FormSuccess } from "@/components/FormSuccess"
@@ -18,7 +20,7 @@ const SignUpSecondPage = () => {
   const [isPending] = useTransition()
 
   const [error, setError] = useState<string | undefined>("")
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [success, setSuccess] = useState<string | undefined>("")
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -35,14 +37,28 @@ const SignUpSecondPage = () => {
 
   const form = useForm()
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     localStorage.setItem("fileName", fileName)
     localStorage.removeItem("formData")
 
     if (fileName) {
-      router.push("/sign-up-success")
+      startTransition(async () => {
+        updateUser({ signUpStep4Completed: true }).then((data) => handleResponse(data))
+      })
     } else {
       setError("Credentials is required")
+    }
+  }
+
+  const handleResponse = (
+    data:
+      | { success?: string; data?: User; error?: undefined }
+      | { error: string; success?: undefined; data?: undefined }
+  ) => {
+    setError(data.error)
+    setSuccess(data.success)
+    if (data.success) {
+      router.push("/sign-up-success")
     }
   }
 

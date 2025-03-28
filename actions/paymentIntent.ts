@@ -6,7 +6,7 @@ import type { PaymentMethod } from "@stripe/stripe-js"
 
 import type { User } from "@/models/user"
 
-import { findUserById, updateUser } from "./user"
+import { findUserById, updateUserStripeCustomerId } from "./user"
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const stripe = require("stripe")({
@@ -139,7 +139,7 @@ const getCustomerId = async (user: User) => {
       name: `${user.name} ${user.lastName}`,
     })
 
-    updateUser({ stripeCustomerId: customer.id })
+    updateUserStripeCustomerId({ stripeCustomerId: customer.id })
     return customer.id
   }
 

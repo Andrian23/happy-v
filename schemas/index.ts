@@ -52,15 +52,6 @@ export const RegisterSchema = z.object({
     .min(10, { message: "Phone must be at least 10 digits" })
     .max(15, { message: "Phone must be less than 15 digits" })
     .regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
-  type_proffesion: z.string().min(1, {
-    message: "Type profession is required",
-  }),
-  practical_size: z.string().min(1, {
-    message: "Practice size is required",
-  }),
-  place_work: z.string().min(1, {
-    message: "Place work is required",
-  }),
   policy: z.boolean().refine((val) => val === true, {
     message: "Policy confirmation is required",
   }),

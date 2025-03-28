@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs"
 import * as z from "zod"
 
 import { sendVerificationEmail } from "@/actions/emailEvents"
+import { auth } from "@/auth"
 import { getUserByEmail } from "@/data/user"
 import { db } from "@/lib/db"
 import { generateVerificationToken } from "@/lib/tokens"
@@ -17,7 +18,7 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
       return { error: "Invalid Fields" }
     }
 
-    const { email, password, name, lastName, telephone, place_work, type_proffesion } = validatedFields.data
+    const { email, password, name, lastName, telephone } = validatedFields.data
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const existingUser = await getUserByEmail(email)
@@ -32,8 +33,6 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
         lastName,
         email,
         telephone,
-        place_work,
-        type_proffesion,
         password: hashedPassword,
       },
     })
@@ -53,4 +52,31 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
     console.error("Signup error:", error)
     return { error: "An error occurred during signup." }
   }
+}
+
+export const getUncompletedSignUpSteps = async () => {
+  const session = await auth()
+  if (!session || !session.user) {
+    throw new Error("User not authenticated")
+  }
+
+  const allSteps: { link: string; name: string }[] = [
+    {
+      link: "/sign-up-3",
+      name: "signUpStep3Completed",
+    },
+    {
+      link: "/sign-up-4",
+      name: "signUpStep4Completed",
+    },
+  ]
+
+  const uncompletedSteps: string[] = []
+  allSteps.forEach((step) => {
+    if (!session.user[step.name as keyof typeof session.user]) {
+      uncompletedSteps.push(step.link)
+    }
+  })
+
+  return uncompletedSteps
 }

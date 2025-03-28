@@ -1,14 +1,15 @@
 "use client"
 
-import { useMemo, useState, useTransition } from "react"
+import { startTransition, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import { FcGoogle } from "react-icons/fc"
 import * as z from "zod"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 
+import { signUp } from "@/actions/signUp"
 import Divider from "@/components/Divider"
 import { FormError } from "@/components/FormError"
 import PasswordInput from "@/components/PasswordInput"
@@ -16,6 +17,7 @@ import { SignUpLayout } from "@/components/SignUpLayout"
 import { Button } from "@/components/ui/Button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
 import { Input } from "@/components/ui/Input"
+import { useToast } from "@/components/ui/useToast"
 import { RegisterSecondSchema } from "@/schemas"
 
 const SignUpSecondPage = () => {
@@ -24,6 +26,8 @@ const SignUpSecondPage = () => {
   const [error, setError] = useState<string | undefined>("")
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [success, setSuccess] = useState<string | undefined>("")
+  const session = useSession()
+  const { toast } = useToast()
 
   const formData = useMemo(() => {
     if (typeof window !== "undefined") {
@@ -46,15 +50,30 @@ const SignUpSecondPage = () => {
     const savedData = localStorage.getItem("formData")
     const savedForm = savedData ? JSON.parse(savedData) : {}
     localStorage.setItem("formData", JSON.stringify({ ...savedForm, ...values }))
+    return { ...savedForm, ...values }
+  }
+
+  const handleResponse = (data: { error: string; success?: undefined } | { success: string; error?: undefined }) => {
+    setError(data.error)
+    setSuccess(data.success)
+    if (data.success) {
+      if (session.data) {
+        router.push("/sign-up-3")
+      } else {
+        toast({ title: "Please verify your email", position: "bottom-right" })
+      }
+    }
   }
 
   const onSubmitValues = (values: z.infer<typeof RegisterSecondSchema>) => {
     setError("")
     setSuccess("")
 
-    onSubmitStorage(values)
+    const registrationData = onSubmitStorage(values)
 
-    router.push("/sign-up-3")
+    startTransition(() => {
+      signUp(registrationData).then((data) => handleResponse(data))
+    })
   }
 
   const onClickGoogle = async (provider: "google") => {
