@@ -5,7 +5,7 @@ import * as z from "zod"
 
 import { signIn as nextAuthSignIn } from "@/auth"
 import { getUserByEmail } from "@/data/user"
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
+import { ADMIN_LOGIN_REDIRECT, DEFAULT_LOGIN_REDIRECT } from "@/routes"
 import { LoginSchema } from "@/schemas"
 
 export const signIn = async (values: z.infer<typeof LoginSchema>) => {
@@ -24,10 +24,12 @@ export const signIn = async (values: z.infer<typeof LoginSchema>) => {
   }
 
   try {
+    const redirectTo = existingUser.role === "ADMIN" ? ADMIN_LOGIN_REDIRECT : DEFAULT_LOGIN_REDIRECT
+
     await nextAuthSignIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
+      redirectTo,
     })
   } catch (error) {
     if (error instanceof AuthError) {

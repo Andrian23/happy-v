@@ -14,4 +14,7 @@ export const authRoutes = [
 
 export const apiAuthPrefix = "/api/auth"
 
+export const adminRoutes = ["/super-admin"]
+
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard"
+export const ADMIN_LOGIN_REDIRECT = "/super-admin"

@@ -1,36 +1,45 @@
 import type { NextAuthConfig } from "next-auth"
-import Credentials from "next-auth/providers/credentials"
-import Google from "next-auth/providers/google"
-import bcrypt from "bcryptjs"
 
-import { getUserByEmail } from "./data/user"
-import { LoginSchema } from "./schemas"
+import { UserRole } from "@prisma/client"
 
-export default {
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    Credentials({
-      async authorize(credentials) {
-        const validatedFields = LoginSchema.safeParse(credentials)
+import type { User } from "@/models/user"
 
-        if (validatedFields.success) {
-          const { email, password } = validatedFields.data
+export const authConfig: NextAuthConfig = {
+  pages: {
+    signIn: "/sign-in",
+    error: "/auth-error",
+  },
+  callbacks: {
+    jwt: ({ token, user }) => {
+      if (user) {
+        token.role = (user as User).role
+        token.defaultShippingAddress = (user as User).defaultShippingAddress
+        token.telephone = (user as User).telephone
+      }
+      return token
+    },
+    session: ({ session, token }) => {
+      if (token.sub && session.user) {
+        session.user.id = token.sub
+      }
 
-          const user = await getUserByEmail(email)
+      if (token.role && session.user) {
+        session.user.role = token.role as UserRole
+      }
 
-          if (!user || !user.password) return null
+      if (typeof token.defaultShippingAddress === "number" && session.user) {
+        session.user.defaultShippingAddress = token.defaultShippingAddress || null
+      }
 
-          const passwordMatch = await bcrypt.compare(password, user.password)
+      if (token.telephone && session.user) {
+        session.user.telephone = token.telephone as string
+      }
 
-          if (passwordMatch) return user
-        }
-
-        return null
-      },
-    }),
-  ],
+      return session
+    },
+    authorized: ({ auth }) => !!auth,
+  },
+  providers: [],
+  trustHost: true,
   secret: process.env.AUTH_SECRET,
-} satisfies NextAuthConfig
+}

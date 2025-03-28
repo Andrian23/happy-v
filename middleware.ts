@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import NextAuth from "next-auth"
 
-import { apiAuthPrefix, authRoutes, DEFAULT_LOGIN_REDIRECT, publicRoutes } from "@/routes"
+import { adminRoutes, apiAuthPrefix, authRoutes, DEFAULT_LOGIN_REDIRECT, publicRoutes } from "@/routes"
 
-import authConfig from "./auth.config"
+import { authConfig } from "./auth.config"
 
-const { auth } = NextAuth(authConfig)
+export const { auth } = NextAuth(authConfig)
 
-const queueActivityUpdate = (userEmail: string, req: NextRequest) => {
+const queueActivityUpdate = (userEmail: string, req: Request) => {
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http"
   const host = req.headers.get("host") || "localhost:3000"
   const url = `${protocol}://${host}/api/user/activity?userEmail=${userEmail}`
@@ -22,6 +22,7 @@ export default auth((req) => {
   const { nextUrl } = req
   const isLoggedIn = !!req.auth
   const userEmail = req.auth?.user?.email
+  const userRole = req.auth?.user?.role
 
   if (nextUrl.pathname.startsWith("/api/cron")) {
     return NextResponse.next()
@@ -35,9 +36,12 @@ export default auth((req) => {
     queueActivityUpdate(userEmail, req)
   }
 
+  const isSuperAdminRoute = adminRoutes.includes(nextUrl.pathname)
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
   const isAuthRoute = authRoutes.includes(nextUrl.pathname)
+
+  const isAdminRoute = adminRoutes.some((route) => nextUrl.pathname.startsWith(route))
   const isUncompletedSignUpRoute = ["/sign-up-3", "/sign-up-4"].includes(nextUrl.pathname)
 
   if (isApiAuthRoute) {
@@ -50,7 +54,17 @@ export default auth((req) => {
     }
   }
 
-  if (!isLoggedIn && !isPublicRoute && !isAuthRoute) {
+  if (userRole === "ADMIN" && !isSuperAdminRoute) {
+    return NextResponse.redirect(new URL("/super-admin", nextUrl))
+  }
+
+  if (isAdminRoute && !isPublicRoute && !isAuthRoute) {
+    if (!isLoggedIn || userRole !== "ADMIN") {
+      return NextResponse.redirect(new URL("/sign-in", nextUrl))
+    }
+  }
+
+  if (!isLoggedIn && !isPublicRoute && !isAuthRoute && !isAuthRoute) {
     return NextResponse.redirect(new URL("/sign-in", nextUrl))
   }
 
