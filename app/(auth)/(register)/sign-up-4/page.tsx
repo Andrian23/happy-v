@@ -3,6 +3,7 @@
 import { ChangeEvent, startTransition, useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { User } from "next-auth"
+import { useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
 
 import { updateUser } from "@/actions/user"
@@ -28,6 +29,7 @@ const SignUpSecondPage = () => {
   const [fileName, setFileName] = useState("")
   const [fileUploaded, setFileUploaded] = useState(false)
   const { toast } = useToast()
+  const { data: sessionData, update } = useSession()
 
   useEffect(() => {
     const storedData = localStorage.getItem("formData")
@@ -43,22 +45,23 @@ const SignUpSecondPage = () => {
 
     if (fileName) {
       startTransition(async () => {
-        updateUser({ signUpStep4Completed: true }).then((data) => handleResponse(data))
+        await updateUser({ signUpStep4Completed: true }).then((data) => handleResponse(data))
       })
     } else {
       setError("Credentials is required")
     }
   }
 
-  const handleResponse = (
-    data:
-      | { success?: string; data?: User; error?: undefined }
-      | { error: string; success?: undefined; data?: undefined }
-  ) => {
+  const handleResponse = (data: { success?: string; user?: User; error?: string }) => {
     setError(data.error)
     setSuccess(data.success)
-    if (data.success) {
-      router.push("/sign-up-success")
+    if (data.success && sessionData && sessionData.user) {
+      update({
+        data: {
+          ...sessionData,
+          user: { ...sessionData?.user, signUpStep4Completed: true },
+        },
+      }).then(() => router.push("/sign-up-success"))
     }
   }
 

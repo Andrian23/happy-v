@@ -2,12 +2,12 @@
 
 import { startTransition, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { getUncompletedSignUpSteps } from "@/actions/signUp"
 import { updateUser } from "@/actions/user"
 import { FormError } from "@/components/FormError"
 import { FormSuccess } from "@/components/FormSuccess"
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/Button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
 import { Input } from "@/components/ui/Input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
+import { User } from "@/models/user"
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
 import { RegisterSchema, RegisterThirdSchema } from "@/schemas"
 
@@ -39,6 +40,7 @@ const SignUpSecondPage = () => {
   const [error, setError] = useState<string | undefined>("")
   const [success, setSuccess] = useState<string | undefined>("")
   const nextStepRoute = "/sign-up-4"
+  const { data: sessionData, update } = useSession()
 
   const form = useForm<z.infer<typeof RegisterThirdSchema>>({
     resolver: zodResolver(RegisterThirdSchema),
@@ -49,13 +51,16 @@ const SignUpSecondPage = () => {
     },
   })
 
-  const handleResponse = (data: { error: string; success?: undefined } | { success: string; error?: undefined }) => {
+  const handleResponse = (data: { user?: User; error?: string; success?: string }) => {
     setError(data.error)
     setSuccess(data.success)
-    if (data.success) {
-      getUncompletedSignUpSteps().then((steps) =>
-        router.push(steps?.includes(nextStepRoute) ? nextStepRoute : DEFAULT_LOGIN_REDIRECT)
-      )
+    if (data.success && sessionData && sessionData.user) {
+      update({
+        data: {
+          ...sessionData,
+          user: { ...sessionData?.user, signUpStep3Completed: true },
+        },
+      }).then(() => router.push(data.user?.signUpStep4Completed ? DEFAULT_LOGIN_REDIRECT : nextStepRoute))
     }
   }
 
@@ -74,7 +79,9 @@ const SignUpSecondPage = () => {
     localStorage.setItem("formData", JSON.stringify(fullForm))
 
     startTransition(async () => {
-      updateUser({ ...values, signUpStep3Completed: true }).then((data) => handleResponse(data))
+      await updateUser({ ...values, signUpStep3Completed: true }).then((data) =>
+        handleResponse(data as { user?: User; error?: string; success?: string })
+      )
     })
   }
 

@@ -1,17 +1,9 @@
 import React, { ReactNode } from "react"
-import { redirect } from "next/navigation"
 
-import { getUncompletedSignUpSteps } from "@/actions/signUp"
 import CartInitializer from "@/app/features/cart/CartInitializer"
 import { CartHeader } from "@/components/layout/CartHeader"
 
 export default async function CartLayout({ children }: { children: ReactNode }) {
-  const uncompletedSignUpSteps = await getUncompletedSignUpSteps()
-
-  if (uncompletedSignUpSteps.length) {
-    redirect(uncompletedSignUpSteps[0])
-  }
-
   return (
     <div className="h-full">
       <CartHeader />

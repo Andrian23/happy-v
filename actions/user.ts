@@ -68,7 +68,7 @@ export async function updateUser(data: Partial<User>) {
       },
     })
 
-    return { success: "User updated successfully", data: updatedUser }
+    return { success: "User updated successfully", user: updatedUser }
   } catch (error) {
     console.error("Failed to update user profile:", error)
     return { error: "An error occurred during update user data." }

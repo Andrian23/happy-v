@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server"
-import NextAuth from "next-auth"
+import NextAuth, { User } from "next-auth"
 
-import { adminRoutes, apiAuthPrefix, authRoutes, DEFAULT_LOGIN_REDIRECT, publicRoutes } from "@/routes"
+import {
+  adminRoutes,
+  apiAuthPrefix,
+  authRoutes,
+  DEFAULT_LOGIN_REDIRECT,
+  profileRegistrationRoutes,
+  profileRegistrationSteps,
+  publicRoutes,
+} from "@/routes"
 
 import { authConfig } from "./auth.config"
 
@@ -42,14 +50,14 @@ export default auth((req) => {
   const isAuthRoute = authRoutes.includes(nextUrl.pathname)
 
   const isAdminRoute = adminRoutes.some((route) => nextUrl.pathname.startsWith(route))
-  const isUncompletedSignUpRoute = ["/sign-up-3", "/sign-up-4"].includes(nextUrl.pathname)
+  const isProfileStepsRoute = profileRegistrationRoutes.includes(nextUrl.pathname)
 
   if (isApiAuthRoute) {
     return NextResponse.next()
   }
 
   if (isAuthRoute) {
-    if (isLoggedIn && !isUncompletedSignUpRoute) {
+    if (isLoggedIn && !isProfileStepsRoute) {
       return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
     }
   }
@@ -64,8 +72,20 @@ export default auth((req) => {
     }
   }
 
-  if (!isLoggedIn && !isPublicRoute && !isAuthRoute && !isAuthRoute) {
+  if (!isLoggedIn && !isPublicRoute && !isAuthRoute) {
     return NextResponse.redirect(new URL("/sign-in", nextUrl))
+  }
+
+  const uncompletedSteps: string[] = []
+  profileRegistrationSteps.forEach((step) => {
+    const user = req.auth?.user as User
+    if (!user?.[step.name as keyof typeof user]) {
+      uncompletedSteps.push(step.route)
+    }
+  })
+
+  if (isLoggedIn === true && !isAuthRoute && uncompletedSteps.length > 0) {
+    return NextResponse.redirect(new URL(uncompletedSteps[0], nextUrl))
   }
 
   return NextResponse.next()
