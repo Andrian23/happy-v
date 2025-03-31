@@ -53,7 +53,6 @@ export const authConfig: NextAuthConfig = {
       if (typeof token.signUpStep4Completed === "boolean" && session.user) {
         session.user.signUpStep4Completed = token.signUpStep4Completed
       }
-
       return session
     },
     authorized: ({ auth }) => !!auth,
