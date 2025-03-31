@@ -84,7 +84,7 @@ export default auth((req) => {
     }
   })
 
-  if (isLoggedIn === true && !isAuthRoute && uncompletedSteps.length > 0) {
+  if (isLoggedIn && !isAuthRoute && uncompletedSteps.length > 0) {
     return NextResponse.redirect(new URL(uncompletedSteps[0], nextUrl))
   }
 

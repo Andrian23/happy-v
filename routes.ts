@@ -29,4 +29,5 @@ export const profileRegistrationSteps: { route: string; name: string }[] = [
     name: "signUpStep4Completed",
   },
 ]
+
 export const profileRegistrationRoutes = ["/sign-up-success", ...profileRegistrationSteps.map((step) => step.route)]
