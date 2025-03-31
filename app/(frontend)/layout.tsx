@@ -4,7 +4,7 @@ import CartInitializer from "@/app/features/cart/CartInitializer"
 import MenuMobile from "@/components/MenuMobile"
 import Sidebar from "@/components/Sidebar"
 
-export default function FrontendLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function FrontendLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
       <MenuMobile />

@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs"
 import * as z from "zod"
 
 import { sendVerificationEmail } from "@/actions/emailEvents"
+import { signIn } from "@/auth"
 import { getUserByEmail } from "@/data/user"
 import { db } from "@/lib/db"
 import { generateVerificationToken } from "@/lib/tokens"
@@ -17,7 +18,7 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
       return { error: "Invalid Fields" }
     }
 
-    const { email, password, name, lastName, telephone, place_work, type_proffesion } = validatedFields.data
+    const { email, password, name, lastName, telephone } = validatedFields.data
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const existingUser = await getUserByEmail(email)
@@ -32,8 +33,6 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
         lastName,
         email,
         telephone,
-        place_work,
-        type_proffesion,
         password: hashedPassword,
       },
     })
@@ -46,6 +45,12 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
       name,
       lastName,
       telephone,
+    })
+
+    await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
     })
 
     return { success: "Confirmation email sent" }

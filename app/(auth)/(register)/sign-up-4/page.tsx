@@ -1,9 +1,12 @@
 "use client"
 
-import { ChangeEvent, useEffect, useState, useTransition } from "react"
+import { ChangeEvent, startTransition, useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import { User } from "next-auth"
+import { useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
 
+import { updateUser } from "@/actions/user"
 import AuthFileInput from "@/components/AuthFileInput"
 import { FormError } from "@/components/FormError"
 import { FormSuccess } from "@/components/FormSuccess"
@@ -18,7 +21,7 @@ const SignUpSecondPage = () => {
   const [isPending] = useTransition()
 
   const [error, setError] = useState<string | undefined>("")
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [success, setSuccess] = useState<string | undefined>("")
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -26,6 +29,7 @@ const SignUpSecondPage = () => {
   const [fileName, setFileName] = useState("")
   const [fileUploaded, setFileUploaded] = useState(false)
   const { toast } = useToast()
+  const { data: sessionData, update } = useSession()
 
   useEffect(() => {
     const storedData = localStorage.getItem("formData")
@@ -35,14 +39,29 @@ const SignUpSecondPage = () => {
 
   const form = useForm()
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     localStorage.setItem("fileName", fileName)
     localStorage.removeItem("formData")
 
     if (fileName) {
-      router.push("/sign-up-success")
+      startTransition(async () => {
+        await updateUser({ signUpStep4Completed: true }).then((data) => handleResponse(data))
+      })
     } else {
       setError("Credentials is required")
+    }
+  }
+
+  const handleResponse = (data: { success?: string; user?: User; error?: string }) => {
+    setError(data.error)
+    setSuccess(data.success)
+    if (data.success && sessionData && sessionData.user) {
+      update({
+        data: {
+          ...sessionData,
+          user: { ...sessionData?.user, signUpStep4Completed: true },
+        },
+      }).then(() => router.push("/sign-up-success"))
     }
   }
 
