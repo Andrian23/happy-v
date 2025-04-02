@@ -42,7 +42,10 @@ const DeclineProfileModal: React.FC<DeclineProfileModalProps> = ({ isOpen, onClo
 
   return (
     <div className="fixed inset-0 z-50 h-screen overflow-auto bg-black/70">
-      <div ref={modalRef} className="fixed inset-x-0 inset-y-0 z-20 m-auto h-fit w-160 rounded-2xl bg-white">
+      <div
+        ref={modalRef}
+        className="fixed inset-x-0 inset-y-0 z-20 m-auto h-fit w-160 rounded-2xl bg-white max-md:w-[calc(100vw-32px)]"
+      >
         <div className="border-grey-400 flex w-full items-center justify-between border-b p-4 md:p-6">
           <div className="text-primary-900 text-2xl font-semibold">Decline reason</div>
           <Button onClick={handleClose} variant="ghost" size="smallIcon">
@@ -62,7 +65,7 @@ const DeclineProfileModal: React.FC<DeclineProfileModalProps> = ({ isOpen, onClo
               onChange={(e) => handleBasicInfoChange(e.target.value)}
             />
           </div>
-          <div className="flex w-72 items-start gap-2 self-end">
+          <div className="flex max-w-72 items-start gap-2 self-end">
             <button
               className="border-grey-400 text-primary-900 flex h-9 cursor-pointer items-center justify-center gap-2 rounded-[98px] border px-4 py-2 text-sm font-semibold"
               onClick={onClose}

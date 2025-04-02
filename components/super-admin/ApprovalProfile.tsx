@@ -183,7 +183,7 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
             </div>
           </div>
         </div>
-        <div className="border-grey-400 bg-grey-100 mt-3.5 w-full rounded-[20px] border p-3">
+        <div className="border-grey-400 bg-grey-100 mt-3.5 w-full rounded-[20px] border p-3 max-md:mb-3.5">
           <div className="flex w-44 items-center gap-2 justify-self-end">
             <Button
               variant="primary"
