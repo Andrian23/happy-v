@@ -67,6 +67,8 @@ export const {
           lastName: lastName || null,
           emailVerified: new Date(),
           role: UserRole.USER,
+          signUpStep3Completed: false,
+          signUpStep4Completed: false,
         },
       })
     },

@@ -2,12 +2,13 @@
 
 import { startTransition, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { signUp } from "@/actions/signUp"
+import { updateUser } from "@/actions/user"
 import { FormError } from "@/components/FormError"
 import { FormSuccess } from "@/components/FormSuccess"
 import { SignUpLayout } from "@/components/SignUpLayout"
@@ -15,6 +16,8 @@ import { Button } from "@/components/ui/Button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
 import { Input } from "@/components/ui/Input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
+import { User } from "@/models/user"
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
 import { RegisterSchema, RegisterThirdSchema } from "@/schemas"
 
 const professions = [
@@ -36,6 +39,8 @@ const SignUpSecondPage = () => {
   const [isPending] = useTransition()
   const [error, setError] = useState<string | undefined>("")
   const [success, setSuccess] = useState<string | undefined>("")
+  const nextStepRoute = "/sign-up-4"
+  const { data: sessionData, update } = useSession()
 
   const form = useForm<z.infer<typeof RegisterThirdSchema>>({
     resolver: zodResolver(RegisterThirdSchema),
@@ -46,22 +51,37 @@ const SignUpSecondPage = () => {
     },
   })
 
+  const handleResponse = (data: { user?: User; error?: string; success?: string }) => {
+    setError(data.error)
+    setSuccess(data.success)
+    if (data.success && sessionData && sessionData.user) {
+      update({
+        data: {
+          ...sessionData,
+          user: { ...sessionData?.user, signUpStep3Completed: true },
+        },
+      }).then(() => router.push(data.user?.signUpStep4Completed ? DEFAULT_LOGIN_REDIRECT : nextStepRoute))
+    }
+  }
+
   const onSubmit = (values: z.infer<typeof RegisterThirdSchema>) => {
     setError("")
     setSuccess("")
 
     const savedData = localStorage.getItem("formData")
-    const fullForm: z.infer<typeof RegisterSchema> = savedData ? { ...JSON.parse(savedData), ...values } : {}
+    const fullForm: z.infer<typeof RegisterSchema> = savedData
+      ? {
+          ...JSON.parse(savedData),
+          ...values,
+          signUpStep3Completed: true,
+        }
+      : {}
     localStorage.setItem("formData", JSON.stringify(fullForm))
 
-    startTransition(() => {
-      signUp(fullForm).then((data) => {
-        setError(data.error)
-        setSuccess(data.success)
-        if (data.success) {
-          router.push("/sign-up-4")
-        }
-      })
+    startTransition(async () => {
+      await updateUser({ ...values, signUpStep3Completed: true }).then((data) =>
+        handleResponse(data as { user?: User; error?: string; success?: string })
+      )
     })
   }
 
