@@ -53,7 +53,11 @@
 
   --color-green-100: rgba(var(--green-100));
 
+  --color-blue-50: rgba(var(--blue-50));
+
   --color-error-500: rgba(var(--error-500));
+  
+  --color-red: rgba(var(--red));
 
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
@@ -157,6 +161,10 @@
 
     /* Green Colors */
     --green-100: 9 189 48; /* success color */
+
+    --blue-50: 249, 251, 253;
+
+    --red: 255, 60, 60;
 
     /* Red Colors */
     --error-500: 236, 138, 174; /* error color */

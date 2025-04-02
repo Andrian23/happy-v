@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react"
 
 import type { CartItem } from "@/interfaces/cart"
@@ -20,15 +21,17 @@ const PageTopicSecond: React.FC<PageTopicSecondProps> = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false) // Стан для відстеження стану випадаючого меню
   const [selectedPeriod, setSelectedPeriod] = useState("Last 30 days") // Стан для відстеження вибраного періоду
 
+  const pathname = usePathname()
+  const isSuperAdminPage = pathname.startsWith("/super-admin")
+
   useEffect(() => {
     const cartData = localStorage.getItem("cart")
     if (cartData) {
       const cartItems: CartItem[] = JSON.parse(cartData)
-      // Обчислення загальної кількості товарів
       const totalCount = cartItems.reduce((total, item) => total + item.count, 0)
       setTotalItemCount(totalCount)
     } else {
-      setTotalItemCount(0) // Скидання загальної кількості, якщо кошик порожній
+      setTotalItemCount(0)
     }
   }, [])
 
@@ -91,13 +94,15 @@ const PageTopicSecond: React.FC<PageTopicSecondProps> = (props) => {
         </div>
 
         <div className="relative block h-12 w-8 max-md:hidden">
-          <Link href="/cart">
-            <Image src={cartIcon} alt="Cart" className="absolute top-[5px] right-[5px] h-[25px] w-[25px]" />
-            <div className="bg-primary-500 absolute top-0 right-0 z-2 h-[14px] w-[14px] rounded-full"></div>
-            <div className="absolute top-[-1px] right-[1px] z-3 rounded-full px-[3px] text-[10px] text-white">
-              {totalItemCount}
-            </div>
-          </Link>
+          {!isSuperAdminPage && (
+            <Link href="/cart">
+              <Image src={cartIcon} alt="Cart" className="absolute top-[5px] right-[5px] h-[25px] w-[25px]" />
+              <div className="bg-primary-500 absolute top-0 right-0 z-2 h-[14px] w-[14px] rounded-full"></div>
+              <div className="absolute top-[-1px] right-[1px] z-3 rounded-full px-[3px] text-[10px] text-white">
+                {totalItemCount}
+              </div>
+            </Link>
+          )}
         </div>
       </div>
       <div className="text-gray-400 max-md:text-xs">{props.description}</div>

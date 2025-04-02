@@ -24,7 +24,7 @@ const SuperAdmin = () => {
           {activeItem === 0 ? (
             <UsersDiploma />
           ) : activeItem === 1 ? (
-            <AmbassadorList />
+            <AmbassadorList /> // rename page to Partners
           ) : activeItem === 2 ? (
             <EMAssetsAdd />
           ) : activeItem === 3 ? (

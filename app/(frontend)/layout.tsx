@@ -8,7 +8,7 @@ export default async function FrontendLayout({ children }: Readonly<{ children: 
   return (
     <>
       <MenuMobile />
-      <div className="m-[14px] flex">
+      <div className="m-[14px] flex min-h-[calc(100%-28px)]">
         <div className="fixed mr-[42px] h-[97%] w-[301px] max-md:hidden">
           <Sidebar />
         </div>
