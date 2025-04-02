@@ -7,9 +7,10 @@ import { usePathname } from "next/navigation"
 import { MenuIcon, X } from "lucide-react"
 
 import Sidebar from "@/components/sidebar/Sidebar"
-import type { CartItem } from "@/interfaces/cart"
-import cartIcon from "@/public/Cart.svg"
+import { Badge } from "@/components/ui/Badge"
+import { Cart } from "@/icons/Cart"
 import mobileLogo from "@/public/Logo_mobile.svg"
+import { useShopifyCartStore } from "@/stores/shopifyCart"
 
 interface MenuMobileProps {
   isAdmin?: boolean
@@ -17,19 +18,15 @@ interface MenuMobileProps {
 
 const MenuMobile: React.FC<MenuMobileProps> = ({ isAdmin = false }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [totalItemCount, setTotalItemCount] = useState(0)
   const pathname = usePathname()
 
+  const cart = useShopifyCartStore((state) => state.cart)
+  const fetchCart = useShopifyCartStore((state) => state.fetchCart)
+  const cartCount = cart?.lines.edges.reduce((total, { node }) => total + node.quantity, 0) || 0
+
   useEffect(() => {
-    const cartData = localStorage.getItem("cart")
-    if (cartData) {
-      const cartItems: CartItem[] = JSON.parse(cartData)
-      const totalCount = cartItems.reduce((total, item) => total + item.count, 0)
-      setTotalItemCount(totalCount)
-    } else {
-      setTotalItemCount(0)
-    }
-  }, [])
+    fetchCart()
+  }, [fetchCart])
 
   useEffect(() => {
     setIsOpen(false)
@@ -49,15 +46,19 @@ const MenuMobile: React.FC<MenuMobileProps> = ({ isAdmin = false }) => {
           </Link>
           {isAdmin && <h2 className="text-xs font-medium">Super Admin</h2>}
         </div>
-        <div className="relative block h-8 w-8">
-          <Link href="/cart">
-            <Image src={cartIcon} alt="Cart" className="absolute top-[5px] right-[5px] h-6 w-6" />
-            <div className="bg-primary-500 absolute top-0 right-0 z-2 h-3.5 w-3.5 rounded-full"></div>
-            <div className="absolute -top-px right-px z-3 rounded-full px-[3px] text-[10px] text-white">
-              {totalItemCount}
-            </div>
-          </Link>
-        </div>
+
+        {isAdmin ? (
+          <div className="w-6" />
+        ) : (
+          <div className="relative">
+            <Link href="/cart">
+              <Cart className="text-primary-900 h-6 w-6" />
+              <Badge className="absolute -top-1 -right-1 flex aspect-square min-w-4 items-center justify-center rounded-full p-0.5 text-[10px] leading-none">
+                {cartCount}
+              </Badge>
+            </Link>
+          </div>
+        )}
       </div>
       {isOpen ? (
         <div className={`absolute ${isAdmin ? "top-25" : "top-17.5"} z-99999 w-full shadow-lg`}>
