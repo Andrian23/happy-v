@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useSearchParams } from "next/navigation" // Import useSearchParams
 import { format } from "date-fns"
 import { BeatLoader } from "react-spinners"
 
@@ -16,11 +16,12 @@ import { User } from "@/models/user"
 const AmbassadorMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
-  const pathname = usePathname()
-  const activeTab = pathname.split("/").pop() as string
+  const searchParams = useSearchParams()
+  const activeTab = searchParams.get("status") || "pending"
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (activeTab: string) => {
     try {
+      console.log(activeTab)
       const data = await getUsersByStatus(activeTab)
       setUsers(data)
     } catch (error) {
@@ -31,8 +32,8 @@ const AmbassadorMainPage = () => {
   }
 
   useEffect(() => {
-    fetchUsers()
-  }, [])
+    fetchUsers(activeTab)
+  }, [activeTab])
 
   if (loading) {
     return (

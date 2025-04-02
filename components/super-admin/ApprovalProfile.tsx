@@ -1,7 +1,6 @@
 "use client"
 
 import { FC, useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
 
 import { Label } from "@radix-ui/react-label"
 
@@ -14,6 +13,10 @@ import { Button } from "../ui/Button"
 import { Input } from "../ui/Input"
 
 import DeclineProfileModal from "./DeclineProfileModal"
+
+interface ApprovalProfileProps {
+  userId: string
+}
 
 type ProfessionalInfo = {
   key: keyof Pick<
@@ -54,21 +57,19 @@ const professionalInfo: ProfessionalInfo[] = [
   },
 ]
 
-const ApprovalProfile: FC = () => {
-  const pathname = usePathname()
-  const id = pathname.split("/").pop()
+const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string }) => {
   const [user, setUser] = useState<User | null>(null)
   const [deletingId, setDeletingId] = useState<string | number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!id) {
+      if (!userId) {
         console.error("User ID is undefined")
         return
       }
       try {
-        const response = await getUserById(id)
+        const response = await getUserById(userId)
         setUser(response)
       } catch (error) {
         console.error("Failed to fetch user:", error)
@@ -76,14 +77,14 @@ const ApprovalProfile: FC = () => {
     }
 
     fetchUser() // Remove the redundant check and call fetchUser directly
-  }, [id])
+  }, [userId])
 
   const onSubmit = async () => {
     try {
-      console.log("Approve user with ID:", user?.id)
-      // await approveUser(user.id).then((response: { success?: string, data?: User, error?: string}) => {
+      console.log("Approve user with ID:", userId)
+      // await approveUser(userId).then((response: { success?: string, data?: User, error?: string}) => {
       //   if (response.success) {
-      //     router.push("/super-admin")
+      //     router.push("/super-admin/ambassador?status=active")
       //   }
       // })
     } catch (error) {
@@ -111,7 +112,7 @@ const ApprovalProfile: FC = () => {
       console.log("Decline user with ID:", userId, declineReason)
       // await declineUser({ userId, declineReason}).then((response: { success?: string, error?: string}) => {
       //   if (response.success) {
-      //     router.push("/super-admin")
+      //     router.push("/super-admin/ambassador?status=declined")
       //   }
       // })
     } catch (error) {
@@ -123,12 +124,12 @@ const ApprovalProfile: FC = () => {
     <div className="h-full w-full lg:px-4">
       {isModalOpen && <ContractModal onClose={() => setIsModalOpen(false)} onDownload={handleDownloadClick} />}
       <DeclineProfileModal
-        isOpen={deletingId === user?.id}
+        isOpen={deletingId === userId}
         onClose={() => setDeletingId(null)}
-        onConfirm={(declineReason: string) => handleDeclineUser(user?.id, declineReason)}
+        onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason)}
       />
       <div className="flex h-full flex-col">
-        <PageTopicSecond name="Back to Ambassadors hub" link="/super-admin/ambassador" enable={false} />
+        <PageTopicSecond name="Back to Ambassadors hub" link="/super-admin/ambassador?status=pending" enable={false} />
         <div className="mt-6 flex flex-1 items-start justify-between max-lg:block">
           <div className="w-3/5 max-lg:mt-8 max-lg:w-full">
             <div className="text-primary-900 text-[20px] font-semibold">Professional Info</div>
@@ -196,7 +197,7 @@ const ApprovalProfile: FC = () => {
               variant="primary"
               size="sm"
               className="bg-red hover:bg-red/80 w-full rounded-full"
-              onClick={() => handleOpenDeletingModal(user?.id)}
+              onClick={() => handleOpenDeletingModal(userId)}
             >
               Decline
             </Button>

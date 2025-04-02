@@ -93,9 +93,24 @@ export const adminNavigation = {
       icon: <Registration className={classes} />,
       hasNotification: true,
       subLinks: [
-        { name: "Pending for Review", icon: <Review className={classes} />, link: "/super-admin/pending", count: 8 },
-        { name: "Active Ambassadors", icon: <Active className={classes} />, link: "/super-admin/active", count: 12 },
-        { name: "Declined Request", icon: <Declined className={classes} />, link: "/super-admin/declined", count: 12 },
+        {
+          name: "Pending for Review",
+          icon: <Review className={classes} />,
+          link: "/super-admin/ambassador?status=pending",
+          count: 8,
+        },
+        {
+          name: "Active Ambassadors",
+          icon: <Active className={classes} />,
+          link: "/super-admin/ambassador?status=active",
+          count: 12,
+        },
+        {
+          name: "Declined Request",
+          icon: <Declined className={classes} />,
+          link: "/super-admin/ambassador?status=declined",
+          count: 12,
+        },
       ],
     },
     {
@@ -103,9 +118,24 @@ export const adminNavigation = {
       icon: <Ambassador className={classes} />,
       hasNotification: true,
       subLinks: [
-        { name: "Pending for Review", icon: <Review className={classes} />, link: "/super-admin/pending", count: 8 },
-        { name: "Active Ambassadors", icon: <Active className={classes} />, link: "/super-admin/active", count: 12 },
-        { name: "Declined Request", icon: <Declined className={classes} />, link: "/super-admin/declined", count: 12 },
+        {
+          name: "Pending for Review",
+          icon: <Review className={classes} />,
+          link: "/super-admin/partners?status=pending",
+          count: 8,
+        },
+        {
+          name: "Active Partners",
+          icon: <Active className={classes} />,
+          link: "/super-admin/partners?status=active",
+          count: 12,
+        },
+        {
+          name: "Declined Request",
+          icon: <Declined className={classes} />,
+          link: "/super-admin/partners?status=declined",
+          count: 12,
+        },
       ],
     },
   ],

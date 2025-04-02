@@ -64,13 +64,13 @@ const DeclineProfileModal: React.FC<DeclineProfileModalProps> = ({ isOpen, onClo
           </div>
           <div className="flex w-72 items-start gap-2 self-end">
             <button
-              className="border-grey-400 text-primary-900 flex h-9 items-center justify-center gap-2 rounded-[98px] border px-4 py-2 text-sm font-semibold"
+              className="border-grey-400 text-primary-900 flex h-9 cursor-pointer items-center justify-center gap-2 rounded-[98px] border px-4 py-2 text-sm font-semibold"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
-              className="flex h-9 shrink-0 grow basis-0 flex-col items-center justify-center gap-2.5 rounded-[45px] bg-[#ff3c3c] px-4 py-2 text-sm font-semibold text-white"
+              className="flex h-9 shrink-0 grow basis-0 cursor-pointer flex-col items-center justify-center gap-2.5 rounded-[45px] bg-[#ff3c3c] px-4 py-2 text-sm font-semibold text-white"
               onClick={handleConfirmDecline}
             >
               Decline Request & Send

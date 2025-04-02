@@ -27,7 +27,7 @@ export async function getUsers(): Promise<User[]> {
 }
 
 export async function getUsersByStatus(status: string): Promise<User[]> {
-  console.log(status) // delete after approvalStatus is added
+  console.log("Get users by status:", status) // delete after approvalStatus is added
   return (await db.user.findMany({
     // where: {
     //   approvalStatus: status,
