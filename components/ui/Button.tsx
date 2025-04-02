@@ -5,8 +5,6 @@ import { Slot } from "@radix-ui/react-slot"
 
 import { cn } from "@/lib/utils"
 
-// mb-2.5 flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 text-sm hover:bg-white/15 md:gap-2.5
-
 const buttonVariants = cva(
   "cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-6xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
