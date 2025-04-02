@@ -20,9 +20,11 @@ const buttonVariants = cva(
         primary: "bg-primary-500 text-white hover:bg-primary-600",
         "destructive-outline": "border border-solid border-grey-400 text-error-500 hover:bg-destructive-100",
         "destructive-secondary": "bg-error-600/0 text-white hover:bg-error-600",
+        "destructive-ghost": "flex w-full cursor-pointer rounded-lg text-sm hover:bg-white/15",
       },
       size: {
         default: "h-10 px-4 py-2",
+        "2sm": "p-2 h-9",
         sm: "h-9 px-3 py-2 rounded-xl",
         md: "h-9 px-4 py-2",
         lg: "h-11 rounded-md px-8",

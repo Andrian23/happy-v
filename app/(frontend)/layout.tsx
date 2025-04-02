@@ -1,16 +1,20 @@
 import React from "react"
 
 import CartInitializer from "@/app/features/cart/CartInitializer"
-import MenuMobile from "@/components/MenuMobile"
-import Sidebar from "@/components/Sidebar"
+import { auth } from "@/auth"
+import MenuMobile from "@/components/sidebar/MenuMobile"
+import Sidebar from "@/components/sidebar/Sidebar"
 
 export default async function FrontendLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth()
+  const isAdmin = session?.user?.role === "ADMIN"
+
   return (
     <>
-      <MenuMobile />
+      <MenuMobile isAdmin={isAdmin} />
       <div className="m-[14px] flex min-h-[calc(100%-28px)]">
         <div className="fixed mr-[42px] h-[97%] w-[301px] max-md:hidden">
-          <Sidebar />
+          <Sidebar isAdmin={isAdmin} />
         </div>
         <div className="ml-auto block w-[calc(100%-323px)] max-md:w-[100%]">
           <CartInitializer />
