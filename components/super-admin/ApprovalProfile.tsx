@@ -5,12 +5,11 @@ import { FC, useEffect, useState } from "react"
 import { Label } from "@radix-ui/react-label"
 
 import { getUserById } from "@/actions/user"
+import ContractModal from "@/components/ambassador/ContractModal"
+import PageTopicSecond from "@/components/PageTopicSecond"
+import { Button } from "@/components/ui/Button"
+import { Input } from "@/components/ui/Input"
 import { User } from "@/models/user"
-
-import ContractModal from "../ambassador/ContractModal"
-import PageTopicSecond from "../PageTopicSecond"
-import { Button } from "../ui/Button"
-import { Input } from "../ui/Input"
 
 import DeclineProfileModal from "./DeclineProfileModal"
 
@@ -76,17 +75,12 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
       }
     }
 
-    fetchUser() // Remove the redundant check and call fetchUser directly
+    fetchUser()
   }, [userId])
 
   const onSubmit = async () => {
     try {
       console.log("Approve user with ID:", userId)
-      // await approveUser(userId).then((response: { success?: string, data?: User, error?: string}) => {
-      //   if (response.success) {
-      //     router.push("/super-admin/ambassador?status=active")
-      //   }
-      // })
     } catch (error) {
       console.error("Failed to submit data:", error)
     }
@@ -110,11 +104,6 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
   const handleDeclineUser = (userId?: string, declineReason?: string) => {
     try {
       console.log("Decline user with ID:", userId, declineReason)
-      // await declineUser({ userId, declineReason}).then((response: { success?: string, error?: string}) => {
-      //   if (response.success) {
-      //     router.push("/super-admin/ambassador?status=declined")
-      //   }
-      // })
     } catch (error) {
       console.error("Failed to submit data:", error)
     }
@@ -132,7 +121,7 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
         <PageTopicSecond name="Back to Ambassadors hub" link="/super-admin/ambassador?status=pending" enable={false} />
         <div className="mt-6 flex flex-1 items-start justify-between max-lg:block">
           <div className="w-3/5 max-lg:mt-8 max-lg:w-full">
-            <div className="text-primary-900 text-[20px] font-semibold">Professional Info</div>
+            <div className="text-primary-900 text-xl font-semibold">Professional Info</div>
             <div className="border-grey-400 mt-3.5 rounded-2xl border p-5 max-lg:block">
               <div className="transition duration-300">
                 <div className="flex max-h-full flex-col gap-5 transition-all duration-700">
@@ -164,7 +153,7 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
           </div>
 
           <div className="w-[35%] max-lg:mt-8 max-lg:w-full">
-            <div className="text-primary-900 text-[20px] font-semibold">Credentials</div>
+            <div className="text-primary-900 text-xl font-semibold">Credentials</div>
             <div className="border-grey-400 mt-3.5 rounded-2xl border bg-blue-50 p-13">
               <div className="flex flex-col gap-3 transition duration-300">
                 <div
@@ -172,11 +161,7 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
                   className="bg-grey-300 text-grey-800 flex h-52 w-full items-center justify-between rounded-lg border-2 border-gray-100 p-4 text-sm"
                 >
                   <div className="flex w-full items-center justify-start">
-                    {/* {user?.document ? (
-                      <Image src={documentIcon} alt="Document" className="h-4.5 w-4.5" />
-                    ) : ( */}
                     <div className="ml-2 w-full text-center text-sm">No Document</div>
-                    {/* )} */}
                   </div>
                 </div>
               </div>

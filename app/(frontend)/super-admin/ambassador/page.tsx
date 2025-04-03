@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation" // Import useSearchParams
+import { useSearchParams } from "next/navigation"
 import { format } from "date-fns"
 import { BeatLoader } from "react-spinners"
 
@@ -64,7 +64,13 @@ const AmbassadorMainPage = () => {
             </TableHeader>
             <TableBody>
               {users.map((user) => (
-                <TableRow key={user.id} className="[&>td]:border-b last:[&>td]:border-0">
+                <TableRow
+                  key={user.id}
+                  className="cursor-pointer [&>td]:border-b last:[&>td]:border-0"
+                  onClick={() => {
+                    window.location.href = `/super-admin/ambassador/${user.id}`
+                  }}
+                >
                   <TableCell className="text-primary-900 w-2xs px-5 py-7 font-medium">
                     <Link href={`/super-admin/ambassador/${user.id}`} className="hover:underline">
                       {user.name} {user.lastName}

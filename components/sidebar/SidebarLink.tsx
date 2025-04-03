@@ -2,7 +2,7 @@
 
 import React, { ReactElement } from "react"
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation" // Import useSearchParams
+import { usePathname, useSearchParams } from "next/navigation"
 import { clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 

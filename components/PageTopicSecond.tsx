@@ -17,9 +17,9 @@ interface PageTopicSecondProps {
 }
 
 const PageTopicSecond: React.FC<PageTopicSecondProps> = (props) => {
-  const [totalItemCount, setTotalItemCount] = useState(0) // Стан для зберігання загальної кількості товарів
-  const [dropdownOpen, setDropdownOpen] = useState(false) // Стан для відстеження стану випадаючого меню
-  const [selectedPeriod, setSelectedPeriod] = useState("Last 30 days") // Стан для відстеження вибраного періоду
+  const [totalItemCount, setTotalItemCount] = useState(0)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [selectedPeriod, setSelectedPeriod] = useState("Last 30 days")
 
   const pathname = usePathname()
   const isSuperAdminPage = pathname.startsWith("/super-admin")
