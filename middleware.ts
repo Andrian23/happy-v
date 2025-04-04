@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import NextAuth, { User } from "next-auth"
 
 import {
+  adminPrefix,
   adminRoutes,
   apiAuthPrefix,
   authRoutes,
@@ -44,7 +45,7 @@ export default auth((req) => {
     queueActivityUpdate(userEmail, req)
   }
 
-  const isSuperAdminRoute = adminRoutes.includes(nextUrl.pathname)
+  const isSuperAdminRoute = nextUrl.pathname.startsWith(adminPrefix)
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
   const isAuthRoute = authRoutes.includes(nextUrl.pathname)

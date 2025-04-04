@@ -26,6 +26,15 @@ export async function getUsers(): Promise<User[]> {
   return (await db.user.findMany()) as unknown as User[]
 }
 
+export async function getUsersByStatus(status: string): Promise<User[]> {
+  console.log("Get users by status:", status) // delete after approvalStatus is added
+  return (await db.user.findMany({
+    // where: {
+    //   approvalStatus: status,
+    // },
+  })) as unknown as User[]
+}
+
 export async function updateUserStripeCustomerId(data: Partial<User>): Promise<User> {
   const session = await auth()
   const userId = session?.user.id

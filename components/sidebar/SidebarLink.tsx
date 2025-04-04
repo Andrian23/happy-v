@@ -1,6 +1,8 @@
+"use client"
+
 import React, { ReactElement } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -24,14 +26,28 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
   isNotified = false,
 }) => {
   const currentPath = usePathname()
-  const isActive = currentPath === link
+  const searchParams = useSearchParams()
+  const currentStatus = searchParams.get("status")
+
+  const isActive = (linkToCheck: string) => {
+    const [basePath, queryString] = linkToCheck.split("?")
+    if (currentPath === basePath) {
+      if (queryString) {
+        const params = new URLSearchParams(queryString)
+        const status = params.get("status")
+        return currentStatus === status
+      }
+      return true
+    }
+    return false
+  }
 
   const mergedClasses = twMerge(
     clsx(
       "group mb-2.5 flex items-center gap-2 rounded-lg p-2 text-sm font-medium md:gap-2.5",
       {
-        "bg-white/15": isActive,
-        "bg-transparent hover:bg-white/15": !isActive,
+        "bg-white/15": isActive(link),
+        "bg-transparent hover:bg-white/15": !isActive(link),
       },
       className
     )

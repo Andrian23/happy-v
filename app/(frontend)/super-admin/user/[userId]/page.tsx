@@ -26,7 +26,7 @@ const UserPage = () => {
       }
     }
 
-    fetchUser() // Remove the redundant check and call fetchUser directly
+    fetchUser()
   }, [id])
 
   // eslint-disable-next-line  @typescript-eslint/no-unused-vars
@@ -51,7 +51,7 @@ const UserPage = () => {
       )}
       <div className="mt-4">
         <div
-          className="ml-2 mt-1 w-fit cursor-pointer rounded-full bg-primary-500 px-3 py-2 text-sm text-white"
+          className="bg-primary-500 mt-1 ml-2 w-fit cursor-pointer rounded-full px-3 py-2 text-sm text-white"
           onClick={() => handleApproveDiploma(user?.id)}
         >
           Approve Diploma

@@ -12,11 +12,11 @@ export default async function FrontendLayout({ children }: Readonly<{ children: 
   return (
     <>
       <MenuMobile isAdmin={isAdmin} />
-      <div className="m-[14px] flex">
-        <div className="fixed mr-[42px] h-[97%] w-[301px] max-md:hidden">
+      <div className="m-3.5 flex min-h-[calc(100%-1.75rem)]">
+        <div className="fixed mr-[2.625rem] h-[97%] w-75 max-md:hidden">
           <Sidebar isAdmin={isAdmin} />
         </div>
-        <div className="ml-auto block w-[calc(100%-323px)] max-md:w-[100%]">
+        <div className="ml-auto block w-[calc(100%-20rem)] max-md:w-[100%]">
           <CartInitializer />
           {children}
         </div>
