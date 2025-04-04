@@ -11,46 +11,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/Button"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
+import { cooperations } from "@/constants/cooperations"
 import { CooperationSchema } from "@/schemas"
 import { useCooperationStore } from "@/stores/cooperation"
-
-const cooperations = [
-  {
-    title: "Social Media Platforms",
-    content:
-      "Lorem ipsum dolor sit amet consectetur. Neque nec velit suscipit pellentesque commodo dui molestie quam. Cras lorem imperdiet ac elementum. Mollis cursus sed diam convallis. Proin id amet aliquet orci enim semper pretium. At imperdiet amet maecenas ipsum. Porttitor scelerisque eu aenean nisl. Netus feugiat gravida tincidunt non lorem molestie integer mauris scelerisque. Cras ut.",
-  },
-  {
-    title: "Press Related Articles",
-    content:
-      "Lorem ipsum dolor sit amet consectetur. Neque nec velit suscipit pellentesque commodo dui molestie quam. Cras lorem imperdiet ac elementum. Mollis cursus sed diam convallis. Proin id amet aliquet orci enim semper pretium. At imperdiet amet maecenas ipsum. Porttitor scelerisque eu aenean nisl. Netus feugiat gravida tincidunt non lorem molestie integer mauris scelerisque. Cras ut.",
-  },
-  {
-    title: "Website Feature Including Images and Quotes",
-    content:
-      "Lorem ipsum dolor sit amet consectetur. Neque nec velit suscipit pellentesque commodo dui molestie quam. Cras lorem imperdiet ac elementum. Mollis cursus sed diam convallis. Proin id amet aliquet orci enim semper pretium. At imperdiet amet maecenas ipsum. Porttitor scelerisque eu aenean nisl. Netus feugiat gravida tincidunt non lorem molestie integer mauris scelerisque. Cras ut.",
-  },
-  {
-    title: "Answering Customer Questions",
-    content:
-      "Lorem ipsum dolor sit amet consectetur. Neque nec velit suscipit pellentesque commodo dui molestie quam. Cras lorem imperdiet ac elementum. Mollis cursus sed diam convallis. Proin id amet aliquet orci enim semper pretium. At imperdiet amet maecenas ipsum. Porttitor scelerisque eu aenean nisl. Netus feugiat gravida tincidunt non lorem molestie integer mauris scelerisque. Cras ut.",
-  },
-  {
-    title: "Attending Events Representing Happy V",
-    content:
-      "Lorem ipsum dolor sit amet consectetur. Neque nec velit suscipit pellentesque commodo dui molestie quam. Cras lorem imperdiet ac elementum. Mollis cursus sed diam convallis. Proin id amet aliquet orci enim semper pretium. At imperdiet amet maecenas ipsum. Porttitor scelerisque eu aenean nisl. Netus feugiat gravida tincidunt non lorem molestie integer mauris scelerisque. Cras ut.",
-  },
-  {
-    title: "Organic Content for YouTube",
-    content:
-      "Lorem ipsum dolor sit amet consectetur. Neque nec velit suscipit pellentesque commodo dui molestie quam. Cras lorem imperdiet ac elementum. Mollis cursus sed diam convallis. Proin id amet aliquet orci enim semper pretium. At imperdiet amet maecenas ipsum. Porttitor scelerisque eu aenean nisl. Netus feugiat gravida tincidunt non lorem molestie integer mauris scelerisque. Cras ut.",
-  },
-  {
-    title: "Product Development Opportunities",
-    content:
-      "Lorem ipsum dolor sit amet consectetur. Neque nec velit suscipit pellentesque commodo dui molestie quam. Cras lorem imperdiet ac elementum. Mollis cursus sed diam convallis. Proin id amet aliquet orci enim semper pretium. At imperdiet amet maecenas ipsum. Porttitor scelerisque eu aenean nisl. Netus feugiat gravida tincidunt non lorem molestie integer mauris scelerisque. Cras ut.",
-  },
-]
 
 const AmbassadorForm = () => {
   const router = useRouter()
@@ -93,8 +56,8 @@ const AmbassadorForm = () => {
       </div>
 
       <div className="mt-7">
-        <div className="text-2xl font-semibold text-primary-900">Choose Areas of Cooperation</div>
-        <div className="text-sm font-normal text-primary-900/60">
+        <div className="text-primary-900 text-2xl font-semibold">Choose Areas of Cooperation</div>
+        <div className="text-primary-900/60 text-sm font-normal">
           Choose the areas in which you are ready to cooperate with Happy V
         </div>
 
@@ -102,7 +65,7 @@ const AmbassadorForm = () => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 w-full lg:px-4">
             <Accordion type="multiple" className="text-primary-900">
               {cooperations.map((item) => (
-                <AccordionItem key={item.title} value={item.title} className="border-b border-grey-400 py-3">
+                <AccordionItem key={item.title} value={item.title} className="border-grey-400 border-b py-3">
                   <FormField
                     control={form.control}
                     name="selectedTitles"
@@ -120,7 +83,7 @@ const AmbassadorForm = () => {
                           </FormControl>
                           <AccordionTrigger className="w-full grow text-sm lg:text-base">{item.title}</AccordionTrigger>
                         </div>
-                        <AccordionContent className="mb-3 ml-8 max-w-3xl rounded-2xl bg-grey-200 p-4">
+                        <AccordionContent className="bg-grey-200 mb-3 ml-8 max-w-3xl rounded-2xl p-4">
                           {item.content}
                         </AccordionContent>
                       </FormItem>
@@ -131,7 +94,7 @@ const AmbassadorForm = () => {
             </Accordion>
 
             {form.formState.errors.selectedTitles && (
-              <p className="mt-2 text-sm font-medium text-destructive">
+              <p className="text-destructive mt-2 text-sm font-medium">
                 {form.formState.errors.selectedTitles.message}
               </p>
             )}
@@ -140,7 +103,7 @@ const AmbassadorForm = () => {
               control={form.control}
               name="isConfirmed"
               render={({ field }) => (
-                <FormItem className="mt-4 flex w-full items-center justify-start rounded-2xl border border-grey-400 p-4">
+                <FormItem className="border-grey-400 mt-4 flex w-full items-center justify-start rounded-2xl border p-4">
                   <FormControl>
                     <Checkbox
                       id="confirmCheckbox"
@@ -149,7 +112,7 @@ const AmbassadorForm = () => {
                     />
                   </FormControl>
                   <div className="ml-4 flex w-120 flex-col gap-2">
-                    <FormLabel className="text-sm font-normal text-primary-900">
+                    <FormLabel className="text-primary-900 text-sm font-normal">
                       By becoming an ambassador of Happy V, I confirm that during cooperation with Happy V I will not
                       cooperate with other competing brands.
                     </FormLabel>

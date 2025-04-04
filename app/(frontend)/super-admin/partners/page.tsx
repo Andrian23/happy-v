@@ -8,7 +8,7 @@ import PageTopic from "@/components/PageTopic"
 import UserApproveTable from "@/components/super-admin/UserApproveTable"
 import { User } from "@/models/user"
 
-const AmbassadorMainPage = () => {
+const PartnersMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
@@ -31,12 +31,12 @@ const AmbassadorMainPage = () => {
 
   return (
     <div className="m-2.5 w-[98%] max-md:m-0">
-      <PageTopic name="Ambassadors Hub" description="" />
+      <PageTopic name="Partners Hub" description="" />
       <div className="mt-3 border-b"></div>
 
-      <UserApproveTable users={users} loading={loading} basePath="/super-admin/ambassador" />
+      <UserApproveTable users={users} loading={loading} basePath="/super-admin/partners" />
     </div>
   )
 }
 
-export default AmbassadorMainPage
+export default PartnersMainPage
