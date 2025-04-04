@@ -1,3 +1,5 @@
+import { ApprovalUserStatus, PartnerStatus } from "@prisma/client"
+
 import type { ShippingAddress } from "./shipping"
 
 export interface User {
@@ -20,4 +22,12 @@ export interface User {
   defaultShippingAddress: number | null
   signUpStep3Completed?: boolean
   signUpStep4Completed?: boolean
+  approvalStatus?: ApprovalUserStatus
+  approvalStatusUpdatedAt?: Date | null
+  approvalNotes?: string
+  approvedBy?: string
+  partnerStatus?: PartnerStatus
+  partnerStatusUpdatedAt?: Date | null
+  partnerApprovalNotes?: string
+  partnerApprovedBy?: string
 }

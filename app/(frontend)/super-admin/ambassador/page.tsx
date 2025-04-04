@@ -6,24 +6,26 @@ import { useSearchParams } from "next/navigation"
 import { format } from "date-fns"
 import { BeatLoader } from "react-spinners"
 
-import { getUsersByStatus } from "@/actions/user"
+import { getParticipants } from "@/actions/super-admin/participant"
 import EmptyRequest from "@/components/EmptyRequest"
 import PageTopic from "@/components/PageTopic"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { Carret } from "@/icons/Carret"
+import { ApprovalUserStatus } from "@/models/participants"
 import { User } from "@/models/user"
 
 const AmbassadorMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
-  const activeTab = searchParams.get("status") || "pending"
+  const userStatusQuery = searchParams.get("status")?.toUpperCase() as keyof typeof ApprovalUserStatus
+  const activeTab: ApprovalUserStatus = ApprovalUserStatus[userStatusQuery] ?? ApprovalUserStatus.PENDING
 
-  const fetchUsers = async (activeTab: string) => {
+  const fetchUsers = async (activeTab: ApprovalUserStatus) => {
     try {
-      console.log(activeTab)
-      const data = await getUsersByStatus(activeTab)
-      setUsers(data)
+      const data = await getParticipants({ approvalStatus: activeTab })
+      console.log("Ambassadors pagination: ", data.pagination)
+      setUsers(data.users as User[])
     } catch (error) {
       console.error("Failed to fetch users:", error)
     } finally {

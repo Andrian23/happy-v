@@ -118,7 +118,11 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
         onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason)}
       />
       <div className="flex h-full flex-col">
-        <PageTopicSecond name="Back to Ambassadors hub" link="/super-admin/ambassador?status=pending" enable={false} />
+        <PageTopicSecond
+          name="Back to Ambassadors hub"
+          link="/super-admin/ambassador?status=pending_review"
+          enable={false}
+        />
         <div className="mt-6 flex flex-1 items-start justify-between max-lg:block">
           <div className="w-3/5 max-lg:mt-8 max-lg:w-full">
             <div className="text-primary-900 text-xl font-semibold">Professional Info</div>

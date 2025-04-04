@@ -2,7 +2,9 @@ import type { NextAuthConfig } from "next-auth"
 
 import { UserRole } from "@prisma/client"
 
-import type { User } from "@/models/user"
+import type { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
+
+import { User } from "./models/user"
 
 export const authConfig: NextAuthConfig = {
   pages: {
@@ -17,6 +19,8 @@ export const authConfig: NextAuthConfig = {
         token.telephone = (user as User).telephone
         token.signUpStep3Completed = (user as User).signUpStep3Completed
         token.signUpStep4Completed = (user as User).signUpStep4Completed
+        token.approvalStatus = (user as User).approvalStatus
+        token.partnerStatus = (user as User).partnerStatus
       }
 
       if (trigger === "update" && session?.data?.user) {
@@ -25,6 +29,12 @@ export const authConfig: NextAuthConfig = {
         }
         if (session.data.user.signUpStep4Completed) {
           token.signUpStep4Completed = session.data.user.signUpStep4Completed
+        }
+        if (session.data.user.approvalStatus) {
+          token.approvalStatus = session.data.user.approvalStatus
+        }
+        if (session.data.user.partnerStatus) {
+          token.partnerStatus = session.data.user.partnerStatus
         }
       }
       return token
@@ -52,6 +62,14 @@ export const authConfig: NextAuthConfig = {
 
       if (typeof token.signUpStep4Completed === "boolean" && session.user) {
         session.user.signUpStep4Completed = token.signUpStep4Completed
+      }
+
+      if (token.approvalStatus && session.user) {
+        session.user.approvalStatus = token.approvalStatus as ApprovalUserStatus
+      }
+
+      if (token.partnerStatus && session.user) {
+        session.user.partnerStatus = token.partnerStatus as PartnerStatus
       }
       return session
     },

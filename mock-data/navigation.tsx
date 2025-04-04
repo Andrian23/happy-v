@@ -96,7 +96,7 @@ export const adminNavigation = {
         {
           name: "Pending for Review",
           icon: <Review className={classes} />,
-          link: "/super-admin/ambassador?status=pending",
+          link: "/super-admin/ambassador?status=pending_review",
           count: 8,
         },
         {
@@ -121,7 +121,7 @@ export const adminNavigation = {
         {
           name: "Pending for Review",
           icon: <Review className={classes} />,
-          link: "/super-admin/partners?status=pending",
+          link: "/super-admin/partners?status=pending_review",
           count: 8,
         },
         {
