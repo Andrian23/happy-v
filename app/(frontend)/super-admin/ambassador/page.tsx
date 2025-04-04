@@ -46,7 +46,7 @@ const AmbassadorMainPage = () => {
   }
 
   return (
-    <div className="m-[10px] w-[98%] max-md:m-0">
+    <div className="m-2.5 w-[98%] max-md:m-0">
       <PageTopic name="Ambassadors Hub" description="" />
       <div className="mt-3 border-b"></div>
 
@@ -65,27 +65,21 @@ const AmbassadorMainPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow
-                  key={user.id}
-                  className="cursor-pointer [&>td]:border-b last:[&>td]:border-0"
-                  onClick={() => {
-                    window.location.href = `/super-admin/ambassador/${user.id}`
-                  }}
-                >
+              {users.map(({ id, name, lastName, createdAt, type_proffesion, practical_size, email }) => (
+                <TableRow key={id} className="[&>td]:border-b last:[&>td]:border-0">
                   <TableCell className="text-primary-900 w-2xs px-5 py-7 font-medium">
-                    <Link href={`/super-admin/ambassador/${user.id}`} className="hover:underline">
-                      {user.name} {user.lastName}
+                    <Link href={`/super-admin/ambassador/${id}`} className="hover:underline">
+                      {name} {lastName}
                     </Link>
                   </TableCell>
                   <TableCell className="text-primary-800 px-5 py-7">
-                    {user.createdAt ? format(user.createdAt, "MM/d/yyyy") : "-"}
+                    {createdAt ? format(createdAt, "MM/d/yyyy") : "-"}
                   </TableCell>
-                  <TableCell className="px-5 py-7 font-medium">{user.type_proffesion || "-"}</TableCell>
-                  <TableCell className="px-5py-7 font-medium">{user.practical_size || "-"}</TableCell>
-                  <TableCell className="px-5 py-7 font-medium">{user.email || "-"}</TableCell>
+                  <TableCell className="px-5 py-7 font-medium">{type_proffesion || "-"}</TableCell>
+                  <TableCell className="px-5 py-7 font-medium">{practical_size || "-"}</TableCell>
+                  <TableCell className="px-5 py-7 font-medium">{email || "-"}</TableCell>
                   <TableCell className="text-primary-900 px-5 py-7 font-medium">
-                    <Link href={`/super-admin/ambassador/${user.id}`}>
+                    <Link href={`/super-admin/ambassador/${id}`}>
                       <Carret />
                     </Link>
                   </TableCell>

@@ -1,6 +1,12 @@
 -- CreateEnum
 CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'USER');
 
+-- CreateEnum
+CREATE TYPE "TopicType" AS ENUM ('ASK', 'SUGGESTION', 'NEWS');
+
+-- CreateEnum
+CREATE TYPE "CommissionStatus" AS ENUM ('PENDING', 'PAID', 'CANCELLED');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -18,6 +24,18 @@ CREATE TABLE "User" (
     "isTwoFactorEnable" BOOLEAN NOT NULL DEFAULT false,
     "name" TEXT,
     "telephone" TEXT,
+    "defaultShippingAddress" INTEGER,
+    "stripeCustomerId" TEXT,
+    "commissionRate" DOUBLE PRECISION NOT NULL DEFAULT 0.15,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "lastActiveAt" TIMESTAMP(3),
+    "npiNumber" TEXT,
+    "referralCode" TEXT,
+    "referralLink" TEXT,
+    "totalCommissionEarned" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "lastInactivityEmailSentAt" TIMESTAMP(3),
+    "signUpStep3Completed" BOOLEAN NOT NULL DEFAULT false,
+    "signUpStep4Completed" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -82,27 +100,36 @@ CREATE TABLE "TwoFactorConfimation" (
 CREATE TABLE "Topic" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "parentId" TEXT,
-    "selected" TEXT NOT NULL,
-    "likes" INTEGER NOT NULL DEFAULT 0,
-    "userId" TEXT NOT NULL,
+    "authorId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "type" "TopicType" NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Topic_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Comment" (
+CREATE TABLE "Reply" (
     "id" TEXT NOT NULL,
-    "comment" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "parentId" TEXT,
     "topicId" TEXT NOT NULL,
-    "likes" INTEGER NOT NULL DEFAULT 0,
-    "userId" TEXT NOT NULL,
+    "authorId" TEXT NOT NULL,
+    "parentReplyId" TEXT,
 
-    CONSTRAINT "Comment_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Reply_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Like" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "topicId" TEXT,
+    "replyId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Like_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -115,7 +142,7 @@ CREATE TABLE "CartOrder" (
     "billingAddress" JSONB NOT NULL,
     "paymentMethod" TEXT NOT NULL,
     "products" JSONB NOT NULL,
-    "totalPrice" INTEGER NOT NULL,
+    "totalPrice" DOUBLE PRECISION NOT NULL,
     "status" TEXT NOT NULL,
     "shippingMethod" JSONB NOT NULL,
 
@@ -186,17 +213,6 @@ CREATE TABLE "SocialAssets" (
 );
 
 -- CreateTable
-CREATE TABLE "Affiliate" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "discountCode" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Affiliate_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "ShippingAddress" (
     "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
@@ -210,13 +226,49 @@ CREATE TABLE "ShippingAddress" (
     "postalZipCode" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "isDefault" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "ShippingAddress_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Commission" (
+    "id" TEXT NOT NULL,
+    "doctorId" TEXT NOT NULL,
+    "patientReferralId" TEXT NOT NULL,
+    "shopifyOrderId" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "orderTotal" DOUBLE PRECISION NOT NULL,
+    "status" "CommissionStatus" NOT NULL DEFAULT 'PENDING',
+    "orderDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "paidAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Commission_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PatientReferral" (
+    "id" TEXT NOT NULL,
+    "doctorId" TEXT NOT NULL,
+    "patientEmail" TEXT NOT NULL,
+    "cookieId" TEXT,
+    "referredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PatientReferral_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_npiNumber_key" ON "User"("npiNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_referralCode_key" ON "User"("referralCode");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_referralLink_key" ON "User"("referralLink");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "accounts_provider_provider_account_id_key" ON "accounts"("provider", "provider_account_id");
@@ -243,7 +295,16 @@ CREATE UNIQUE INDEX "TwoFactorToken_email_token_key" ON "TwoFactorToken"("email"
 CREATE UNIQUE INDEX "TwoFactorConfimation_userId_key" ON "TwoFactorConfimation"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ShippingAddress_userId_isDefault_key" ON "ShippingAddress"("userId", "isDefault");
+CREATE UNIQUE INDEX "Like_userId_topicId_key" ON "Like"("userId", "topicId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Like_userId_replyId_key" ON "Like"("userId", "replyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Commission_doctorId_shopifyOrderId_key" ON "Commission"("doctorId", "shopifyOrderId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PatientReferral_doctorId_patientEmail_key" ON "PatientReferral"("doctorId", "patientEmail");
 
 -- AddForeignKey
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -252,10 +313,34 @@ ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "TwoFactorConfimation" ADD CONSTRAINT "TwoFactorConfimation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Topic" ADD CONSTRAINT "Topic_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Topic"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Topic" ADD CONSTRAINT "Topic_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Comment" ADD CONSTRAINT "Comment_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Comment"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Reply" ADD CONSTRAINT "Reply_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Reply" ADD CONSTRAINT "Reply_parentReplyId_fkey" FOREIGN KEY ("parentReplyId") REFERENCES "Reply"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Reply" ADD CONSTRAINT "Reply_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "Topic"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Like" ADD CONSTRAINT "Like_replyId_fkey" FOREIGN KEY ("replyId") REFERENCES "Reply"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Like" ADD CONSTRAINT "Like_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "Topic"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Like" ADD CONSTRAINT "Like_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ShippingAddress" ADD CONSTRAINT "ShippingAddress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Commission" ADD CONSTRAINT "Commission_doctorId_fkey" FOREIGN KEY ("doctorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Commission" ADD CONSTRAINT "Commission_patientReferralId_fkey" FOREIGN KEY ("patientReferralId") REFERENCES "PatientReferral"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PatientReferral" ADD CONSTRAINT "PatientReferral_doctorId_fkey" FOREIGN KEY ("doctorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
