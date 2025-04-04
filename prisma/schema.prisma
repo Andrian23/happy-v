@@ -44,6 +44,14 @@ model User {
   topics                    Topic[]
   TwoFactorConfimation      TwoFactorConfimation?
   accounts                  Account[]
+  approvalStatus            ApprovalUserStatus    @default(PENDING_REVIEW)
+  approvalStatusUpdatedAt   DateTime?
+  approvalNotes             String?
+  approvedBy                String?
+  partnerStatus             PartnerStatus         @default(NOT_APPLIED)
+  partnerStatusUpdatedAt    DateTime?
+  partnerApprovalNotes      String?
+  partnerApprovedBy         String?
 }
 
 model Account {
@@ -262,4 +270,17 @@ enum CommissionStatus {
   PENDING
   PAID
   CANCELLED
+}
+
+enum ApprovalUserStatus {
+  PENDING_REVIEW
+  ACTIVE
+  DECLINED
+}
+
+enum PartnerStatus {
+  NOT_APPLIED
+  PENDING_REVIEW
+  ACTIVE
+  DECLINED
 }
