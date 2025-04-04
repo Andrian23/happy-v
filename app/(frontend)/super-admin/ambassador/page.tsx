@@ -21,7 +21,6 @@ const AmbassadorMainPage = () => {
 
   const fetchUsers = async (activeTab: string) => {
     try {
-      console.log(activeTab)
       const data = await getUsersByStatus(activeTab)
       setUsers(data)
     } catch (error) {
