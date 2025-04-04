@@ -5,16 +5,22 @@ import { useRouter } from "next/navigation"
 import { User } from "next-auth"
 import { useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
+import { z } from "zod"
+
+import { zodResolver } from "@hookform/resolvers/zod"
 
 import { updateUser } from "@/actions/user"
+import { verifyNPI } from "@/actions/verifyNPI"
 import AuthFileInput from "@/components/AuthFileInput"
 import { FormError } from "@/components/FormError"
 import { FormSuccess } from "@/components/FormSuccess"
 import { SignUpLayout } from "@/components/SignUpLayout"
 import { Button } from "@/components/ui/Button"
-import { Form } from "@/components/ui/Form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
+import { Input } from "@/components/ui/Input"
 import { useToast } from "@/components/ui/useToast"
 import { Info } from "@/icons/Info"
+import { NPISchema } from "@/schemas"
 
 const SignUpSecondPage = () => {
   const router = useRouter()
@@ -28,6 +34,8 @@ const SignUpSecondPage = () => {
   const [formData, setFormData] = useState({})
   const [fileName, setFileName] = useState("")
   const [fileUploaded, setFileUploaded] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [isNpiVerified, setIsNpiVerified] = useState(false)
   const { toast } = useToast()
   const { data: sessionData, update } = useSession()
 
@@ -37,25 +45,55 @@ const SignUpSecondPage = () => {
     setFormData(initialFormData)
   }, [])
 
-  const form = useForm()
+  const form = useForm<z.infer<typeof NPISchema>>({
+    resolver: zodResolver(NPISchema),
+    defaultValues: {
+      npi_number: "",
+    },
+  })
 
-  const onSubmit = async () => {
-    localStorage.setItem("fileName", fileName)
-    localStorage.removeItem("formData")
+  const onSubmit = async (values: z.infer<typeof NPISchema>) => {
+    setError("")
+    setSuccess("")
+    setIsVerifying(true)
+    setIsNpiVerified(false)
 
-    if (fileName) {
+    if (!fileName) {
+      setError("Credentials file is required")
+      setIsVerifying(false)
+      return
+    }
+
+    try {
+      const verificationResult = await verifyNPI(values.npi_number)
+
+      if (!verificationResult.isVerified) {
+        setError(`NPI verification failed: ${verificationResult.error}`)
+        setIsVerifying(false)
+        return
+      }
+
+      setIsNpiVerified(true)
+
+      localStorage.setItem("fileName", fileName)
+      localStorage.removeItem("formData")
+
       startTransition(async () => {
-        await updateUser({ signUpStep4Completed: true }).then((data) => handleResponse(data))
+        await updateUser({
+          signUpStep4Completed: true,
+        }).then((data) => handleResponse(data))
       })
-    } else {
-      setError("Credentials is required")
+    } catch (err) {
+      console.error("Verification error:", err)
+      setError("An error occurred during verification. Please try again.")
+      setIsVerifying(false)
     }
   }
 
   const handleResponse = (data: { success?: string; user?: User; error?: string }) => {
     setError(data.error)
     setSuccess(data.success)
-    if (data.success && sessionData && sessionData.user) {
+    if (data.success && isNpiVerified && sessionData && sessionData.user) {
       update({
         data: {
           ...sessionData,
@@ -67,13 +105,13 @@ const SignUpSecondPage = () => {
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     setError("")
+
     if (!event.target.files || event.target.files.length === 0) {
       toast({ title: "Failed to upload file" })
       setFileUploaded(false)
       return
     }
-    const file = event.target.files[0]
-    console.log(file.name)
+
     setFileUploaded(true)
   }
 
@@ -92,7 +130,7 @@ const SignUpSecondPage = () => {
               onChange={handleFileChange}
               fileName={fileName}
               setFileName={setFileName}
-              disabled={isPending}
+              disabled={isPending || isVerifying}
             />
           </div>
 
@@ -112,13 +150,26 @@ const SignUpSecondPage = () => {
             Once you submit your credentials, Happy V will review them, usually this will take up to 2 business days,
             and then we will notify you of the result to the email address you provided
           </div>
+          <FormField
+            control={form.control}
+            name="npi_number"
+            render={({ field }) => (
+              <FormItem className="my-5">
+                <FormLabel>NPI Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your 10-digit NPI number" {...field} disabled={isPending || isVerifying} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button
             type="submit"
             variant="primary"
-            disabled={isPending || !fileUploaded}
+            disabled={isPending || !fileUploaded || isVerifying}
             className="bg-primary-900 hover:bg-primary-900/80 mt-6 w-full"
           >
             Submit & Create account
