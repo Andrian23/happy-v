@@ -2,7 +2,7 @@
 
 import { startTransition, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { getSession, useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -19,6 +19,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { User } from "@/models/user"
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
 import { RegisterSchema, RegisterThirdSchema } from "@/schemas"
+
+export interface UpdateResponse {
+  user?: User
+  error?: string
+  success?: string
+}
 
 const professions = [
   "Certified Nutritionist",
@@ -51,19 +57,6 @@ const SignUpSecondPage = () => {
     },
   })
 
-  const handleResponse = (data: { user?: User; error?: string; success?: string }) => {
-    setError(data.error)
-    setSuccess(data.success)
-    if (data.success && sessionData && sessionData.user) {
-      update({
-        data: {
-          ...sessionData,
-          user: { ...sessionData?.user, signUpStep3Completed: true },
-        },
-      }).then(() => router.push(data.user?.signUpStep4Completed ? DEFAULT_LOGIN_REDIRECT : nextStepRoute))
-    }
-  }
-
   const onSubmit = (values: z.infer<typeof RegisterThirdSchema>) => {
     setError("")
     setSuccess("")
@@ -79,26 +72,47 @@ const SignUpSecondPage = () => {
     localStorage.setItem("formData", JSON.stringify(fullForm))
 
     startTransition(async () => {
-      await updateUser({ ...values, signUpStep3Completed: true }).then((data) =>
-        handleResponse(data as { user?: User; error?: string; success?: string })
-      )
+      await updateUser({ ...values, signUpStep3Completed: true }).then((data) => handleResponse(data as UpdateResponse))
     })
+  }
+
+  const handleResponse = (data: UpdateResponse) => {
+    setError(data.error)
+    setSuccess(data.success)
+    if (data.success) {
+      checkAndUpdateSession(data)
+    }
+  }
+
+  const checkAndUpdateSession = async (data: UpdateResponse) => {
+    const session = await getSession()
+
+    if (session && session.user) {
+      update({
+        data: {
+          ...sessionData,
+          user: { ...sessionData?.user, signUpStep3Completed: true },
+        },
+      }).then(() => router.push(data.user?.signUpStep4Completed ? DEFAULT_LOGIN_REDIRECT : nextStepRoute))
+    } else {
+      console.error("Failed to retrieve valid session after retry.")
+    }
   }
 
   return (
     <SignUpLayout currentStep={2}>
-      <div className="text-primary-900 text-center text-[32px] font-bold">Tell Us About Your Practice</div>
-      <div className="text-grey-800 mt-[8px] text-center text-sm">
+      <div className="text-primary-900 text-center text-3xl font-bold">Tell Us About Your Practice</div>
+      <div className="text-grey-800 mt-2 text-center text-sm">
         Let us know more about your professional background so we can provide a tailored experience for you.
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-[32px] w-full">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 w-full">
           <FormField
             control={form.control}
             name="type_proffesion"
             render={({ field }) => (
-              <FormItem className="mb-[20px]">
+              <FormItem className="mb-5">
                 <FormLabel className="text-primary-900 text-sm">Type of professional</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
@@ -122,7 +136,7 @@ const SignUpSecondPage = () => {
             control={form.control}
             name="practical_size"
             render={({ field }) => (
-              <FormItem className="mb-[20px]">
+              <FormItem className="mb-5">
                 <FormLabel className="text-primary-900 text-sm">Practice size</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
@@ -146,7 +160,7 @@ const SignUpSecondPage = () => {
             control={form.control}
             name="place_work"
             render={({ field }) => (
-              <FormItem className="mb-[20px]">
+              <FormItem className="mb-5">
                 <FormLabel>Place of Work</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter your place of work" {...field} />

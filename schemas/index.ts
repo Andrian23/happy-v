@@ -1,3 +1,4 @@
+import { parsePhoneNumberFromString } from "libphonenumber-js"
 import * as z from "zod"
 
 export const ResetSchema = z.object({
@@ -66,9 +67,20 @@ export const RegisterFirstSchema = z.object({
   lastName: z.string().min(1, {
     message: "Last name is required",
   }),
-  telephone: z.string().min(1, {
-    message: "Phone number is required",
-  }),
+  telephone: z.string().refine(
+    (value) => {
+      try {
+        const parsedNumber = parsePhoneNumberFromString(value)
+        return !!(parsedNumber && parsedNumber.isValid())
+      } catch (error) {
+        console.error("Error parsing phone number:", error)
+        return false
+      }
+    },
+    {
+      message: "Invalid phone number format",
+    }
+  ),
   policy: z.boolean().refine((val) => val === true, {
     message: "Please agree to ToS and Privacy Policy before continuing",
   }),
