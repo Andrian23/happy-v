@@ -46,10 +46,12 @@ export async function verifyNPI(npiNumber: string, firstName?: string, lastName?
     }
 
     if (firstName && lastName) {
-      const registryFirstName = (providerData.basic?.first_name || "").toLowerCase()
-      const registryLastName = (providerData.basic?.last_name || "").toLowerCase()
+      const enteredFirstName = firstName.toLowerCase().trim()
+      const enteredLastName = lastName.toLowerCase().trim()
+      const registryFirstName = (providerData.basic?.first_name || "").toLowerCase().trim()
+      const registryLastName = (providerData.basic?.last_name || "").toLowerCase().trim()
 
-      if (firstName.toLowerCase() !== registryFirstName || lastName.toLowerCase() !== registryLastName) {
+      if (enteredFirstName !== registryFirstName || enteredLastName !== registryLastName) {
         return {
           isVerified: false,
           error: "Name doesn't match NPI registry records",
