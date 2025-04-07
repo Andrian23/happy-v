@@ -36,6 +36,14 @@ model User {
   lastInactivityEmailSentAt DateTime?
   signUpStep3Completed      Boolean               @default(false)
   signUpStep4Completed      Boolean               @default(false)
+  approvalNotes             String?
+  approvalStatus            ApprovalUserStatus    @default(PENDING_REVIEW)
+  approvalStatusUpdatedAt   DateTime?
+  approvedBy                String?
+  partnerApprovalNotes      String?
+  partnerApprovedBy         String?
+  partnerStatus             PartnerStatus         @default(NOT_APPLIED)
+  partnerStatusUpdatedAt    DateTime?
   Commission                Commission[]
   likes                     Like[]
   PatientReferral           PatientReferral[]
@@ -262,4 +270,17 @@ enum CommissionStatus {
   PENDING
   PAID
   CANCELLED
+}
+
+enum ApprovalUserStatus {
+  PENDING_REVIEW
+  ACTIVE
+  DECLINED
+}
+
+enum PartnerStatus {
+  NOT_APPLIED
+  PENDING_REVIEW
+  ACTIVE
+  DECLINED
 }

@@ -14,6 +14,7 @@ import SecondList from "@/icons/SecondList"
 import Service from "@/icons/Service"
 import Settings from "@/icons/Settings"
 import Stats from "@/icons/Stats"
+import { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
 
 const classes = "md:stroke-light-grey stroke-black"
 
@@ -96,19 +97,19 @@ export const adminNavigation = {
         {
           name: "Pending for Review",
           icon: <Review className={classes} />,
-          link: "/super-admin/ambassador?status=pending",
+          link: `/super-admin/ambassador?status=${ApprovalUserStatus.PENDING_REVIEW}`,
           count: 8,
         },
         {
           name: "Active Ambassadors",
           icon: <Active className={classes} />,
-          link: "/super-admin/ambassador?status=active",
+          link: `/super-admin/ambassador?status=${ApprovalUserStatus.ACTIVE}`,
           count: 12,
         },
         {
           name: "Declined Request",
           icon: <Declined className={classes} />,
-          link: "/super-admin/ambassador?status=declined",
+          link: `/super-admin/ambassador?status=${ApprovalUserStatus.DECLINED}`,
           count: 12,
         },
       ],
@@ -121,19 +122,19 @@ export const adminNavigation = {
         {
           name: "Pending for Review",
           icon: <Review className={classes} />,
-          link: "/super-admin/partners?status=pending",
+          link: `/super-admin/partners?status=${PartnerStatus.PENDING_REVIEW}`,
           count: 8,
         },
         {
           name: "Active Partners",
           icon: <Active className={classes} />,
-          link: "/super-admin/partners?status=active",
+          link: `/super-admin/partners?status=${PartnerStatus.ACTIVE}`,
           count: 12,
         },
         {
           name: "Declined Request",
           icon: <Declined className={classes} />,
-          link: "/super-admin/partners?status=declined",
+          link: `/super-admin/partners?status=${PartnerStatus.DECLINED}`,
           count: 12,
         },
       ],

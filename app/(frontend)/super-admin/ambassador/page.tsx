@@ -3,21 +3,25 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 
-import { getUsersByStatus } from "@/actions/user"
+import { getParticipants } from "@/actions/super-admin/participant"
 import PageTopic from "@/components/PageTopic"
 import UserApproveTable from "@/components/super-admin/UserApproveTable"
+import { ApprovalUserStatus, ApprovalUserStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
 const AmbassadorMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
-  const activeTab = searchParams.get("status") || "pending"
+  const userStatusQuery = searchParams.get("status") as keyof typeof ApprovalUserStatus
+  const activeTab =
+    ApprovalUserStatusReverseMap[userStatusQuery] || ApprovalUserStatusReverseMap[ApprovalUserStatus.PENDING_REVIEW]
 
-  const fetchUsers = async (activeTab: string) => {
+  const fetchUsers = async (activeTab: ApprovalUserStatus) => {
+    setLoading(true)
     try {
-      const data = await getUsersByStatus(activeTab)
-      setUsers(data)
+      const data = await getParticipants({ approvalStatus: activeTab })
+      setUsers(data.users as User[])
     } catch (error) {
       console.error("Failed to fetch users:", error)
     } finally {

@@ -34,6 +34,9 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
         email,
         telephone,
         password: hashedPassword,
+        approvalStatus: "PENDING_REVIEW",
+        approvalStatusUpdatedAt: new Date(),
+        partnerStatus: "NOT_APPLIED",
       },
     })
 

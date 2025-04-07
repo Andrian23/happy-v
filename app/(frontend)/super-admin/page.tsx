@@ -15,7 +15,7 @@ const SuperAdmin = () => {
   const [activeItem, setActiveItem] = useState(0)
 
   return (
-    <div className="m-[10px] w-[98%] max-md:m-0">
+    <div className="m-2.5 w-[98%] max-md:m-0">
       <PageTopic name="Super Admin Panel" description="" />
       <div className="mt-8 h-auto w-full">
         <Tabs tabs={tabs} activeTab={activeItem} onTabChange={setActiveItem} />

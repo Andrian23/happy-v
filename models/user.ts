@@ -1,4 +1,5 @@
-import type { ShippingAddress } from "./shipping"
+import { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
+import type { ShippingAddress } from "@/models/shipping"
 
 export interface User {
   id: string
@@ -20,4 +21,12 @@ export interface User {
   defaultShippingAddress: number | null
   signUpStep3Completed?: boolean
   signUpStep4Completed?: boolean
+  approvalStatus?: ApprovalUserStatus
+  approvalStatusUpdatedAt?: Date | null
+  approvalNotes?: string
+  approvedBy?: string
+  partnerStatus?: PartnerStatus
+  partnerStatusUpdatedAt?: Date | null
+  partnerApprovalNotes?: string
+  partnerApprovedBy?: string
 }

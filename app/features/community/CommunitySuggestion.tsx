@@ -31,17 +31,17 @@ export const CommunitySuggestion: React.FC<CommunitySuggestionProps> = ({
   })
 
   return (
-    <div className="m-[10px] w-[98%] max-md:m-0">
+    <div className="m-2.5 w-[98%] max-md:m-0">
       <PageTopic>
-        <Link href="/community" className="flex items-center gap-2 text-sm text-grey-800">
+        <Link href="/community" className="text-grey-800 flex items-center gap-2 text-sm">
           <ArrowLeft className="h-5 w-5" />
           Back to community forum
         </Link>
       </PageTopic>
 
-      <section className="mt-3 grid w-full gap-1.5 rounded-2xl bg-grey-200 px-4 py-6 lg:p-11">
-        <h2 className="text-center text-2xl font-bold text-primary-900 lg:text-3xl">Suggestion Box</h2>
-        <p className="text-center text-sm font-medium text-primary-800">Suggest ideas on how to improve Happy V</p>
+      <section className="bg-grey-200 mt-3 grid w-full gap-1.5 rounded-2xl px-4 py-6 lg:p-11">
+        <h2 className="text-primary-900 text-center text-2xl font-bold lg:text-3xl">Suggestion Box</h2>
+        <p className="text-primary-800 text-center text-sm font-medium">Suggest ideas on how to improve Happy V</p>
       </section>
 
       <div className="mt-8 flex w-full flex-wrap items-center justify-between gap-3">
