@@ -8,7 +8,6 @@ import { signIn } from "@/auth"
 import { getUserByEmail } from "@/data/user"
 import { db } from "@/lib/db"
 import { generateVerificationToken } from "@/lib/tokens"
-import { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
 import { RegisterSchema } from "@/schemas"
 
 export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
@@ -35,9 +34,9 @@ export const signUp = async (values: z.infer<typeof RegisterSchema>) => {
         email,
         telephone,
         password: hashedPassword,
-        approvalStatus: ApprovalUserStatus.PENDING_REVIEW,
+        approvalStatus: "PENDING_REVIEW",
         approvalStatusUpdatedAt: new Date(),
-        partnerStatus: PartnerStatus.NOT_APPLIED,
+        partnerStatus: "NOT_APPLIED",
       },
     })
 

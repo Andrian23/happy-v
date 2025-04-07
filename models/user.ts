@@ -1,6 +1,5 @@
-import { ApprovalUserStatus, PartnerStatus } from "@prisma/client"
-
-import type { ShippingAddress } from "./shipping"
+import { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
+import type { ShippingAddress } from "@/models/shipping"
 
 export interface User {
   id: string

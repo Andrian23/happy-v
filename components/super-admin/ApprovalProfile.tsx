@@ -9,6 +9,7 @@ import ContractModal from "@/components/ambassador/ContractModal"
 import PageTopicSecond from "@/components/PageTopicSecond"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { ApprovalUserStatus } from "@/models/participants"
 import { User } from "@/models/user"
 
 import DeclineProfileModal from "./DeclineProfileModal"
@@ -120,7 +121,7 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
       <div className="flex h-full flex-col">
         <PageTopicSecond
           name="Back to Ambassadors hub"
-          link="/super-admin/ambassador?status=pending_review"
+          link={`/super-admin/ambassador?status=${ApprovalUserStatus.PENDING_REVIEW}`}
           enable={false}
         />
         <div className="mt-6 flex flex-1 items-start justify-between max-lg:block">

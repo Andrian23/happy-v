@@ -11,20 +11,21 @@ import EmptyRequest from "@/components/EmptyRequest"
 import PageTopic from "@/components/PageTopic"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { Carret } from "@/icons/Carret"
-import { ApprovalUserStatus } from "@/models/participants"
+import { ApprovalUserStatus, ApprovalUserStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
 const AmbassadorMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
-  const userStatusQuery = searchParams.get("status")?.toUpperCase() as keyof typeof ApprovalUserStatus
-  const activeTab: ApprovalUserStatus = ApprovalUserStatus[userStatusQuery] ?? ApprovalUserStatus.PENDING
+  const userStatusQuery = searchParams.get("status") as keyof typeof ApprovalUserStatus
+  const activeTab =
+    ApprovalUserStatusReverseMap[userStatusQuery] || ApprovalUserStatusReverseMap[ApprovalUserStatus.PENDING_REVIEW]
 
   const fetchUsers = async (activeTab: ApprovalUserStatus) => {
+    setLoading(true)
     try {
       const data = await getParticipants({ approvalStatus: activeTab })
-      console.log("Ambassadors pagination: ", data.pagination)
       setUsers(data.users as User[])
     } catch (error) {
       console.error("Failed to fetch users:", error)

@@ -1,7 +1,16 @@
-import { Prisma } from "@prisma/client"
+"use server"
 
-import { db } from "@/lib/db"
+import { Prisma, PrismaClient, User } from "@prisma/client"
+
+import { Pagination } from "@/interfaces/pagination"
 import { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
+
+interface UsersResponse<T> {
+  users: T[]
+  pagination: Pagination
+}
+
+const prisma = new PrismaClient()
 
 export async function getParticipants({
   approvalStatus,
@@ -15,19 +24,20 @@ export async function getParticipants({
   approvalStatus?: ApprovalUserStatus
   partnerStatus?: PartnerStatus
   searchTerm?: string
-}) {
+}): Promise<UsersResponse<Partial<User>>> {
   const skip = (page - 1) * limit
 
-  const where: Prisma.UserWhereInput = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {
     role: "USER",
   }
 
   if (approvalStatus) {
-    where.approvalStatus = approvalStatus as unknown as Prisma.UserWhereInput["approvalStatus"]
+    where.approvalStatus = approvalStatus
   }
 
   if (partnerStatus) {
-    where.partnerStatus = partnerStatus as unknown as Prisma.UserWhereInput["partnerStatus"]
+    where.partnerStatus = partnerStatus
   }
 
   if (searchTerm) {
@@ -40,7 +50,7 @@ export async function getParticipants({
   }
 
   try {
-    const users = await db.user.findMany({
+    const users = await prisma.user.findMany({
       where,
       select: {
         id: true,
@@ -66,7 +76,7 @@ export async function getParticipants({
       take: limit,
     })
 
-    const totalCount = await db.user.count({ where })
+    const totalCount = await prisma.user.count({ where })
 
     return {
       users,
@@ -93,12 +103,12 @@ export async function updateUserApprovalStatus(
   message: string
 }> {
   try {
-    await db.user.update({
+    await prisma.user.update({
       where: {
         id: userId,
       },
       data: {
-        approvalStatus: status,
+        approvalStatus: status as unknown as Prisma.UserUpdateInput["approvalStatus"],
         approvalStatusUpdatedAt: new Date(),
         approvalNotes: notes || null,
         approvedBy: adminId,
@@ -128,12 +138,12 @@ export async function updatePartnerStatus(
   message: string
 }> {
   try {
-    await db.user.update({
+    await prisma.user.update({
       where: {
         id: doctorId,
       },
       data: {
-        partnerStatus: status,
+        partnerStatus: status as unknown as Prisma.UserUpdateInput["partnerStatus"],
         partnerStatusUpdatedAt: new Date(),
         partnerApprovalNotes: notes || null,
         partnerApprovedBy: adminId,

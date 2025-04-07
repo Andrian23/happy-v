@@ -1,3 +1,5 @@
+import { ApprovalUserStatus } from "@/models/participants"
+
 export const publicRoutes = ["/", "/new-verification"]
 
 export const authRoutes = [
@@ -19,7 +21,7 @@ export const adminRoutes = ["/super-admin"]
 export const adminPrefix = "/super-admin"
 
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard"
-export const ADMIN_LOGIN_REDIRECT = "/super-admin"
+export const ADMIN_LOGIN_REDIRECT = `/super-admin/ambassador?status=${ApprovalUserStatus.PENDING_REVIEW}`
 
 export const profileRegistrationSteps: { route: string; name: string }[] = [
   {
