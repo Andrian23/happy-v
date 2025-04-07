@@ -58,7 +58,7 @@ const SignInPage = () => {
   return (
     <div className="form-container m-auto w-[35%] max-lg:mt-12 max-lg:w-[100%]">
       <div className="flex flex-col items-center justify-center max-md:mt-4">
-        <div className="text-primary-900 text-center text-[32px] font-semibold">Sign in to your account</div>
+        <div className="text-primary-900 text-center text-3xl font-semibold">Sign in to your account</div>
         <div className="text-grey-800 mt-2 text-sm">
           Don&apos;t have account yet?{" "}
           <Link className="text-primary-900 font-semibold" href="/sign-up">
@@ -66,21 +66,21 @@ const SignInPage = () => {
           </Link>
         </div>
         <div
-          className="hover:bg-opacity-[4%] mt-[32px] flex w-full cursor-pointer items-center justify-center rounded-3xl border py-2 text-center text-sm"
+          className="hover:bg-opacity-[4%] mt-8 flex w-full cursor-pointer items-center justify-center rounded-3xl border py-2 text-center text-sm"
           onClick={() => onClickGoogle("google")}
         >
           <FcGoogle className="mr-2 h-5 w-5" />
           <span className="text-primary-900 font-semibold"> Continue with Google</span>
         </div>
 
-        <div className="mt-[20px] flex w-full">
+        <div className="mt-5 flex w-full">
           <Divider />
-          <div className="text-grey-800 mx-[12px] text-sm">OR</div>
+          <div className="text-grey-800 mx-3 text-sm">OR</div>
           <Divider />
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-[20px] w-full">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5 w-full">
             <FormField
               control={form.control}
               name="email"
@@ -93,7 +93,7 @@ const SignInPage = () => {
                       disabled={isPending}
                       placeholder="Enter your email address"
                       type="email"
-                      className="mt-1.5 mb-[20px] rounded-lg"
+                      className="mt-1.5 mb-5 rounded-lg"
                     />
                   </FormControl>
                   <FormMessage />
@@ -115,7 +115,7 @@ const SignInPage = () => {
                     />
                   </FormControl>
                   <FormMessage />
-                  <div className="mt-[20px] flex items-center justify-between">
+                  <div className="mt-5 flex items-center justify-between">
                     <div className="flex items-center justify-start">
                       <Checkbox />
                       <div className="text-primary-900 ml-2 text-sm">Remember this device</div>
