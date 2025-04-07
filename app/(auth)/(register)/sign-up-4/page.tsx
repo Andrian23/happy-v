@@ -2,8 +2,7 @@
 
 import { ChangeEvent, startTransition, useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { User } from "next-auth"
-import { useSession } from "next-auth/react"
+import { getSession, useSession } from "next-auth/react"
 import { useForm } from "react-hook-form"
 
 import { updateUser } from "@/actions/user"
@@ -16,14 +15,13 @@ import { Form } from "@/components/ui/Form"
 import { useToast } from "@/components/ui/useToast"
 import { Info } from "@/icons/Info"
 
+import { UpdateResponse } from "../sign-up-3/page"
+
 const SignUpSecondPage = () => {
   const router = useRouter()
   const [isPending] = useTransition()
-
   const [error, setError] = useState<string | undefined>("")
-
   const [success, setSuccess] = useState<string | undefined>("")
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [formData, setFormData] = useState({})
   const [fileName, setFileName] = useState("")
@@ -45,23 +43,33 @@ const SignUpSecondPage = () => {
 
     if (fileName) {
       startTransition(async () => {
-        await updateUser({ signUpStep4Completed: true }).then((data) => handleResponse(data))
+        await updateUser({ signUpStep4Completed: true }).then((data) => handleResponse(data as UpdateResponse))
       })
     } else {
       setError("Credentials is required")
     }
   }
 
-  const handleResponse = (data: { success?: string; user?: User; error?: string }) => {
+  const handleResponse = (data: UpdateResponse) => {
     setError(data.error)
     setSuccess(data.success)
-    if (data.success && sessionData && sessionData.user) {
+    if (data.success) {
+      checkAndUpdateSession()
+    }
+  }
+
+  const checkAndUpdateSession = async () => {
+    const session = await getSession()
+
+    if (session && session.user) {
       update({
         data: {
           ...sessionData,
           user: { ...sessionData?.user, signUpStep4Completed: true },
         },
       }).then(() => router.push("/sign-up-success"))
+    } else {
+      console.error("Failed to retrieve valid session after retry.")
     }
   }
 
@@ -79,15 +87,15 @@ const SignUpSecondPage = () => {
 
   return (
     <SignUpLayout currentStep={3}>
-      <div className="text-primary-900 text-center text-[32px] font-bold">Upload credentials</div>
-      <div className="text-grey-800 mt-[8px] text-center text-sm">
+      <div className="text-primary-900 text-center text-3xl font-bold">Upload credentials</div>
+      <div className="text-grey-800 mt-2 text-center text-sm">
         To confirm your professional background, please upload your credentials. This helps us ensure we’re partnering
         with qualified experts.
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-0 mt-[24px] block w-full lg:mx-auto">
-          <div className="mx-auto mb-[24px] block w-full">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-0 mt-6 block w-full lg:mx-auto">
+          <div className="mx-auto mb-6 block w-full">
             <AuthFileInput
               onChange={handleFileChange}
               fileName={fileName}
@@ -105,7 +113,7 @@ const SignUpSecondPage = () => {
             diploma, certificate, etc.
           </div>
 
-          <div className="bg-grey-200 text-primary-900 mt-6 flex justify-items-start gap-2 rounded-lg p-[16px] text-sm">
+          <div className="bg-grey-200 text-primary-900 mt-6 flex justify-items-start gap-2 rounded-lg p-4 text-sm">
             <div>
               <Info className="h-5 w-5" />
             </div>
