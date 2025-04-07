@@ -1,21 +1,24 @@
 "use client"
 
 import { FC, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import { Label } from "@radix-ui/react-label"
 
+import { updateUserApprovalStatus } from "@/actions/super-admin/participant"
 import { getUserById } from "@/actions/user"
 import ContractModal from "@/components/ambassador/ContractModal"
 import PageTopicSecond from "@/components/PageTopicSecond"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
-import { ApprovalUserStatus } from "@/models/participants"
+import { ApprovalUserStatus, ApprovalUserStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
 import DeclineProfileModal from "./DeclineProfileModal"
 
 interface ApprovalProfileProps {
   userId: string
+  pageMode: string
 }
 
 type ProfessionalInfo = {
@@ -57,7 +60,8 @@ const professionalInfo: ProfessionalInfo[] = [
   },
 ]
 
-const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string }) => {
+const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userId: string; pageMode: string }) => {
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [deletingId, setDeletingId] = useState<string | number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -81,7 +85,11 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
 
   const onSubmit = async () => {
     try {
-      console.log("Approve user with ID:", userId)
+      if (pageMode === "ambassador") {
+        updateUserApprovalStatus(userId, ApprovalUserStatusReverseMap[ApprovalUserStatus.ACTIVE]).then(() =>
+          router.push("/super-admin/ambassador?status=pending")
+        )
+      }
     } catch (error) {
       console.error("Failed to submit data:", error)
     }
@@ -102,11 +110,15 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
     }
   }
 
-  const handleDeclineUser = (userId?: string, declineReason?: string) => {
+  const handleDeclineUser = (userId: string, declineReason?: string, pageMode?: string) => {
     try {
-      console.log("Decline user with ID:", userId, declineReason)
+      if (pageMode === "ambassador") {
+        updateUserApprovalStatus(userId, ApprovalUserStatusReverseMap[ApprovalUserStatus.DECLINED], declineReason).then(
+          () => router.push("/super-admin/ambassador?status=pending")
+        )
+      }
     } catch (error) {
-      console.error("Failed to submit data:", error)
+      console.error("Failed to decline user:", error)
     }
   }
 
@@ -116,7 +128,7 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId }: { userId: string 
       <DeclineProfileModal
         isOpen={deletingId === userId}
         onClose={() => setDeletingId(null)}
-        onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason)}
+        onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason, pageMode)}
       />
       <div className="flex h-full flex-col">
         <PageTopicSecond
