@@ -117,10 +117,8 @@ export const RegisterThirdSchema = z.object({
 
 export const NPISchema = z.object({
   npi_number: z
-    .string()
-    .min(10, { message: "NPI must be 10 digits" })
-    .max(10, { message: "NPI must be 10 digits" })
-    .regex(/^\d{10}$/, { message: "NPI must be a 10-digit number" }),
+    .union([z.string().regex(/^\d{10}$/, { message: "NPI must be a 10-digit number" }), z.string().length(0)])
+    .optional(),
 })
 
 export const NewPasswordSchema = z

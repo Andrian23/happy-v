@@ -30,6 +30,7 @@ model User {
   isVerified                Boolean               @default(false)
   lastActiveAt              DateTime?
   npiNumber                 String?               @unique
+  credentialsFileUrl        String?
   referralCode              String?               @unique
   referralLink              String?               @unique
   totalCommissionEarned     Float                 @default(0)

@@ -51,6 +51,7 @@
   --color-grey-600: rgba(var(--grey-600));
   --color-grey-700: rgba(var(--grey-700));
   --color-grey-800: rgba(var(--grey-800));
+  --color-grey-850: rgba(var(--grey-850));
 
   --color-light-grey: rgba(var(--light-grey));
 
@@ -164,6 +165,7 @@
     --grey-600: 188 196 204; /* disabled input font color */
     --grey-700: 171 176 197; /* radio button border color */
     --grey-800: 124 142 158; /* placeholder font color */
+    --grey-850: 138 149 161;
 
     --light-grey: 231, 230, 230;
 

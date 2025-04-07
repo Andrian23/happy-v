@@ -27,7 +27,6 @@ const SignUpSecondPage = () => {
   const [isPending] = useTransition()
 
   const [error, setError] = useState<string | undefined>("")
-
   const [success, setSuccess] = useState<string | undefined>("")
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -56,48 +55,60 @@ const SignUpSecondPage = () => {
     setError("")
     setSuccess("")
     setIsVerifying(true)
-    setIsNpiVerified(false)
 
-    if (!fileName) {
-      setError("Credentials file is required")
+    if ((!values.npi_number || values.npi_number === "") && !fileUploaded) {
+      setError("Please either upload a credentials file OR enter your NPI number")
       setIsVerifying(false)
       return
     }
 
     try {
-      const verificationResult = await verifyNPI(values.npi_number)
+      let npiNumber = undefined
 
-      if (!verificationResult.isVerified) {
-        setError(`NPI verification failed: ${verificationResult.error}`)
-        setIsVerifying(false)
-        return
+      if (values.npi_number && values.npi_number !== "") {
+        const verificationResult = await verifyNPI(values.npi_number)
+
+        if (!verificationResult.isVerified) {
+          setError(`NPI verification failed: ${verificationResult.error}`)
+          setIsVerifying(false)
+          return
+        }
+
+        npiNumber = values.npi_number
+        setIsNpiVerified(true)
       }
 
-      setIsNpiVerified(true)
+      if (fileUploaded) {
+        localStorage.setItem("fileName", fileName)
+      }
 
-      localStorage.setItem("fileName", fileName)
       localStorage.removeItem("formData")
 
       startTransition(async () => {
         await updateUser({
           signUpStep4Completed: true,
-        }).then((data) => handleResponse(data))
+          npiNumber: npiNumber,
+        }).then((data) => handleResponse(data, isNpiVerified || fileUploaded))
       })
     } catch (err) {
-      console.error("Verification error:", err)
-      setError("An error occurred during verification. Please try again.")
+      console.error("Submission error:", err)
+      setError("An error occurred during submission. Please try again.")
       setIsVerifying(false)
     }
   }
 
-  const handleResponse = (data: { success?: string; user?: User; error?: string }) => {
+  const handleResponse = (data: { success?: string; user?: User; error?: string }, isVerified: boolean) => {
     setError(data.error)
     setSuccess(data.success)
-    if (data.success && isNpiVerified && sessionData && sessionData.user) {
+
+    if (data.success && isVerified && sessionData && sessionData.user) {
       update({
         data: {
           ...sessionData,
-          user: { ...sessionData?.user, signUpStep4Completed: true },
+          user: {
+            ...sessionData?.user,
+            signUpStep4Completed: true,
+          },
         },
       }).then(() => router.push("/sign-up-success"))
     }
@@ -122,7 +133,6 @@ const SignUpSecondPage = () => {
         To confirm your professional background, please upload your credentials. This helps us ensure we’re partnering
         with qualified experts.
       </div>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="mx-0 mt-[24px] block w-full lg:mx-auto">
           <div className="mx-auto mb-[24px] block w-full">
@@ -133,7 +143,6 @@ const SignUpSecondPage = () => {
               disabled={isPending || isVerifying}
             />
           </div>
-
           <div className="text-primary-900 mt-3 text-left text-sm font-normal">
             <span className="font-semibold">For licensed healthcare practitioner:</span> Healthcare license or
             registration (with name and expiry)
@@ -142,34 +151,37 @@ const SignUpSecondPage = () => {
             <span className="font-semibold">If you are not licensed healthcare practitioner: </span> Healthcare degree,
             diploma, certificate, etc.
           </div>
-
-          <div className="bg-grey-200 text-primary-900 mt-6 flex justify-items-start gap-2 rounded-lg p-[16px] text-sm">
+          <div className="my-5 flex items-center md:my-6">
+            <div className="bg-grey-400 h-px flex-grow" />
+            <span className="text-grey-850 mx-3.5 text-sm">or enter your NPI number</span>
+            <div className="bg-grey-400 h-px flex-grow" />
+          </div>
+          <FormField
+            control={form.control}
+            name="npi_number"
+            render={({ field }) => (
+              <FormItem className="mb-5 md:mb-6">
+                <FormLabel>Your NPI number</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your NPI number" {...field} disabled={isPending || isVerifying} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="bg-grey-200 text-primary-900 flex justify-items-start gap-2 rounded-lg p-4 text-sm">
             <div>
               <Info className="h-5 w-5" />
             </div>
             Once you submit your credentials, Happy V will review them, usually this will take up to 2 business days,
             and then we will notify you of the result to the email address you provided
           </div>
-          <FormField
-            control={form.control}
-            name="npi_number"
-            render={({ field }) => (
-              <FormItem className="my-5">
-                <FormLabel>NPI Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your 10-digit NPI number" {...field} disabled={isPending || isVerifying} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button
             type="submit"
             variant="primary"
-            disabled={isPending || !fileUploaded || isVerifying}
+            disabled={isPending || isVerifying || (!fileUploaded && !form.watch("npi_number"))}
             className="bg-primary-900 hover:bg-primary-900/80 mt-6 w-full"
           >
             Submit & Create account
