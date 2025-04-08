@@ -65,6 +65,7 @@ export async function updateUser(data: Partial<User>) {
         practical_size: data.practical_size,
         signUpStep3Completed: data.signUpStep3Completed,
         signUpStep4Completed: data.signUpStep4Completed,
+        npiNumber: data.npiNumber,
       },
     })
 

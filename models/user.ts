@@ -21,6 +21,7 @@ export interface User {
   defaultShippingAddress: number | null
   signUpStep3Completed?: boolean
   signUpStep4Completed?: boolean
+  npiNumber?: string | null
   approvalStatus?: ApprovalUserStatus
   approvalStatusUpdatedAt?: Date | null
   approvalNotes?: string
