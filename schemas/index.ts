@@ -127,6 +127,12 @@ export const RegisterThirdSchema = z.object({
   }),
 })
 
+export const NPISchema = z.object({
+  npi_number: z
+    .union([z.string().regex(/^\d{10}$/, { message: "NPI must be a 10-digit number" }), z.string().length(0)])
+    .optional(),
+})
+
 export const NewPasswordSchema = z
   .object({
     password: z

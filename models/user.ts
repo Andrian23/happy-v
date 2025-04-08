@@ -20,4 +20,5 @@ export interface User {
   defaultShippingAddress: number | null
   signUpStep3Completed?: boolean
   signUpStep4Completed?: boolean
+  npiNumber?: string | null
 }
