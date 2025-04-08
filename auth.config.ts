@@ -27,12 +27,15 @@ export const authConfig: NextAuthConfig = {
         if (session.data.user.signUpStep3Completed) {
           token.signUpStep3Completed = session.data.user.signUpStep3Completed
         }
+
         if (session.data.user.signUpStep4Completed) {
           token.signUpStep4Completed = session.data.user.signUpStep4Completed
         }
+
         if (session.data.user.approvalStatus) {
           token.approvalStatus = session.data.user.approvalStatus
         }
+
         if (session.data.user.partnerStatus) {
           token.partnerStatus = session.data.user.partnerStatus
         }
