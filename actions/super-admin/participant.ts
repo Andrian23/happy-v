@@ -63,10 +63,10 @@ export async function getParticipants({
         place_work: true,
         signUpStep3Completed: true,
         signUpStep4Completed: true,
-        approvalStatus: true,
-        approvalStatusUpdatedAt: true,
+        verificationStatus: true,
+        verificationDate: true,
         partnerStatus: true,
-        partnerStatusUpdatedAt: true,
+        partnerStatusDate: true,
         createdAt: true,
       },
       orderBy: {
@@ -108,10 +108,10 @@ export async function updateUserApprovalStatus(
         id: userId,
       },
       data: {
-        approvalStatus: status as unknown as Prisma.UserUpdateInput["approvalStatus"],
-        approvalStatusUpdatedAt: new Date(),
-        approvalNotes: notes || null,
-        approvedBy: adminId,
+        verificationStatus: status as unknown as Prisma.UserUpdateInput["verificationStatus"],
+        verificationDate: new Date(),
+        verificationNotes: notes || null,
+        verifiedBy: adminId,
       },
     })
 
@@ -144,9 +144,9 @@ export async function updatePartnerStatus(
       },
       data: {
         partnerStatus: status as unknown as Prisma.UserUpdateInput["partnerStatus"],
-        partnerStatusUpdatedAt: new Date(),
-        partnerApprovalNotes: notes || null,
-        partnerApprovedBy: adminId,
+        partnerStatusDate: new Date(),
+        partnerNotes: notes || null,
+        partnerReviewedBy: adminId,
       },
     })
 
