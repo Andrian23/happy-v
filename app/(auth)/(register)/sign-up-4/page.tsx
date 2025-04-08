@@ -33,7 +33,6 @@ const SignUpStepFourPage = () => {
   const [fileName, setFileName] = useState("")
   const [fileUploaded, setFileUploaded] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
-  const [isNpiVerified, setIsNpiVerified] = useState(false)
   const { toast } = useToast()
   const { data: sessionData, update } = useSession()
 
@@ -63,6 +62,7 @@ const SignUpStepFourPage = () => {
 
     try {
       let npiNumber = undefined
+      let isNpiValid = false
 
       if (values.npi_number && values.npi_number !== "") {
         const verificationResult = await verifyNPI(values.npi_number)
@@ -74,7 +74,7 @@ const SignUpStepFourPage = () => {
         }
 
         npiNumber = values.npi_number
-        setIsNpiVerified(true)
+        isNpiValid = true
       }
 
       if (fileUploaded) {
@@ -84,10 +84,18 @@ const SignUpStepFourPage = () => {
       localStorage.removeItem("formData")
 
       startTransition(async () => {
-        await updateUser({
-          signUpStep4Completed: true,
-          npiNumber: npiNumber,
-        }).then((data) => handleResponse(data as UpdateResponse, isNpiVerified || fileUploaded))
+        try {
+          const data = (await updateUser({
+            signUpStep4Completed: true,
+            npiNumber: npiNumber,
+          })) as UpdateResponse
+
+          await handleResponse(data, isNpiValid || fileUploaded)
+        } catch (err) {
+          console.error("Update user error:", err)
+          setError("An error occurred during user update. Please try again.")
+          setIsVerifying(false)
+        }
       })
     } catch (err) {
       console.error("Submission error:", err)
@@ -96,27 +104,35 @@ const SignUpStepFourPage = () => {
     }
   }
 
-  const handleResponse = (data: UpdateResponse, isVerified: boolean) => {
+  const handleResponse = async (data: UpdateResponse, isVerified: boolean) => {
+    setIsVerifying(false)
     setError(data.error)
     setSuccess(data.success)
 
     if (data.success && isVerified) {
-      checkAndUpdateSession()
+      await checkAndUpdateSession()
     }
   }
 
   const checkAndUpdateSession = async () => {
-    const session = await getSession()
+    try {
+      const session = await getSession()
 
-    if (session && session.user) {
-      update({
-        data: {
-          ...sessionData,
-          user: { ...sessionData?.user, signUpStep4Completed: true },
-        },
-      }).then(() => router.push("/sign-up-success"))
-    } else {
-      console.error("Failed to retrieve valid session after retry.")
+      if (session && session.user) {
+        await update({
+          data: {
+            ...sessionData,
+            user: { ...sessionData?.user, signUpStep4Completed: true },
+          },
+        })
+        router.push("/sign-up-success")
+      } else {
+        console.error("Failed to retrieve valid session.")
+        setError("Session validation failed. Please try again or contact support.")
+      }
+    } catch (err) {
+      console.error("Session update error:", err)
+      setError("Failed to update session. Please try again.")
     }
   }
 
@@ -136,7 +152,7 @@ const SignUpStepFourPage = () => {
     <SignUpLayout currentStep={3}>
       <div className="text-primary-900 text-center text-3xl font-bold">Upload credentials</div>
       <div className="text-grey-800 mt-2 text-center text-sm">
-        To confirm your professional background, please upload your credentials. This helps us ensure we’re partnering
+        To confirm your professional background, please upload your credentials. This helps us ensure we're partnering
         with qualified experts.
       </div>
       <Form {...form}>
