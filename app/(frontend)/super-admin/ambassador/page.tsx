@@ -6,23 +6,28 @@ import { useSearchParams } from "next/navigation"
 import { format } from "date-fns"
 import { BeatLoader } from "react-spinners"
 
-import { getUsersByStatus } from "@/actions/user"
+import { getParticipants } from "@/actions/super-admin/participant"
 import EmptyRequest from "@/components/EmptyRequest"
 import PageTopic from "@/components/PageTopic"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { Carret } from "@/icons/Carret"
+import { VerificationUserStatus, VerificationUserStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
 const AmbassadorMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
-  const activeTab = searchParams.get("status") || "pending"
+  const userStatusQuery = searchParams.get("status") as keyof typeof VerificationUserStatus
+  const activeTab =
+    VerificationUserStatusReverseMap[userStatusQuery] ||
+    VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
 
-  const fetchUsers = async (activeTab: string) => {
+  const fetchUsers = async (activeTab: VerificationUserStatus) => {
+    setLoading(true)
     try {
-      const data = await getUsersByStatus(activeTab)
-      setUsers(data)
+      const data = await getParticipants({ verificationStatus: activeTab })
+      setUsers(data.users as User[])
     } catch (error) {
       console.error("Failed to fetch users:", error)
     } finally {
@@ -63,7 +68,13 @@ const AmbassadorMainPage = () => {
             </TableHeader>
             <TableBody>
               {users.map(({ id, name, lastName, createdAt, type_proffesion, practical_size, email }) => (
-                <TableRow key={id} className="[&>td]:border-b last:[&>td]:border-0">
+                <TableRow
+                  key={id}
+                  className="cursor-pointer [&>td]:border-b last:[&>td]:border-0"
+                  onClick={() => {
+                    window.location.href = `/super-admin/ambassador/${id}`
+                  }}
+                >
                   <TableCell className="text-primary-900 w-2xs px-5 py-7 font-medium">
                     <Link href={`/super-admin/ambassador/${id}`} className="hover:underline">
                       {name} {lastName}

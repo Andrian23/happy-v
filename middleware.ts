@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import NextAuth, { User } from "next-auth"
 
 import {
+  ADMIN_LOGIN_REDIRECT,
   adminPrefix,
   adminRoutes,
   apiAuthPrefix,
@@ -64,7 +65,7 @@ export default auth((req) => {
   }
 
   if (userRole === "ADMIN" && !isSuperAdminRoute) {
-    return NextResponse.redirect(new URL("/super-admin", nextUrl))
+    return NextResponse.redirect(new URL(ADMIN_LOGIN_REDIRECT, nextUrl))
   }
 
   if (isAdminRoute && !isPublicRoute && !isAuthRoute) {

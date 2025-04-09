@@ -37,6 +37,14 @@ model User {
   lastInactivityEmailSentAt DateTime?
   signUpStep3Completed      Boolean               @default(false)
   signUpStep4Completed      Boolean               @default(false)
+  verificationStatus        VerificationStatus    @default(PENDING_REVIEW)
+  verificationNotes         String?
+  verificationDate          DateTime?
+  verifiedBy                String?
+  partnerStatus             PartnerStatus         @default(NOT_APPLIED)
+  partnerNotes              String?
+  partnerStatusDate         DateTime?
+  partnerReviewedBy         String?
   Commission                Commission[]
   likes                     Like[]
   PatientReferral           PatientReferral[]
@@ -45,14 +53,6 @@ model User {
   topics                    Topic[]
   TwoFactorConfimation      TwoFactorConfimation?
   accounts                  Account[]
-  approvalStatus            ApprovalUserStatus    @default(PENDING_REVIEW)
-  approvalStatusUpdatedAt   DateTime?
-  approvalNotes             String?
-  approvedBy                String?
-  partnerStatus             PartnerStatus         @default(NOT_APPLIED)
-  partnerStatusUpdatedAt    DateTime?
-  partnerApprovalNotes      String?
-  partnerApprovedBy         String?
 }
 
 model Account {
@@ -273,7 +273,7 @@ enum CommissionStatus {
   CANCELLED
 }
 
-enum ApprovalUserStatus {
+enum VerificationStatus {
   PENDING_REVIEW
   ACTIVE
   DECLINED

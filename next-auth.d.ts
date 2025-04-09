@@ -9,6 +9,8 @@ export type ExtendedUser = DefaultSession["user"] & {
   telephone?: string
   signUpStep3Completed?: boolean
   signUpStep4Completed?: boolean
+  verificationStatus: VerificationUserStatus
+  partnerStatus: PartnerStatus
 }
 
 declare module "next-auth" {
