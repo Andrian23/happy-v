@@ -9,6 +9,8 @@ import { updatePartnerStatus, updateUserVerificationStatus } from "@/actions/sup
 import { getUserById } from "@/actions/user"
 import ContractModal from "@/components/ambassador/ContractModal"
 import PageTopicSecond from "@/components/PageTopicSecond"
+import DeclineProfileModal from "@/components/super-admin/DeclineProfileModal"
+import StatusBadge from "@/components/super-admin/StatusBadge"
 import { Button } from "@/components/ui/Button"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { Input } from "@/components/ui/Input"
@@ -23,9 +25,6 @@ import {
   VerificationUserStatusReverseMap,
 } from "@/models/participants"
 import { User } from "@/models/user"
-
-import DeclineProfileModal from "./DeclineProfileModal"
-import StatusBadge from "./StatusBadge"
 
 interface ApprovalProfileProps {
   userId: string
@@ -43,22 +42,21 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
   const [isPendingUser, setIsPendingUser] = useState(false)
   const { toast } = useToast()
 
+  const isAmbassador = userType === "ambassador"
+
   useEffect(() => {
     const fetchUser = async () => {
-      if (!userId) {
-        console.error("User ID is undefined")
-        return
-      }
+      if (!userId) return
+
       try {
         const response = await getUserById(userId)
         setUser(response)
 
-        const profileStatus = userType === "ambassador" ? response?.verificationStatus : response?.partnerStatus
+        const profileStatus = isAmbassador ? response?.verificationStatus : response?.partnerStatus
 
-        const pendingStatus =
-          userType === "ambassador"
-            ? VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
-            : PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
+        const pendingStatus = isAmbassador
+          ? VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
+          : PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
 
         setIsPendingUser(profileStatus === pendingStatus)
       } catch (error) {
@@ -69,32 +67,36 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
     fetchUser()
   }, [userId, userType])
 
-  const onSubmit = async () => {
+  const handleUpdateUserStatus = async (status: VerificationUserStatus | PartnerStatus, declineReason?: string) => {
     try {
-      if (userType === "ambassador") {
-        await updateUserVerificationStatus(userId, VerificationUserStatusReverseMap[VerificationUserStatus.ACTIVE])
-        toast({
-          title: "Request approved",
-          position: "bottom-right",
-          successIcon: true,
-        })
-        router.push("/super-admin/ambassador?status=pending")
+      setIsSubmitting(true)
+      if (isAmbassador) {
+        await updateUserVerificationStatus(userId, status as VerificationUserStatus, declineReason)
+      } else {
+        await updatePartnerStatus(userId, status as PartnerStatus, declineReason)
       }
 
-      if (userType === "partner") {
-        await updatePartnerStatus(userId, PartnerStatusReverseMap[PartnerStatus.ACTIVE])
-        toast({
-          title: "Request approved",
-          position: "bottom-right",
-          successIcon: true,
-        })
-        router.push("/super-admin/partners?status=pending")
-      }
+      toast({
+        title: `Request ${status === PartnerStatus.ACTIVE ? "approved" : "declined"}`,
+        position: "bottom-right",
+        successIcon: true,
+      })
+
+      router.push(`/super-admin/${isAmbassador ? "ambassadors" : "partners"}?status=pending`)
     } catch (error) {
-      console.error("Failed to approve:", error)
+      console.error("Failed to update user status:", error)
     } finally {
       setIsSubmitting(false)
+      setDeletingId(null)
     }
+  }
+
+  const onSubmit = () => {
+    handleUpdateUserStatus("ACTIVE" as VerificationUserStatus | PartnerStatus)
+  }
+
+  const handleDeclineUser = (declineReason?: string) => {
+    handleUpdateUserStatus("DECLINED" as VerificationUserStatus | PartnerStatus, declineReason)
   }
 
   const handleDownloadClick = () => {
@@ -112,58 +114,25 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
     }
   }
 
-  const handleDeclineUser = async (userId: string, declineReason?: string, userType?: string) => {
-    try {
-      if (userType === "ambassador") {
-        await updateUserVerificationStatus(
-          userId,
-          VerificationUserStatusReverseMap[VerificationUserStatus.DECLINED],
-          declineReason
-        )
-        toast({
-          title: "Request declined",
-          position: "bottom-right",
-          successIcon: true,
-        })
-        router.push("/super-admin/ambassador?status=pending")
-      }
-
-      if (userType === "partner") {
-        await updatePartnerStatus(userId, PartnerStatusReverseMap[PartnerStatus.DECLINED], declineReason)
-        toast({
-          title: "Request declined",
-          position: "bottom-right",
-          successIcon: true,
-        })
-        router.push("/super-admin/partners?status=pending")
-      }
-    } catch (error) {
-      console.error("Failed to decline:", error)
-    } finally {
-      setIsSubmitting(false)
-      setDeletingId(null)
-    }
-  }
-
   return (
     <div className="h-full w-full lg:px-4">
       {isModalOpen && <ContractModal onClose={() => setIsModalOpen(false)} onDownload={handleDownloadClick} />}
       <DeclineProfileModal
         isOpen={deletingId === userId}
         onClose={() => setDeletingId(null)}
-        onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason, userType)}
+        onConfirm={(declineReason: string) => handleDeclineUser(declineReason)}
       />
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between">
           <PageTopicSecond name={backLinkText} link={backLink} enable={false} />
           {!isPendingUser && (
             <StatusBadge
-              status={userType === "ambassador" ? user?.verificationStatus : user?.partnerStatus}
-              date={userType === "ambassador" ? user?.verificationDate : user?.partnerStatusDate}
+              status={isAmbassador ? user?.verificationStatus : user?.partnerStatus}
+              date={isAmbassador ? user?.verificationDate : user?.partnerStatusDate}
             />
           )}
         </div>
-        <div className="mt-6 flex flex-1 items-start justify-between max-lg:block">
+        <div className="mt-6 mb-3 flex flex-1 items-start justify-between max-lg:block">
           <div className="w-3/5 max-lg:mt-8 max-lg:w-full">
             <div className="text-primary-900 text-xl font-semibold">Professional Info</div>
             <div className="border-grey-400 mt-3.5 rounded-2xl border p-5 max-lg:block">
@@ -249,7 +218,7 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
           </div>
         </div>
         {isPendingUser && (
-          <div className="border-grey-400 bg-grey-100 mt-3.5 w-full rounded-[20px] border p-3 max-md:mb-3.5">
+          <div className="border-grey-400 bg-grey-100 mt-3.5 mb-3 w-full rounded-[20px] border p-3 max-md:mb-3.5">
             <div className="flex w-44 items-center gap-2 justify-self-end">
               <Button
                 variant="primary"
