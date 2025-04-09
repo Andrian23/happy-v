@@ -3,18 +3,25 @@
 import { FC, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
+import { PartnerStatus } from "@prisma/client"
 import { Label } from "@radix-ui/react-label"
 
-import { updateUserApprovalStatus } from "@/actions/super-admin/participant"
+import { updateUserVerificationStatus } from "@/actions/super-admin/participant"
 import { getUserById } from "@/actions/user"
 import ContractModal from "@/components/ambassador/ContractModal"
 import PageTopicSecond from "@/components/PageTopicSecond"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
-import { ApprovalUserStatus, ApprovalUserStatusReverseMap } from "@/models/participants"
+import { useToast } from "@/components/ui/useToast"
+import {
+  PartnerStatusReverseMap,
+  VerificationUserStatus,
+  VerificationUserStatusReverseMap,
+} from "@/models/participants"
 import { User } from "@/models/user"
 
 import DeclineProfileModal from "./DeclineProfileModal"
+import StatusBadge from "./StatusBadge"
 
 interface ApprovalProfileProps {
   userId: string
@@ -65,6 +72,8 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
   const [user, setUser] = useState<User | null>(null)
   const [deletingId, setDeletingId] = useState<string | number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isPendingUser, setIsPendingUser] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -75,6 +84,12 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
       try {
         const response = await getUserById(userId)
         setUser(response)
+
+        const status =
+          pageMode === "ambassador"
+            ? VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
+            : PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
+        setIsPendingUser(response?.verificationStatus === status)
       } catch (error) {
         console.error("Failed to fetch user:", error)
       }
@@ -86,9 +101,13 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
   const onSubmit = async () => {
     try {
       if (pageMode === "ambassador") {
-        updateUserApprovalStatus(userId, ApprovalUserStatusReverseMap[ApprovalUserStatus.ACTIVE]).then(() =>
-          router.push("/super-admin/ambassador?status=pending")
-        )
+        await updateUserVerificationStatus(userId, VerificationUserStatusReverseMap[VerificationUserStatus.ACTIVE])
+        toast({
+          title: "Request approved",
+          position: "bottom-right",
+          successIcon: true,
+        })
+        router.push("/super-admin/ambassador?status=pending")
       }
     } catch (error) {
       console.error("Failed to submit data:", error)
@@ -110,12 +129,20 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
     }
   }
 
-  const handleDeclineUser = (userId: string, declineReason?: string, pageMode?: string) => {
+  const handleDeclineUser = async (userId: string, declineReason?: string, pageMode?: string) => {
     try {
       if (pageMode === "ambassador") {
-        updateUserApprovalStatus(userId, ApprovalUserStatusReverseMap[ApprovalUserStatus.DECLINED], declineReason).then(
-          () => router.push("/super-admin/ambassador?status=pending")
+        await updateUserVerificationStatus(
+          userId,
+          VerificationUserStatusReverseMap[VerificationUserStatus.DECLINED],
+          declineReason
         )
+        toast({
+          title: "Request declined",
+          position: "bottom-right",
+          successIcon: true,
+        })
+        router.push("/super-admin/ambassador?status=pending")
       }
     } catch (error) {
       console.error("Failed to decline user:", error)
@@ -131,11 +158,14 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
         onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason, pageMode)}
       />
       <div className="flex h-full flex-col">
-        <PageTopicSecond
-          name="Back to Ambassadors hub"
-          link={`/super-admin/ambassador?status=${ApprovalUserStatus.PENDING_REVIEW}`}
-          enable={false}
-        />
+        <div className="flex items-center justify-between">
+          <PageTopicSecond
+            name="Back to Ambassadors hub"
+            link={`/super-admin/ambassador?status=${VerificationUserStatus.PENDING_REVIEW}`}
+            enable={false}
+          />
+          {!isPendingUser && <StatusBadge status={user?.verificationStatus} date={user?.verificationDate} />}
+        </div>
         <div className="mt-6 flex flex-1 items-start justify-between max-lg:block">
           <div className="w-3/5 max-lg:mt-8 max-lg:w-full">
             <div className="text-primary-900 text-xl font-semibold">Professional Info</div>
@@ -185,26 +215,28 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
             </div>
           </div>
         </div>
-        <div className="border-grey-400 bg-grey-100 mt-3.5 w-full rounded-[20px] border p-3 max-md:mb-3.5">
-          <div className="flex w-44 items-center gap-2 justify-self-end">
-            <Button
-              variant="primary"
-              size="sm"
-              className="bg-primary-900 hover:bg-primary-900/80 w-full rounded-full"
-              onClick={() => onSubmit()}
-            >
-              Approve
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              className="bg-red hover:bg-red/80 w-full rounded-full"
-              onClick={() => handleOpenDeletingModal(userId)}
-            >
-              Decline
-            </Button>
+        {isPendingUser && (
+          <div className="border-grey-400 bg-grey-100 mt-3.5 w-full rounded-[20px] border p-3 max-md:mb-3.5">
+            <div className="flex w-44 items-center gap-2 justify-self-end">
+              <Button
+                variant="primary"
+                size="sm"
+                className="bg-primary-900 hover:bg-primary-900/80 w-full rounded-full"
+                onClick={() => onSubmit()}
+              >
+                Approve
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                className="bg-red hover:bg-red/80 w-full rounded-full"
+                onClick={() => handleOpenDeletingModal(userId)}
+              >
+                Decline
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

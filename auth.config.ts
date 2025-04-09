@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth"
 
 import { UserRole } from "@prisma/client"
 
-import type { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
+import type { PartnerStatus, VerificationUserStatus } from "@/models/participants"
 
 import { User } from "./models/user"
 
@@ -19,7 +19,7 @@ export const authConfig: NextAuthConfig = {
         token.telephone = (user as User).telephone
         token.signUpStep3Completed = (user as User).signUpStep3Completed
         token.signUpStep4Completed = (user as User).signUpStep4Completed
-        token.approvalStatus = (user as User).approvalStatus
+        token.verificationStatus = (user as User).verificationStatus
         token.partnerStatus = (user as User).partnerStatus
       }
 
@@ -32,8 +32,8 @@ export const authConfig: NextAuthConfig = {
           token.signUpStep4Completed = session.data.user.signUpStep4Completed
         }
 
-        if (session.data.user.approvalStatus) {
-          token.approvalStatus = session.data.user.approvalStatus
+        if (session.data.user.verificationStatus) {
+          token.verificationStatus = session.data.user.verificationStatus
         }
 
         if (session.data.user.partnerStatus) {
@@ -67,8 +67,8 @@ export const authConfig: NextAuthConfig = {
         session.user.signUpStep4Completed = token.signUpStep4Completed
       }
 
-      if (token.approvalStatus && session.user) {
-        session.user.approvalStatus = token.approvalStatus as ApprovalUserStatus
+      if (token.verificationStatus && session.user) {
+        session.user.verificationStatus = token.verificationStatus as VerificationUserStatus
       }
 
       if (token.partnerStatus && session.user) {

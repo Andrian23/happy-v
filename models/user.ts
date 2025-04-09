@@ -1,4 +1,4 @@
-import { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
+import { PartnerStatus, VerificationUserStatus } from "@/models/participants"
 import type { ShippingAddress } from "@/models/shipping"
 
 export interface User {
@@ -22,12 +22,12 @@ export interface User {
   signUpStep3Completed?: boolean
   signUpStep4Completed?: boolean
   npiNumber?: string | null
-  approvalStatus?: ApprovalUserStatus
-  approvalStatusUpdatedAt?: Date | null
-  approvalNotes?: string
-  approvedBy?: string
+  verificationStatus?: VerificationUserStatus
+  verificationDate?: Date | null
+  verificationNotes?: string
+  verifiedBy?: string
   partnerStatus?: PartnerStatus
-  partnerStatusUpdatedAt?: Date | null
-  partnerApprovalNotes?: string
-  partnerApprovedBy?: string
+  partnerStatusDate?: Date | null
+  partnerNotes?: string
+  partnerReviewedBy?: string
 }
