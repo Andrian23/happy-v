@@ -14,7 +14,7 @@ import SecondList from "@/icons/SecondList"
 import Service from "@/icons/Service"
 import Settings from "@/icons/Settings"
 import Stats from "@/icons/Stats"
-import { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
+import { PartnerStatus, VerificationUserStatus } from "@/models/participants"
 
 const classes = "md:stroke-light-grey stroke-black"
 
@@ -97,19 +97,19 @@ export const adminNavigation = {
         {
           name: "Pending for Review",
           icon: <Review className={classes} />,
-          link: `/super-admin/ambassador?status=${ApprovalUserStatus.PENDING_REVIEW}`,
+          link: `/super-admin/ambassador?status=${VerificationUserStatus.PENDING_REVIEW}`,
           count: 8,
         },
         {
           name: "Active Ambassadors",
           icon: <Active className={classes} />,
-          link: `/super-admin/ambassador?status=${ApprovalUserStatus.ACTIVE}`,
+          link: `/super-admin/ambassador?status=${VerificationUserStatus.ACTIVE}`,
           count: 12,
         },
         {
           name: "Declined Request",
           icon: <Declined className={classes} />,
-          link: `/super-admin/ambassador?status=${ApprovalUserStatus.DECLINED}`,
+          link: `/super-admin/ambassador?status=${VerificationUserStatus.DECLINED}`,
           count: 12,
         },
       ],

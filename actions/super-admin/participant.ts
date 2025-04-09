@@ -1,19 +1,19 @@
 "use server"
 
-import { Prisma, PrismaClient, User } from "@prisma/client"
+import { Prisma, User } from "@prisma/client"
 
+import { auth } from "@/auth"
 import { Pagination } from "@/interfaces/pagination"
-import { ApprovalUserStatus, PartnerStatus } from "@/models/participants"
+import { db } from "@/lib/db"
+import { PartnerStatus, VerificationUserStatus } from "@/models/participants"
 
 interface UsersResponse<T> {
   users: T[]
   pagination: Pagination
 }
 
-const prisma = new PrismaClient()
-
 export async function getParticipants({
-  approvalStatus,
+  verificationStatus,
   partnerStatus,
   searchTerm,
   page = 1,
@@ -21,27 +21,37 @@ export async function getParticipants({
 }: {
   page?: number
   limit?: number
-  approvalStatus?: ApprovalUserStatus
+  verificationStatus?: VerificationUserStatus
   partnerStatus?: PartnerStatus
   searchTerm?: string
 }): Promise<UsersResponse<Partial<User>>> {
   const skip = (page - 1) * limit
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = {
+  type PartialWhere = {
+    role: string
+    verificationStatus?: unknown
+    partnerStatus?: unknown
+    OR?: Array<{
+      name?: { contains: string; mode: "insensitive" }
+      lastName?: { contains: string; mode: "insensitive" }
+      email?: { contains: string; mode: "insensitive" }
+    }>
+  }
+
+  const whereObj: PartialWhere = {
     role: "USER",
   }
 
-  if (approvalStatus) {
-    where.approvalStatus = approvalStatus
+  if (verificationStatus) {
+    whereObj.verificationStatus = verificationStatus
   }
 
   if (partnerStatus) {
-    where.partnerStatus = partnerStatus
+    whereObj.partnerStatus = partnerStatus
   }
 
   if (searchTerm) {
-    where.OR = [
+    whereObj.OR = [
       { name: { contains: searchTerm, mode: "insensitive" } },
       { lastName: { contains: searchTerm, mode: "insensitive" } },
       { email: { contains: searchTerm, mode: "insensitive" } },
@@ -49,34 +59,37 @@ export async function getParticipants({
     ]
   }
 
-  try {
-    const users = await prisma.user.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        lastName: true,
-        email: true,
-        telephone: true,
-        npiNumber: true,
-        type_proffesion: true,
-        place_work: true,
-        signUpStep3Completed: true,
-        signUpStep4Completed: true,
-        approvalStatus: true,
-        approvalStatusUpdatedAt: true,
-        partnerStatus: true,
-        partnerStatusUpdatedAt: true,
-        createdAt: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      skip,
-      take: limit,
-    })
+  const where = whereObj as unknown as Prisma.UserWhereInput
 
-    const totalCount = await prisma.user.count({ where })
+  try {
+    const [users, totalCount] = await Promise.all([
+      db.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          lastName: true,
+          email: true,
+          telephone: true,
+          npiNumber: true,
+          type_proffesion: true,
+          place_work: true,
+          signUpStep3Completed: true,
+          signUpStep4Completed: true,
+          verificationStatus: true,
+          verificationDate: true,
+          partnerStatus: true,
+          partnerStatusDate: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip,
+        take: limit,
+      }),
+      db.user.count({ where }),
+    ])
 
     return {
       users,
@@ -93,26 +106,41 @@ export async function getParticipants({
   }
 }
 
-export async function updateUserApprovalStatus(
+export async function updateUserVerificationStatus(
   userId: string,
-  status: ApprovalUserStatus,
-  notes?: string,
-  adminId?: string
+  status: VerificationUserStatus,
+  notes?: string
 ): Promise<{
   success: boolean
   message: string
 }> {
   try {
-    await prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        approvalStatus: status as unknown as Prisma.UserUpdateInput["approvalStatus"],
-        approvalStatusUpdatedAt: new Date(),
-        approvalNotes: notes || null,
-        approvedBy: adminId,
-      },
+    const session = await auth()
+    const adminId = session?.user.id
+
+    if (!adminId) {
+      throw new Error("Admin user not found")
+    }
+
+    type PartialData = {
+      verificationStatus?: unknown
+      verificationDate: Date
+      verificationNotes: string | null
+      verifiedBy: string | null
+    }
+
+    const dataObj: PartialData = {
+      verificationStatus: status,
+      verificationDate: new Date(),
+      verificationNotes: notes ?? null,
+      verifiedBy: adminId ?? null,
+    }
+
+    const data = dataObj as unknown as Prisma.UserUpdateInput
+
+    await db.user.update({
+      where: { id: userId },
+      data,
     })
 
     return {
@@ -129,25 +157,40 @@ export async function updateUserApprovalStatus(
 }
 
 export async function updatePartnerStatus(
-  doctorId: string,
+  userId: string,
   status: PartnerStatus,
-  notes?: string,
-  adminId?: string
+  notes?: string
 ): Promise<{
   success: boolean
   message: string
 }> {
   try {
-    await prisma.user.update({
-      where: {
-        id: doctorId,
-      },
-      data: {
-        partnerStatus: status as unknown as Prisma.UserUpdateInput["partnerStatus"],
-        partnerStatusUpdatedAt: new Date(),
-        partnerApprovalNotes: notes || null,
-        partnerApprovedBy: adminId,
-      },
+    const session = await auth()
+    const adminId = session?.user.id
+
+    if (!adminId) {
+      throw new Error("Admin user not found")
+    }
+
+    type PartialData = {
+      partnerStatus?: unknown
+      partnerStatusDate: Date
+      partnerNotes: string | null
+      partnerReviewedBy: string | null
+    }
+
+    const dataObj: PartialData = {
+      partnerStatus: status,
+      partnerStatusDate: new Date(),
+      partnerNotes: notes ?? null,
+      partnerReviewedBy: adminId ?? null,
+    }
+
+    const data = dataObj as unknown as Prisma.UserUpdateInput
+
+    await db.user.update({
+      where: { id: userId },
+      data,
     })
 
     return {

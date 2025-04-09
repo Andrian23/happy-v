@@ -30,20 +30,21 @@ model User {
   isVerified                Boolean               @default(false)
   lastActiveAt              DateTime?
   npiNumber                 String?               @unique
+  credentialsFileUrl        String?
   referralCode              String?               @unique
   referralLink              String?               @unique
   totalCommissionEarned     Float                 @default(0)
   lastInactivityEmailSentAt DateTime?
   signUpStep3Completed      Boolean               @default(false)
   signUpStep4Completed      Boolean               @default(false)
-  approvalNotes             String?
-  approvalStatus            ApprovalUserStatus    @default(PENDING_REVIEW)
-  approvalStatusUpdatedAt   DateTime?
-  approvedBy                String?
-  partnerApprovalNotes      String?
-  partnerApprovedBy         String?
+  verificationStatus        VerificationStatus    @default(PENDING_REVIEW)
+  verificationNotes         String?
+  verificationDate          DateTime?
+  verifiedBy                String?
   partnerStatus             PartnerStatus         @default(NOT_APPLIED)
-  partnerStatusUpdatedAt    DateTime?
+  partnerNotes              String?
+  partnerStatusDate         DateTime?
+  partnerReviewedBy         String?
   Commission                Commission[]
   likes                     Like[]
   PatientReferral           PatientReferral[]
@@ -272,7 +273,7 @@ enum CommissionStatus {
   CANCELLED
 }
 
-enum ApprovalUserStatus {
+enum VerificationStatus {
   PENDING_REVIEW
   ACTIVE
   DECLINED

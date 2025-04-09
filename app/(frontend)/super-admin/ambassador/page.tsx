@@ -6,21 +6,22 @@ import { useSearchParams } from "next/navigation"
 import { getParticipants } from "@/actions/super-admin/participant"
 import PageTopic from "@/components/PageTopic"
 import UserApproveTable from "@/components/super-admin/UserApproveTable"
-import { ApprovalUserStatus, ApprovalUserStatusReverseMap } from "@/models/participants"
+import { VerificationUserStatus, VerificationUserStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
 const AmbassadorMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
-  const userStatusQuery = searchParams.get("status") as keyof typeof ApprovalUserStatus
+  const userStatusQuery = searchParams.get("status") as keyof typeof VerificationUserStatus
   const activeTab =
-    ApprovalUserStatusReverseMap[userStatusQuery] || ApprovalUserStatusReverseMap[ApprovalUserStatus.PENDING_REVIEW]
+    VerificationUserStatusReverseMap[userStatusQuery] ||
+    VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
 
-  const fetchUsers = async (activeTab: ApprovalUserStatus) => {
+  const fetchUsers = async (activeTab: VerificationUserStatus) => {
     setLoading(true)
     try {
-      const data = await getParticipants({ approvalStatus: activeTab })
+      const data = await getParticipants({ verificationStatus: activeTab })
       setUsers(data.users as User[])
     } catch (error) {
       console.error("Failed to fetch users:", error)

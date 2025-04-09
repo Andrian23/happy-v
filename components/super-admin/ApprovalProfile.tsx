@@ -1,21 +1,31 @@
 "use client"
 
 import { FC, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import { Label } from "@radix-ui/react-label"
 
+import { updatePartnerStatus, updateUserVerificationStatus } from "@/actions/super-admin/participant"
 import { getUserById } from "@/actions/user"
 import ContractModal from "@/components/ambassador/ContractModal"
 import PageTopicSecond from "@/components/PageTopicSecond"
 import { Button } from "@/components/ui/Button"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { Input } from "@/components/ui/Input"
+import { useToast } from "@/components/ui/useToast"
 import { cooperations } from "@/constants/cooperations"
 import { professionalInfo } from "@/constants/professionalInfo"
 import { socialLinks } from "@/constants/socialLinks"
+import {
+  PartnerStatus,
+  PartnerStatusReverseMap,
+  VerificationUserStatus,
+  VerificationUserStatusReverseMap,
+} from "@/models/participants"
 import { User } from "@/models/user"
 
 import DeclineProfileModal from "./DeclineProfileModal"
+import StatusBadge from "./StatusBadge"
 
 interface ApprovalProfileProps {
   userId: string
@@ -25,10 +35,13 @@ interface ApprovalProfileProps {
 }
 
 const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink, backLinkText }) => {
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [deletingId, setDeletingId] = useState<string | number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isPendingUser, setIsPendingUser] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -39,6 +52,15 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
       try {
         const response = await getUserById(userId)
         setUser(response)
+
+        const profileStatus = userType === "ambassador" ? response?.verificationStatus : response?.partnerStatus
+
+        const pendingStatus =
+          userType === "ambassador"
+            ? VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
+            : PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
+
+        setIsPendingUser(profileStatus === pendingStatus)
       } catch (error) {
         console.error("Failed to fetch user:", error)
       }
@@ -49,9 +71,25 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
 
   const onSubmit = async () => {
     try {
-      setIsSubmitting(true)
+      if (userType === "ambassador") {
+        await updateUserVerificationStatus(userId, VerificationUserStatusReverseMap[VerificationUserStatus.ACTIVE])
+        toast({
+          title: "Request approved",
+          position: "bottom-right",
+          successIcon: true,
+        })
+        router.push("/super-admin/ambassador?status=pending")
+      }
 
-      window.location.href = backLink
+      if (userType === "partner") {
+        await updatePartnerStatus(userId, PartnerStatusReverseMap[PartnerStatus.ACTIVE])
+        toast({
+          title: "Request approved",
+          position: "bottom-right",
+          successIcon: true,
+        })
+        router.push("/super-admin/partners?status=pending")
+      }
     } catch (error) {
       console.error("Failed to approve:", error)
     } finally {
@@ -74,13 +112,31 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
     }
   }
 
-  const handleDeclineUser = async (userId?: string, declineReason?: string) => {
-    if (!userId || !declineReason) return
-
+  const handleDeclineUser = async (userId: string, declineReason?: string, userType?: string) => {
     try {
-      setIsSubmitting(true)
+      if (userType === "ambassador") {
+        await updateUserVerificationStatus(
+          userId,
+          VerificationUserStatusReverseMap[VerificationUserStatus.DECLINED],
+          declineReason
+        )
+        toast({
+          title: "Request declined",
+          position: "bottom-right",
+          successIcon: true,
+        })
+        router.push("/super-admin/ambassador?status=pending")
+      }
 
-      window.location.href = backLink
+      if (userType === "partner") {
+        await updatePartnerStatus(userId, PartnerStatusReverseMap[PartnerStatus.DECLINED], declineReason)
+        toast({
+          title: "Request declined",
+          position: "bottom-right",
+          successIcon: true,
+        })
+        router.push("/super-admin/partners?status=pending")
+      }
     } catch (error) {
       console.error("Failed to decline:", error)
     } finally {
@@ -95,10 +151,18 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
       <DeclineProfileModal
         isOpen={deletingId === userId}
         onClose={() => setDeletingId(null)}
-        onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason)}
+        onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason, userType)}
       />
       <div className="flex h-full flex-col">
-        <PageTopicSecond name={backLinkText} link={backLink} enable={false} />
+        <div className="flex items-center justify-between">
+          <PageTopicSecond name={backLinkText} link={backLink} enable={false} />
+          {!isPendingUser && (
+            <StatusBadge
+              status={userType === "ambassador" ? user?.verificationStatus : user?.partnerStatus}
+              date={userType === "ambassador" ? user?.verificationDate : user?.partnerStatusDate}
+            />
+          )}
+        </div>
         <div className="mt-6 flex flex-1 items-start justify-between max-lg:block">
           <div className="w-3/5 max-lg:mt-8 max-lg:w-full">
             <div className="text-primary-900 text-xl font-semibold">Professional Info</div>
@@ -184,29 +248,30 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
             )}
           </div>
         </div>
-
-        <div className="border-grey-400 bg-grey-100 mt-3.5 w-full rounded-[20px] border p-3 max-md:mb-3.5">
-          <div className="flex w-44 items-center gap-2 justify-self-end">
-            <Button
-              variant="primary"
-              size="sm"
-              className="bg-primary-900 hover:bg-primary-900/80 w-full rounded-full"
-              onClick={() => onSubmit()}
-              disabled={isSubmitting}
-            >
-              Approve
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              className="bg-red hover:bg-red/80 w-full rounded-full"
-              onClick={() => handleOpenDeletingModal(userId)}
-              disabled={isSubmitting}
-            >
-              Decline
-            </Button>
+        {isPendingUser && (
+          <div className="border-grey-400 bg-grey-100 mt-3.5 w-full rounded-[20px] border p-3 max-md:mb-3.5">
+            <div className="flex w-44 items-center gap-2 justify-self-end">
+              <Button
+                variant="primary"
+                size="sm"
+                className="bg-primary-900 hover:bg-primary-900/80 w-full rounded-full"
+                onClick={() => onSubmit()}
+                disabled={isSubmitting}
+              >
+                Approve
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                className="bg-red hover:bg-red/80 w-full rounded-full"
+                onClick={() => handleOpenDeletingModal(userId)}
+                disabled={isSubmitting}
+              >
+                Decline
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
