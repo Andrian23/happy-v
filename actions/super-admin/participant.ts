@@ -2,6 +2,7 @@
 
 import { Prisma, User } from "@prisma/client"
 
+import { auth } from "@/auth"
 import { Pagination } from "@/interfaces/pagination"
 import { db } from "@/lib/db"
 import { PartnerStatus, VerificationUserStatus } from "@/models/participants"
@@ -108,13 +109,19 @@ export async function getParticipants({
 export async function updateUserVerificationStatus(
   userId: string,
   status: VerificationUserStatus,
-  notes?: string,
-  adminId?: string
+  notes?: string
 ): Promise<{
   success: boolean
   message: string
 }> {
   try {
+    const session = await auth()
+    const adminId = session?.user.id
+
+    if (!adminId) {
+      throw new Error("Admin user not found")
+    }
+
     type PartialData = {
       verificationStatus?: unknown
       verificationDate: Date
@@ -152,13 +159,19 @@ export async function updateUserVerificationStatus(
 export async function updatePartnerStatus(
   userId: string,
   status: PartnerStatus,
-  notes?: string,
-  adminId?: string
+  notes?: string
 ): Promise<{
   success: boolean
   message: string
 }> {
   try {
+    const session = await auth()
+    const adminId = session?.user.id
+
+    if (!adminId) {
+      throw new Error("Admin user not found")
+    }
+
     type PartialData = {
       partnerStatus?: unknown
       partnerStatusDate: Date
