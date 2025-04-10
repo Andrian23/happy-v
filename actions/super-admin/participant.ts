@@ -107,11 +107,17 @@ export async function getParticipants({
   }
 }
 
-export async function updateUserVerificationStatus(
-  userId: string,
-  status: VerificationUserStatus,
+async function updateUserStatus<T extends VerificationUserStatus | PartnerStatus>({
+  userId,
+  status,
+  notes,
+  isPartnerStatus = false,
+}: {
+  userId: string
+  status: T
   notes?: string
-): Promise<{
+  isPartnerStatus?: boolean
+}): Promise<{
   success: boolean
   message: string
 }> {
@@ -123,21 +129,21 @@ export async function updateUserVerificationStatus(
       throw new Error("Admin user not found")
     }
 
-    type PartialData = {
-      verificationStatus?: unknown
-      verificationDate: Date
-      verificationNotes: string | null
-      verifiedBy: string | null
-    }
+    const updateData = isPartnerStatus
+      ? {
+          partnerStatus: status,
+          partnerStatusDate: new Date(),
+          partnerNotes: notes ?? null,
+          partnerReviewedBy: adminId ?? null,
+        }
+      : {
+          verificationStatus: status,
+          verificationDate: new Date(),
+          verificationNotes: notes ?? null,
+          verifiedBy: adminId ?? null,
+        }
 
-    const dataObj: PartialData = {
-      verificationStatus: status,
-      verificationDate: new Date(),
-      verificationNotes: notes ?? null,
-      verifiedBy: adminId ?? null,
-    }
-
-    const data = dataObj as unknown as Prisma.UserUpdateInput
+    const data = updateData as unknown as Prisma.UserUpdateInput
 
     await db.user.update({
       where: { id: userId },
@@ -149,17 +155,35 @@ export async function updateUserVerificationStatus(
       updatedByAdminId: adminId || "unknown",
     })
 
+    const statusType = isPartnerStatus ? "partner" : "approval"
+
     return {
       success: true,
-      message: `User approval status successfully updated to ${status}`,
+      message: `User ${statusType} status successfully updated to ${status}`,
     }
   } catch (error) {
-    console.error("Failed to update user approval status:", error)
+    console.error(`Failed to update user status:`, error)
     return {
       success: false,
-      message: "Failed to update user approval status.",
+      message: `Failed to update user status.`,
     }
   }
+}
+
+export async function updateUserVerificationStatus(
+  userId: string,
+  status: VerificationUserStatus,
+  notes?: string
+): Promise<{
+  success: boolean
+  message: string
+}> {
+  return updateUserStatus({
+    userId,
+    status,
+    notes,
+    isPartnerStatus: false,
+  })
 }
 
 export async function updatePartnerStatus(
@@ -170,49 +194,10 @@ export async function updatePartnerStatus(
   success: boolean
   message: string
 }> {
-  try {
-    const session = await auth()
-    const adminId = session?.user.id
-
-    if (!adminId) {
-      throw new Error("Admin user not found")
-    }
-
-    type PartialData = {
-      partnerStatus?: unknown
-      partnerStatusDate: Date
-      partnerNotes: string | null
-      partnerReviewedBy: string | null
-    }
-
-    const dataObj: PartialData = {
-      partnerStatus: status,
-      partnerStatusDate: new Date(),
-      partnerNotes: notes ?? null,
-      partnerReviewedBy: adminId ?? null,
-    }
-
-    const data = dataObj as unknown as Prisma.UserUpdateInput
-
-    await db.user.update({
-      where: { id: userId },
-      data,
-    })
-
-    await serverPusher.trigger("admin-dashboard", "counts-updated", {
-      message: `User status updated`,
-      updatedByAdminId: adminId || "unknown",
-    })
-
-    return {
-      success: true,
-      message: `User partner status successfully updated to ${status}`,
-    }
-  } catch (error) {
-    console.error("Failed to update user partner status:", error)
-    return {
-      success: false,
-      message: "Failed to update user partner status.",
-    }
-  }
+  return updateUserStatus({
+    userId,
+    status,
+    notes,
+    isPartnerStatus: true,
+  })
 }
