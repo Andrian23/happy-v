@@ -5,6 +5,7 @@ import { Prisma, User } from "@prisma/client"
 import { auth } from "@/auth"
 import { Pagination } from "@/interfaces/pagination"
 import { db } from "@/lib/db"
+import { serverPusher } from "@/lib/pusher"
 import { PartnerStatus, VerificationUserStatus } from "@/models/participants"
 
 interface UsersResponse<T> {
@@ -143,6 +144,10 @@ export async function updateUserVerificationStatus(
       data,
     })
 
+    await serverPusher.trigger("admin-dashboard", "counts-updated", {
+      message: `User verification status updated to ${status}`,
+    })
+
     return {
       success: true,
       message: `User approval status successfully updated to ${status}`,
@@ -191,6 +196,10 @@ export async function updatePartnerStatus(
     await db.user.update({
       where: { id: userId },
       data,
+    })
+
+    await serverPusher.trigger("admin-dashboard", "counts-updated", {
+      message: `User partner status updated to ${status}`,
     })
 
     return {

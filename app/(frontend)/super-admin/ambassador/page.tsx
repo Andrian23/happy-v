@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { format } from "date-fns"
 import { BeatLoader } from "react-spinners"
 
@@ -11,6 +11,7 @@ import EmptyRequest from "@/components/EmptyRequest"
 import PageTopic from "@/components/PageTopic"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { Carret } from "@/icons/Carret"
+import { bindToEvent } from "@/lib/pusher-client"
 import { VerificationUserStatus, VerificationUserStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
@@ -18,6 +19,7 @@ const AmbassadorMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
+  const router = useRouter()
   const userStatusQuery = searchParams.get("status") as keyof typeof VerificationUserStatus
   const activeTab =
     VerificationUserStatusReverseMap[userStatusQuery] ||
@@ -38,6 +40,10 @@ const AmbassadorMainPage = () => {
   useEffect(() => {
     fetchUsers(activeTab)
   }, [activeTab])
+
+  useEffect(() => {
+    return bindToEvent("admin-dashboard", "counts-updated", () => fetchUsers(activeTab))
+  }, [])
 
   if (loading) {
     return (
@@ -72,7 +78,7 @@ const AmbassadorMainPage = () => {
                   key={id}
                   className="cursor-pointer [&>td]:border-b last:[&>td]:border-0"
                   onClick={() => {
-                    window.location.href = `/super-admin/ambassador/${id}`
+                    router.push(`/super-admin/ambassador/${id}`)
                   }}
                 >
                   <TableCell className="text-primary-900 w-2xs px-5 py-7 font-medium">

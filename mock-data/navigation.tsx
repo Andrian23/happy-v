@@ -92,50 +92,48 @@ export const adminNavigation = {
     {
       name: "Ambassadors hub",
       icon: <Registration className={classes} />,
-      hasNotification: true,
       subLinks: [
         {
           name: "Pending for Review",
           icon: <Review className={classes} />,
           link: `/super-admin/ambassador?status=${VerificationUserStatus.PENDING_REVIEW}`,
-          count: 8,
+          countType: "pendingReviewAmbassadors",
         },
         {
           name: "Active Ambassadors",
           icon: <Active className={classes} />,
           link: `/super-admin/ambassador?status=${VerificationUserStatus.ACTIVE}`,
-          count: 12,
+          countType: "activeAmbassadors",
         },
         {
           name: "Declined Request",
           icon: <Declined className={classes} />,
           link: `/super-admin/ambassador?status=${VerificationUserStatus.DECLINED}`,
-          count: 12,
+          countType: "declinedRequestsAmbassadors",
         },
       ],
     },
     {
       name: "Partners hub",
       icon: <Ambassador className={classes} />,
-      hasNotification: true,
       subLinks: [
         {
           name: "Pending for Review",
           icon: <Review className={classes} />,
           link: `/super-admin/partners?status=${PartnerStatus.PENDING_REVIEW}`,
-          count: 8,
+          countType: "pendingReviewPartners",
         },
         {
           name: "Active Partners",
           icon: <Active className={classes} />,
           link: `/super-admin/partners?status=${PartnerStatus.ACTIVE}`,
-          count: 12,
+          countType: "activePartners",
         },
         {
           name: "Declined Request",
           icon: <Declined className={classes} />,
           link: `/super-admin/partners?status=${PartnerStatus.DECLINED}`,
-          count: 12,
+          countType: "declinedRequestsPartners",
         },
       ],
     },
