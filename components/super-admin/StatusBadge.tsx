@@ -1,15 +1,7 @@
 import { format } from "date-fns"
 
-import { VerificationUserStatus, VerificationUserStatusReverseMap } from "@/models/participants"
-
-const StatusBadge = ({
-  status,
-  date,
-}: {
-  status: VerificationUserStatus | undefined
-  date: Date | null | undefined
-}) => {
-  const isDeclined = status === VerificationUserStatusReverseMap[VerificationUserStatus.DECLINED]
+const StatusBadge = ({ status, date }: { status: string | undefined; date: Date | null | undefined }) => {
+  const isDeclined = status === "DECLINED"
 
   return (
     <div
