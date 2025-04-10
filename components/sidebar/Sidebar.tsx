@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isAdmin = false }) => {
       const data = await getAmbassadorCounts()
       setCounts(data)
     } catch (error) {
-      console.error("Error fetching ambassador counts:", error)
+      console.error("Error fetching ambassadors counts:", error)
     }
   }
 

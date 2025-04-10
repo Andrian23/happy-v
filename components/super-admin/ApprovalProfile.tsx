@@ -2,6 +2,7 @@
 
 import { FC, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
 import { Label } from "@radix-ui/react-label"
 
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/Button"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { Input } from "@/components/ui/Input"
 import { useToast } from "@/components/ui/useToast"
+import { bindToEvent } from "@/lib/pusher-client"
 import { cooperations } from "@/mock-data/cooperations"
 import { professionalInfo } from "@/mock-data/professionalInfo"
 import { socialLinks } from "@/mock-data/socialLinks"
@@ -28,13 +30,14 @@ import { User } from "@/models/user"
 
 interface ApprovalProfileProps {
   userId: string
-  userType: "ambassador" | "partner"
+  userType: "ambassadors" | "partner"
   backLink: string
   backLinkText: string
 }
 
 const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink, backLinkText }) => {
   const router = useRouter()
+  const { data: session } = useSession()
   const [user, setUser] = useState<User | null>(null)
   const [deletingId, setDeletingId] = useState<string | number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -42,30 +45,57 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink,
   const [isPendingUser, setIsPendingUser] = useState(false)
   const { toast } = useToast()
 
-  const isAmbassador = userType === "ambassador"
+  const isAmbassador = userType === "ambassadors"
+
+  const fetchUser = async () => {
+    if (!userId) return
+
+    try {
+      const response = await getUserById(userId)
+      setUser(response)
+
+      const profileStatus = isAmbassador ? response?.verificationStatus : response?.partnerStatus
+
+      const pendingStatus = isAmbassador
+        ? VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
+        : PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
+
+      setIsPendingUser(profileStatus === pendingStatus)
+
+      return { isPending: profileStatus === pendingStatus }
+    } catch (error) {
+      console.error("Failed to fetch user:", error)
+      return { isPending: false }
+    }
+  }
 
   useEffect(() => {
-    const fetchUser = async () => {
-      if (!userId) return
-
-      try {
-        const response = await getUserById(userId)
-        setUser(response)
-
-        const profileStatus = isAmbassador ? response?.verificationStatus : response?.partnerStatus
-
-        const pendingStatus = isAmbassador
-          ? VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
-          : PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
-
-        setIsPendingUser(profileStatus === pendingStatus)
-      } catch (error) {
-        console.error("Failed to fetch user:", error)
-      }
-    }
-
     fetchUser()
   }, [userId, userType])
+
+  useEffect(() => {
+    return bindToEvent("admin-dashboard", "counts-updated", async (data) => {
+      if (!data || data.updatedByAdminId === session?.user?.id) {
+        await fetchUser()
+        return
+      }
+
+      const prevIsPending = isPendingUser
+      const result = await fetchUser()
+
+      if (prevIsPending && !result?.isPending) {
+        toast({
+          title: "This user's status has been updated by another admin",
+          description: "Redirecting back to the list...",
+          position: "bottom-right",
+        })
+
+        setTimeout(() => {
+          router.push(`/super-admin/${isAmbassador ? "ambassadors" : "partners"}?status=pending`)
+        }, 1000)
+      }
+    })
+  }, [isPendingUser, isAmbassador, router, userId])
 
   const handleUpdateUserStatus = async (status: VerificationUserStatus | PartnerStatus, declineReason?: string) => {
     try {

@@ -44,7 +44,7 @@ const AmbassadorMainPage = () => {
       <PageTopic name="Ambassadors Hub" description="" />
       <div className="mt-3 border-b"></div>
 
-      <UserApproveTable users={users} loading={loading} basePath="/super-admin/ambassador" />
+      <UserApproveTable users={users} loading={loading} basePath="/super-admin/ambassadors" />
     </div>
   )
 }

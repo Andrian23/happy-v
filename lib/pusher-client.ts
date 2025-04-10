@@ -1,5 +1,11 @@
 import Pusher from "pusher-js"
 
+type PusherEventData = {
+  message?: string
+  updatedUserId?: string
+  [key: string]: unknown
+}
+
 let pusherInstance: Pusher | null = null
 const subscribedChannels: Record<string, boolean> = {}
 
@@ -31,15 +37,7 @@ export function subscribeToChannel(channelName: string) {
   }
 }
 
-export function bindToEvent(
-  channelName: string,
-  eventName: string,
-  callback: (data: {
-    [key: string]: {
-      [key: string]: unknown
-    }
-  }) => void
-) {
+export function bindToEvent(channelName: string, eventName: string, callback: (data: PusherEventData) => void) {
   const channel = subscribeToChannel(channelName)
   channel.bind(eventName, callback)
 

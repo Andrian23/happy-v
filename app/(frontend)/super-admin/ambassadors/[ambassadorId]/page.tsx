@@ -6,8 +6,8 @@ const AmbassadorPage = async ({ params }: { params: Promise<{ ambassadorId: stri
   return (
     <ApprovalProfile
       userId={userId}
-      userType="ambassador"
-      backLink="/super-admin/ambassador?status=pending"
+      userType="ambassadors"
+      backLink="/super-admin/ambassadors?status=pending"
       backLinkText="Back to Ambassadors hub"
     />
   )

@@ -96,19 +96,19 @@ export const adminNavigation = {
         {
           name: "Pending for Review",
           icon: <Review className={classes} />,
-          link: `/super-admin/ambassador?status=${VerificationUserStatus.PENDING_REVIEW}`,
+          link: `/super-admin/ambassadors?status=${VerificationUserStatus.PENDING_REVIEW}`,
           countType: "pendingReviewAmbassadors",
         },
         {
           name: "Active Ambassadors",
           icon: <Active className={classes} />,
-          link: `/super-admin/ambassador?status=${VerificationUserStatus.ACTIVE}`,
+          link: `/super-admin/ambassadors?status=${VerificationUserStatus.ACTIVE}`,
           countType: "activeAmbassadors",
         },
         {
           name: "Declined Request",
           icon: <Declined className={classes} />,
-          link: `/super-admin/ambassador?status=${VerificationUserStatus.DECLINED}`,
+          link: `/super-admin/ambassadors?status=${VerificationUserStatus.DECLINED}`,
           countType: "declinedRequestsAmbassadors",
         },
       ],

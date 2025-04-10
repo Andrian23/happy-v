@@ -145,7 +145,8 @@ export async function updateUserVerificationStatus(
     })
 
     await serverPusher.trigger("admin-dashboard", "counts-updated", {
-      message: `User verification status updated to ${status}`,
+      message: `User status updated`,
+      updatedByAdminId: adminId || "unknown",
     })
 
     return {
@@ -199,7 +200,8 @@ export async function updatePartnerStatus(
     })
 
     await serverPusher.trigger("admin-dashboard", "counts-updated", {
-      message: `User partner status updated to ${status}`,
+      message: `User status updated`,
+      updatedByAdminId: adminId || "unknown",
     })
 
     return {
