@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/Button"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/Form"
-import { cooperations } from "@/constants/cooperations"
+import { cooperations } from "@/mock-data/cooperations"
 import { CooperationSchema } from "@/schemas"
 import { useCooperationStore } from "@/stores/cooperation"
 

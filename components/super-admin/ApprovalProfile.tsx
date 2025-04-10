@@ -15,9 +15,9 @@ import { Button } from "@/components/ui/Button"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { Input } from "@/components/ui/Input"
 import { useToast } from "@/components/ui/useToast"
-import { cooperations } from "@/constants/cooperations"
-import { professionalInfo } from "@/constants/professionalInfo"
-import { socialLinks } from "@/constants/socialLinks"
+import { cooperations } from "@/mock-data/cooperations"
+import { professionalInfo } from "@/mock-data/professionalInfo"
+import { socialLinks } from "@/mock-data/socialLinks"
 import {
   PartnerStatus,
   PartnerStatusReverseMap,
