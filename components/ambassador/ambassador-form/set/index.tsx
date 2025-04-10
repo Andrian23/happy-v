@@ -11,93 +11,11 @@ import { Checkbox } from "@/components/ui/Checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/Form"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
-import type { AmbassadorLinks } from "@/models/ambassador"
+import { professionalInfo } from "@/mock-data/professionalInfo"
+import { socialLinks } from "@/mock-data/socialLinks"
 import { User } from "@/models/user"
 import documentIcon from "@/public/Document.svg"
-import facebookIcon from "@/public/Facebook.svg"
-import globeIcon from "@/public/Globe.svg"
-import instagramIcon from "@/public/Instagram.svg"
-import xIcon from "@/public/X.svg"
-import youtubeIcon from "@/public/Youtube.svg"
 import { useCooperationStore } from "@/stores/cooperation"
-
-type SocialLink = {
-  key: keyof AmbassadorLinks
-  label: string
-  placeholder: string
-  alt: string
-  icon: string
-}
-
-type ProfessionalInfo = {
-  key: keyof Pick<User, "name" | "email" | "lastName" | "type_proffesion" | "place_work" | "telephone">
-  label: string
-}
-
-const socialLinks: SocialLink[] = [
-  {
-    key: "websiteLink",
-    label: "Website link",
-    placeholder: "Paste the link to your website",
-    alt: "Globe",
-    icon: globeIcon,
-  },
-  {
-    key: "facebookLink",
-    label: "Facebook link",
-    placeholder: "Paste the link to your Facebook page",
-    alt: "Document",
-    icon: facebookIcon,
-  },
-  {
-    key: "instagramLink",
-    label: "Instagram link",
-    placeholder: "Paste the link to your Instagram page",
-    alt: "Document",
-    icon: instagramIcon,
-  },
-  {
-    key: "twitterLink",
-    label: "X link (Twitter)",
-    placeholder: "Paste the link to your X (Twitter) page",
-    alt: "Document",
-    icon: xIcon,
-  },
-  {
-    key: "youtubeLink",
-    label: "YouTube link",
-    placeholder: "Paste the link to your YouTube channel",
-    alt: "Document",
-    icon: youtubeIcon,
-  },
-]
-
-const professionalInfo: ProfessionalInfo[] = [
-  {
-    key: "name",
-    label: "First Name",
-  },
-  {
-    key: "lastName",
-    label: "Last Name",
-  },
-  {
-    key: "type_proffesion",
-    label: "Type of professional",
-  },
-  {
-    key: "place_work",
-    label: "Place of Work",
-  },
-  {
-    key: "email",
-    label: "Email Address",
-  },
-  {
-    key: "telephone",
-    label: "Phone Number",
-  },
-]
 
 const SetPageComponent = () => {
   const [showDetails, setShowDetails] = useState(false)
@@ -179,12 +97,12 @@ const SetPageComponent = () => {
       <div className="">
         <PageTopicSecond name="Back" link="/ambassador_form" enable={false} />
 
-        <div className="text-[28px] font-bold text-primary-900">Fill Out Personal Information</div>
+        <div className="text-primary-900 text-[28px] font-bold">Fill Out Personal Information</div>
         <div className="mt-8 flex items-start justify-between max-lg:block">
           <div className="w-3/5 max-lg:mt-8 max-lg:w-full">
-            <div className="text-[20px] font-semibold text-primary-900">Professional Info</div>
+            <div className="text-primary-900 text-[20px] font-semibold">Professional Info</div>
             <div
-              className={`mt-3.5 rounded-2xl border border-grey-400 p-3 ${showDetails ? "max-lg:block" : "flex items-center justify-between"}`}
+              className={`border-grey-400 mt-3.5 rounded-2xl border p-3 ${showDetails ? "max-lg:block" : "flex items-center justify-between"}`}
             >
               <div className="transition duration-300">
                 {showDetails ? (
@@ -195,7 +113,7 @@ const SetPageComponent = () => {
                           <Label>{label}</Label>
                           <Input
                             value={user ? user.user[key] || "" : "Loading..."}
-                            className="mt-1.5 cursor-pointer rounded-xl border px-3 py-2 text-left text-sm text-primary-800"
+                            className="text-primary-800 mt-1.5 cursor-pointer rounded-xl border px-3 py-2 text-left text-sm"
                             readOnly
                           />
                         </div>
@@ -206,16 +124,16 @@ const SetPageComponent = () => {
                         <Label>{label}</Label>
                         <Input
                           value={user ? user.user[key] || "" : "Loading..."}
-                          className="mt-1.5 cursor-pointer rounded-xl border px-3 py-2 text-left text-sm text-primary-800"
+                          className="text-primary-800 mt-1.5 cursor-pointer rounded-xl border px-3 py-2 text-left text-sm"
                           readOnly
                         />
                       </div>
                     ))}
-                    <div className="mb-5 mt-2 transition duration-300">
+                    <div className="mt-2 mb-5 transition duration-300">
                       <Label htmlFor="current_password" className="text-sm text-[#25425D]">
                         Professional credentials
                       </Label>
-                      <div className="flex w-fit items-center justify-between rounded-xl border-2 border-gray-100 bg-grey-100 p-4 text-sm text-grey-800">
+                      <div className="bg-grey-100 text-grey-800 flex w-fit items-center justify-between rounded-xl border-2 border-gray-100 p-4 text-sm">
                         <div className="flex items-center justify-start">
                           <Image src={documentIcon} alt="Document" className="h-4.5 w-4.5" />
                           <div className="ml-2 text-sm">{fileName}</div>
@@ -228,10 +146,10 @@ const SetPageComponent = () => {
                   </div>
                 ) : (
                   <div className="transition duration-300">
-                    <div className="text-sm font-normal text-primary-900">
+                    <div className="text-primary-900 text-sm font-normal">
                       {user ? user.user.name : "Loading..."} {user ? user.user.lastName : ""}
                     </div>
-                    <div className="text-sm font-normal text-primary-800">
+                    <div className="text-primary-800 text-sm font-normal">
                       {user ? user.user.type_proffesion : "Loading..."}
                     </div>
                   </div>
@@ -245,8 +163,8 @@ const SetPageComponent = () => {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div className="mt-8">
-                  <div className="text-[20px] font-semibold text-primary-900">Social Media Pages</div>
-                  <div className="w-4/5 text-sm font-normal text-grey-800">
+                  <div className="text-primary-900 text-[20px] font-semibold">Social Media Pages</div>
+                  <div className="text-grey-800 w-4/5 text-sm font-normal">
                     Providing links to your social media will help us better understand your activity and presence in
                     these networks. It will also help us understand your communication style and the content you create.
                   </div>
@@ -280,12 +198,12 @@ const SetPageComponent = () => {
           </div>
 
           <div className="w-[35%] max-lg:mt-8 max-lg:w-full">
-            <div className="text-[20px] font-semibold text-primary-900">Selected areas of cooperation</div>
-            <div className="mt-3.5 rounded-2xl border border-grey-400 bg-grey-100 p-5">
+            <div className="text-primary-900 text-[20px] font-semibold">Selected areas of cooperation</div>
+            <div className="border-grey-400 bg-grey-100 mt-3.5 rounded-2xl border p-5">
               {selectedTitles.map((title, index) => (
                 <div key={index} className="mb-5 flex items-center justify-start">
                   <Checkbox defaultChecked disabled />
-                  <div className="ml-3 text-sm font-normal text-grey-800">{title}</div>
+                  <div className="text-grey-800 ml-3 text-sm font-normal">{title}</div>
                 </div>
               ))}
 

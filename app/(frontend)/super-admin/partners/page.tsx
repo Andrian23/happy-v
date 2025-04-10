@@ -6,22 +6,20 @@ import { useSearchParams } from "next/navigation"
 import { getParticipants } from "@/actions/super-admin/participant"
 import PageTopic from "@/components/PageTopic"
 import UserApproveTable from "@/components/super-admin/UserApproveTable"
-import { VerificationUserStatus, VerificationUserStatusReverseMap } from "@/models/participants"
+import { PartnerStatus, PartnerStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
-const AmbassadorMainPage = () => {
+const PartnersMainPage = () => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
-  const userStatusQuery = searchParams.get("status") as keyof typeof VerificationUserStatus
-  const activeTab =
-    VerificationUserStatusReverseMap[userStatusQuery] ||
-    VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
+  const userStatusQuery = searchParams.get("status") as keyof typeof PartnerStatus
+  const activeTab = PartnerStatusReverseMap[userStatusQuery] || PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
 
-  const fetchUsers = async (activeTab: VerificationUserStatus) => {
+  const fetchUsers = async (activeTab: PartnerStatus) => {
     setLoading(true)
     try {
-      const data = await getParticipants({ verificationStatus: activeTab })
+      const data = await getParticipants({ partnerStatus: activeTab })
       setUsers(data.users as User[])
     } catch (error) {
       console.error("Failed to fetch users:", error)
@@ -36,12 +34,12 @@ const AmbassadorMainPage = () => {
 
   return (
     <div className="m-2.5 w-[98%] max-md:m-0">
-      <PageTopic name="Ambassadors Hub" description="" />
+      <PageTopic name="Partners Hub" description="" />
       <div className="mt-3 border-b"></div>
 
-      <UserApproveTable users={users} loading={loading} basePath="/super-admin/ambassador" />
+      <UserApproveTable users={users} loading={loading} basePath="/super-admin/partners" />
     </div>
   )
 }
 
-export default AmbassadorMainPage
+export default PartnersMainPage

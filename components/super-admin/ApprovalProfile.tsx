@@ -3,115 +3,100 @@
 import { FC, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import { PartnerStatus } from "@prisma/client"
 import { Label } from "@radix-ui/react-label"
 
-import { updateUserVerificationStatus } from "@/actions/super-admin/participant"
+import { updatePartnerStatus, updateUserVerificationStatus } from "@/actions/super-admin/participant"
 import { getUserById } from "@/actions/user"
 import ContractModal from "@/components/ambassador/ContractModal"
 import PageTopicSecond from "@/components/PageTopicSecond"
+import DeclineProfileModal from "@/components/super-admin/DeclineProfileModal"
+import StatusBadge from "@/components/super-admin/StatusBadge"
 import { Button } from "@/components/ui/Button"
+import { Checkbox } from "@/components/ui/Checkbox"
 import { Input } from "@/components/ui/Input"
 import { useToast } from "@/components/ui/useToast"
+import { cooperations } from "@/mock-data/cooperations"
+import { professionalInfo } from "@/mock-data/professionalInfo"
+import { socialLinks } from "@/mock-data/socialLinks"
 import {
+  PartnerStatus,
   PartnerStatusReverseMap,
   VerificationUserStatus,
   VerificationUserStatusReverseMap,
 } from "@/models/participants"
 import { User } from "@/models/user"
 
-import DeclineProfileModal from "./DeclineProfileModal"
-import StatusBadge from "./StatusBadge"
-
 interface ApprovalProfileProps {
   userId: string
-  pageMode: string
+  userType: "ambassador" | "partner"
+  backLink: string
+  backLinkText: string
 }
 
-type ProfessionalInfo = {
-  key: keyof Pick<
-    User,
-    "name" | "email" | "lastName" | "type_proffesion" | "place_work" | "practical_size" | "telephone"
-  >
-  label: string
-}
-
-const professionalInfo: ProfessionalInfo[] = [
-  {
-    key: "name",
-    label: "First Name",
-  },
-  {
-    key: "lastName",
-    label: "Last Name",
-  },
-  {
-    key: "type_proffesion",
-    label: "Type of professional",
-  },
-  {
-    key: "practical_size",
-    label: "Practice size",
-  },
-  {
-    key: "place_work",
-    label: "Place of Work",
-  },
-  {
-    key: "email",
-    label: "Email",
-  },
-  {
-    key: "telephone",
-    label: "Phone Number",
-  },
-]
-
-const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userId: string; pageMode: string }) => {
+const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, userType, backLink, backLinkText }) => {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [deletingId, setDeletingId] = useState<string | number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPendingUser, setIsPendingUser] = useState(false)
   const { toast } = useToast()
 
+  const isAmbassador = userType === "ambassador"
+
   useEffect(() => {
     const fetchUser = async () => {
-      if (!userId) {
-        console.error("User ID is undefined")
-        return
-      }
+      if (!userId) return
+
       try {
         const response = await getUserById(userId)
         setUser(response)
 
-        const status =
-          pageMode === "ambassador"
-            ? VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
-            : PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
-        setIsPendingUser(response?.verificationStatus === status)
+        const profileStatus = isAmbassador ? response?.verificationStatus : response?.partnerStatus
+
+        const pendingStatus = isAmbassador
+          ? VerificationUserStatusReverseMap[VerificationUserStatus.PENDING_REVIEW]
+          : PartnerStatusReverseMap[PartnerStatus.PENDING_REVIEW]
+
+        setIsPendingUser(profileStatus === pendingStatus)
       } catch (error) {
         console.error("Failed to fetch user:", error)
       }
     }
 
     fetchUser()
-  }, [userId])
+  }, [userId, userType])
 
-  const onSubmit = async () => {
+  const handleUpdateUserStatus = async (status: VerificationUserStatus | PartnerStatus, declineReason?: string) => {
     try {
-      if (pageMode === "ambassador") {
-        await updateUserVerificationStatus(userId, VerificationUserStatusReverseMap[VerificationUserStatus.ACTIVE])
-        toast({
-          title: "Request approved",
-          position: "bottom-right",
-          successIcon: true,
-        })
-        router.push("/super-admin/ambassador?status=pending")
+      setIsSubmitting(true)
+      if (isAmbassador) {
+        await updateUserVerificationStatus(userId, status as VerificationUserStatus, declineReason)
+      } else {
+        await updatePartnerStatus(userId, status as PartnerStatus, declineReason)
       }
+
+      toast({
+        title: `Request ${status === PartnerStatus.ACTIVE ? "approved" : "declined"}`,
+        position: "bottom-right",
+        successIcon: true,
+      })
+
+      router.push(`/super-admin/${isAmbassador ? "ambassadors" : "partners"}?status=pending`)
     } catch (error) {
-      console.error("Failed to submit data:", error)
+      console.error("Failed to update user status:", error)
+    } finally {
+      setIsSubmitting(false)
+      setDeletingId(null)
     }
+  }
+
+  const onSubmit = () => {
+    handleUpdateUserStatus("ACTIVE" as VerificationUserStatus | PartnerStatus)
+  }
+
+  const handleDeclineUser = (declineReason?: string) => {
+    handleUpdateUserStatus("DECLINED" as VerificationUserStatus | PartnerStatus, declineReason)
   }
 
   const handleDownloadClick = () => {
@@ -129,44 +114,25 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
     }
   }
 
-  const handleDeclineUser = async (userId: string, declineReason?: string, pageMode?: string) => {
-    try {
-      if (pageMode === "ambassador") {
-        await updateUserVerificationStatus(
-          userId,
-          VerificationUserStatusReverseMap[VerificationUserStatus.DECLINED],
-          declineReason
-        )
-        toast({
-          title: "Request declined",
-          position: "bottom-right",
-          successIcon: true,
-        })
-        router.push("/super-admin/ambassador?status=pending")
-      }
-    } catch (error) {
-      console.error("Failed to decline user:", error)
-    }
-  }
-
   return (
     <div className="h-full w-full lg:px-4">
       {isModalOpen && <ContractModal onClose={() => setIsModalOpen(false)} onDownload={handleDownloadClick} />}
       <DeclineProfileModal
         isOpen={deletingId === userId}
         onClose={() => setDeletingId(null)}
-        onConfirm={(declineReason: string) => handleDeclineUser(userId, declineReason, pageMode)}
+        onConfirm={(declineReason: string) => handleDeclineUser(declineReason)}
       />
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between">
-          <PageTopicSecond
-            name="Back to Ambassadors hub"
-            link={`/super-admin/ambassador?status=${VerificationUserStatus.PENDING_REVIEW}`}
-            enable={false}
-          />
-          {!isPendingUser && <StatusBadge status={user?.verificationStatus} date={user?.verificationDate} />}
+          <PageTopicSecond name={backLinkText} link={backLink} enable={false} />
+          {!isPendingUser && (
+            <StatusBadge
+              status={isAmbassador ? user?.verificationStatus : user?.partnerStatus}
+              date={isAmbassador ? user?.verificationDate : user?.partnerStatusDate}
+            />
+          )}
         </div>
-        <div className="mt-6 flex flex-1 items-start justify-between max-lg:block">
+        <div className="mt-6 mb-3 flex flex-1 items-start justify-between max-lg:block">
           <div className="w-3/5 max-lg:mt-8 max-lg:w-full">
             <div className="text-primary-900 text-xl font-semibold">Professional Info</div>
             <div className="border-grey-400 mt-3.5 rounded-2xl border p-5 max-lg:block">
@@ -197,6 +163,28 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
                 </div>
               </div>
             </div>
+
+            {userType === "partner" && (
+              <>
+                <div className="text-primary-900 mt-10 text-xl font-semibold">Social Media Pages</div>
+                <div className="border-grey-400 mt-3.5 rounded-2xl border p-5 max-lg:block">
+                  <div className="transition duration-300">
+                    <div className="flex max-h-full flex-col gap-5 transition-all duration-700">
+                      {socialLinks.map(({ key, label }) => (
+                        <div key={key} className="w-full">
+                          <Label className="text-primary-900 text-sm font-semibold">{label}</Label>
+                          <Input
+                            readOnly
+                            value={""}
+                            className="text-primary-800 cursor-pointer rounded-lg border px-3 py-2 text-left text-sm read-only:bg-blue-50"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="w-[35%] max-lg:mt-8 max-lg:w-full">
@@ -213,16 +201,31 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
                 </div>
               </div>
             </div>
+
+            {userType === "partner" && (
+              <>
+                <div className="text-primary-900 mt-10 text-[20px] font-semibold">Selected areas of cooperation</div>
+                <div className="border-grey-400 bg-grey-100 mt-3.5 rounded-2xl border p-5">
+                  {cooperations.map((cooperation, index) => (
+                    <div key={index} className="mb-5 flex items-center justify-start">
+                      <Checkbox defaultChecked disabled />
+                      <div className="text-grey-800 ml-3 text-sm font-normal">{cooperation.title}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
         {isPendingUser && (
-          <div className="border-grey-400 bg-grey-100 mt-3.5 w-full rounded-[20px] border p-3 max-md:mb-3.5">
+          <div className="border-grey-400 bg-grey-100 mt-3.5 mb-3 w-full rounded-[20px] border p-3 max-md:mb-3.5">
             <div className="flex w-44 items-center gap-2 justify-self-end">
               <Button
                 variant="primary"
                 size="sm"
                 className="bg-primary-900 hover:bg-primary-900/80 w-full rounded-full"
                 onClick={() => onSubmit()}
+                disabled={isSubmitting}
               >
                 Approve
               </Button>
@@ -231,6 +234,7 @@ const ApprovalProfile: FC<ApprovalProfileProps> = ({ userId, pageMode }: { userI
                 size="sm"
                 className="bg-red hover:bg-red/80 w-full rounded-full"
                 onClick={() => handleOpenDeletingModal(userId)}
+                disabled={isSubmitting}
               >
                 Decline
               </Button>
