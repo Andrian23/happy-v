@@ -2,13 +2,15 @@
 
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 import { SignUpLayout } from "@/components/SignUpLayout"
 import confirmedOrderImage from "@/public/Confirmed_Order.svg"
 
 const SignUpSuccessPage = () => {
   const router = useRouter()
+  const { data: session } = useSession()
+  const userEmail = session?.user?.email
 
   const handleBackToHome = async () => {
     try {
@@ -27,7 +29,7 @@ const SignUpSuccessPage = () => {
       <div className="text-primary-900 mt-[32px] text-center text-[32px] font-bold">Well done!</div>
       <div className="text-primary-900 mt-2 text-center text-sm">
         Happy V will review your credentials, usually this will take up to 2 business days, and then we will notify you
-        of the result to the email address you provided <span className="font-semibold">example@email.com</span>
+        of the result to the email address you provided <span className="font-semibold">{userEmail || ""}</span>
       </div>
       <div
         onClick={handleBackToHome}
