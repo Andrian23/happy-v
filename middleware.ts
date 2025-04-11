@@ -33,6 +33,7 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth
   const userEmail = req.auth?.user?.email
   const userRole = req.auth?.user?.role
+  const isActiveStatusUser = userRole === "ADMIN" || req.auth?.user?.verificationStatus === "ACTIVE"
 
   if (nextUrl.pathname.startsWith("/api/cron")) {
     return NextResponse.next()
@@ -59,7 +60,7 @@ export default auth((req) => {
   }
 
   if (isAuthRoute) {
-    if (isLoggedIn && !isProfileStepsRoute) {
+    if (isLoggedIn && !isProfileStepsRoute && isActiveStatusUser) {
       return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
     }
   }
@@ -88,6 +89,10 @@ export default auth((req) => {
 
   if (isLoggedIn && !isAuthRoute && uncompletedSteps.length > 0) {
     return NextResponse.redirect(new URL(uncompletedSteps[0], nextUrl))
+  }
+
+  if (isLoggedIn && !isActiveStatusUser && !isPublicRoute && !isAuthRoute) {
+    return NextResponse.redirect(new URL("/sign-up-success", nextUrl))
   }
 
   return NextResponse.next()
