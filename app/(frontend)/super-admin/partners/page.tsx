@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { getParticipants } from "@/actions/super-admin/participant"
 import PageTopic from "@/components/PageTopic"
 import UserApproveTable from "@/components/super-admin/UserApproveTable"
+import { bindToEvent } from "@/lib/pusher-client"
 import { PartnerStatus, PartnerStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
@@ -31,6 +32,10 @@ const PartnersMainPage = () => {
   useEffect(() => {
     fetchUsers(activeTab)
   }, [activeTab])
+
+  useEffect(() => {
+    return bindToEvent("admin-dashboard", "counts-updated", () => fetchUsers(activeTab))
+  }, [])
 
   return (
     <div className="m-2.5 w-[98%] max-md:m-0">

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { getParticipants } from "@/actions/super-admin/participant"
 import PageTopic from "@/components/PageTopic"
 import UserApproveTable from "@/components/super-admin/UserApproveTable"
+import { bindToEvent } from "@/lib/pusher-client"
 import { VerificationUserStatus, VerificationUserStatusReverseMap } from "@/models/participants"
 import { User } from "@/models/user"
 
@@ -34,12 +35,16 @@ const AmbassadorMainPage = () => {
     fetchUsers(activeTab)
   }, [activeTab])
 
+  useEffect(() => {
+    return bindToEvent("admin-dashboard", "counts-updated", () => fetchUsers(activeTab))
+  }, [])
+
   return (
     <div className="m-2.5 w-[98%] max-md:m-0">
       <PageTopic name="Ambassadors Hub" description="" />
       <div className="mt-3 border-b"></div>
 
-      <UserApproveTable users={users} loading={loading} basePath="/super-admin/ambassador" />
+      <UserApproveTable users={users} loading={loading} basePath="/super-admin/ambassadors" />
     </div>
   )
 }

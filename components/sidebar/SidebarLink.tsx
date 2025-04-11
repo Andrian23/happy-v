@@ -15,6 +15,8 @@ interface SidebarLinkProps {
   className?: string
   isBadged?: boolean
   isNotified?: boolean
+  count?: number
+  countType?: string
 }
 
 const SidebarLink: React.FC<SidebarLinkProps> = ({
@@ -24,6 +26,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
   className,
   isBadged = false,
   isNotified = false,
+  count = 0,
 }) => {
   const currentPath = usePathname()
   const searchParams = useSearchParams()
@@ -69,10 +72,10 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
             }
           )}
         >
-          {isNotified && name === "Pending for Review" && (
+          {isNotified && count > 0 && (
             <div className="bg-notified absolute -top-1 -right-1 aspect-square w-1.5 rounded-full" />
           )}
-          8
+          {count}
         </Badge>
       )}
     </Link>
