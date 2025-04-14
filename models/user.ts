@@ -19,6 +19,8 @@ export interface User {
   stripeCustomerId?: string | null
   shippingAddresses?: ShippingAddress[]
   defaultShippingAddress: number | null
+  referralCode?: string | null
+  referralLink?: string | null
   signUpStep3Completed?: boolean
   signUpStep4Completed?: boolean
   npiNumber?: string | null
