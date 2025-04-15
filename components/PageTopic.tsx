@@ -15,9 +15,16 @@ interface PageTopicProps {
   description?: string
   children?: React.ReactNode
   sticky?: boolean
+  isBorderBottomPresent?: boolean
 }
 
-const PageTopic: React.FC<PageTopicProps> = ({ name, description, children, sticky = false }) => {
+const PageTopic: React.FC<PageTopicProps> = ({
+  name,
+  description,
+  children,
+  sticky = false,
+  isBorderBottomPresent = false,
+}) => {
   const cart = useShopifyCartStore((state) => state.cart)
 
   const fetchCart = useShopifyCartStore((state) => state.fetchCart)
@@ -33,9 +40,15 @@ const PageTopic: React.FC<PageTopicProps> = ({ name, description, children, stic
   }, [fetchCart])
 
   return (
-    <div className={cn("bg-white pt-4 pb-3", sticky && "lg:sticky lg:top-0 lg:z-10")}>
+    <div
+      className={cn(
+        "bg-white pt-4 pb-5.5",
+        sticky && "lg:sticky lg:top-0 lg:z-10",
+        isBorderBottomPresent && "border-grey-250 border-b-1"
+      )}
+    >
       <div className="flex items-center justify-between gap-4 max-lg:w-full">
-        {name && <h2 className="text-primary-900 text-[28px] leading-9 font-bold lg:leading-none">{name}</h2>}
+        {name && <h2 className="text-primary-900 text-[28px] leading-9.5 font-semibold lg:leading-none">{name}</h2>}
         {children}
         {!isSuperAdminPage && (
           <Link href="/cart" className="relative ml-auto max-lg:hidden">

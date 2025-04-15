@@ -63,9 +63,9 @@ export const linksMedia = [
     link: "/community",
   },
   {
-    name: "Become an Ambassador",
+    name: "Become a Practitioner Partner",
     icon: <Ambassador className={classes} />,
-    link: "/ambassador",
+    link: "/become-partner",
   },
 ]
 
