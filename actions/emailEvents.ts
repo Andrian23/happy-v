@@ -134,3 +134,30 @@ export const sendLoginNotification = async ({ email }: { email: string }) => {
 
   await sendKlaviyoEvent(eventData, "login notification")
 }
+
+export const sendInactivityNotification = async ({
+  email,
+  name,
+  lastName,
+  lastActiveDate,
+  daysInactive,
+}: {
+  email: string
+  name?: string
+  lastName?: string
+  lastActiveDate: string
+  daysInactive: number
+}) => {
+  const eventData = createEventData(
+    email,
+    "Inactivity Notification Email Sent",
+    {
+      last_active_date: lastActiveDate,
+      days_inactive: daysInactive.toString(),
+      message: `We haven't seen you in ${daysInactive} days!`,
+    },
+    { first_name: name, last_name: lastName }
+  )
+
+  await sendKlaviyoEvent(eventData, "inactivity notification")
+}

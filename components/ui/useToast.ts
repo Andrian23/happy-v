@@ -13,6 +13,8 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  successIcon?: React.ReactNode
+  errorIcon?: React.ReactNode
 }
 
 let count = 0

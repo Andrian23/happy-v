@@ -22,6 +22,7 @@ const iconMap: { [key in keyof Ambassador["ambassadorLinks"]]: string } = {
 }
 
 const AmbassadorList = () => {
+  // Ambassador entries should be renamed to Partners
   const [ambassadors, setAmbassadors] = useState<Ambassador[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -49,10 +50,10 @@ const AmbassadorList = () => {
   }
 
   return (
-    <div className="mb-4 mt-8 flex flex-col gap-4 bg-white p-4">
+    <div className="mt-8 mb-4 flex flex-col gap-4 bg-white p-4">
       {ambassadors.map((ambassador) => (
         <Link
-          className="flex h-full w-full items-center justify-between rounded-xl bg-grey-200 p-4"
+          className="bg-grey-200 flex h-full w-full items-center justify-between rounded-xl p-4"
           href={`/super-admin/${ambassador.id}`}
           key={ambassador.id}
         >

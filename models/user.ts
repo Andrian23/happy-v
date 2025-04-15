@@ -1,4 +1,5 @@
-import type { ShippingAddress } from "./shipping"
+import { PartnerStatus, VerificationUserStatus } from "@/models/participants"
+import type { ShippingAddress } from "@/models/shipping"
 
 export interface User {
   id: string
@@ -18,4 +19,15 @@ export interface User {
   stripeCustomerId?: string | null
   shippingAddresses?: ShippingAddress[]
   defaultShippingAddress: number | null
+  signUpStep3Completed?: boolean
+  signUpStep4Completed?: boolean
+  npiNumber?: string | null
+  verificationStatus?: VerificationUserStatus
+  verificationDate?: Date | null
+  verificationNotes?: string
+  verifiedBy?: string
+  partnerStatus?: PartnerStatus
+  partnerStatusDate?: Date | null
+  partnerNotes?: string
+  partnerReviewedBy?: string
 }
