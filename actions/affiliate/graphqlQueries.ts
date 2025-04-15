@@ -21,3 +21,17 @@ export const CREATE_DISCOUNT_CODE = `
     }
   }
 `
+
+export const GET_DISCOUNT_CODE_STATUS = `
+  query getDiscountCode($code: String!) {
+    codeDiscountNodeByCode(code: $code) {
+      codeDiscount {
+        ... on DiscountCodeBasic {
+          status
+          endsAt
+          startsAt
+        }
+      }
+    }
+  }
+`

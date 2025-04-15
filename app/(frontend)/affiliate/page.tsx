@@ -23,9 +23,18 @@ const AffiliatePage = () => {
   const fetchReferralCode = async () => {
     setIsLoading(true)
     try {
-      const { code, link } = await getUserReferralCode()
+      const { code, link, isValid } = await getUserReferralCode()
 
       if (code && link) {
+        if (isValid === false) {
+          toast({
+            title: "Inactive Code",
+            description: "Your referral code has expired or has been deactivated. Generating a new one.",
+          })
+          await generateNewCode(true)
+          return
+        }
+
         setReferralCode(code)
         setReferralLink(link)
       } else {
@@ -38,20 +47,20 @@ const AffiliatePage = () => {
     }
   }
 
-  const generateNewCode = async () => {
+  const generateNewCode = async (forceNew = false) => {
     setIsLoading(true)
     try {
-      await createReferralCode()
+      await createReferralCode(forceNew)
 
-      const { code, link } = await getUserReferralCode()
+      const { code: newCode, link: newLink } = await getUserReferralCode()
 
-      if (code && link) {
-        setReferralCode(code)
-        setReferralLink(link)
+      if (newCode && newLink) {
+        setReferralCode(newCode)
+        setReferralLink(newLink)
+
         toast({
           title: "Success",
-          description: "Referral code generated successfully!",
-          position: "bottom-right",
+          description: forceNew ? "Your referral code has been renewed." : "Referral code generated successfully!",
         })
       } else {
         throw new Error("Failed to retrieve generated code details")
