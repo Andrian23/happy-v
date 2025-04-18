@@ -21,19 +21,19 @@ export const ReferralOrdersTable: React.FC<ReferralOrdersTableProps> = ({ orders
         </TableRow>
       </TableHeader>
       <TableBody>
-        {orders.map((order) => (
-          <TableRow key={order.id}>
-            <TableCell className="text-primary-900 text-sm font-bold max-lg:px-0">{order.id}</TableCell>
+        {orders.map(({ id, createdAt, totalPrice }) => (
+          <TableRow key={id}>
+            <TableCell className="text-primary-900 text-sm font-bold max-lg:px-0">{id}</TableCell>
             <TableCell className="text-sm font-medium text-blue-600 max-lg:px-0">
-              {new Date(order.createdAt).toLocaleDateString("en-US", {
+              {new Date(createdAt).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
                 year: "numeric",
               })}
             </TableCell>
-            <TableCell className="text-sm font-medium text-blue-600 max-lg:px-0">${order.totalPrice}</TableCell>
+            <TableCell className="text-sm font-medium text-blue-600 max-lg:px-0">${totalPrice}</TableCell>
             <TableCell className="text-primary-900 text-right text-sm font-bold max-lg:px-0">
-              ${(order.totalPrice * (commissionRate || 0)).toFixed(2)}
+              ${(totalPrice * (commissionRate || 0)).toFixed(2)}
             </TableCell>
           </TableRow>
         ))}
