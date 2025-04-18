@@ -89,6 +89,36 @@ export const queryOrderById = (orderId: string) => /* GraphQL */ `
           }
         }
       }
+      refunds(first: 10) {
+        id
+        createdAt
+        note
+        totalRefunded {
+          amount
+          currencyCode
+        }
+        transactions(first: 10) {
+          edges {
+            node {
+              id
+              amount
+              status
+              processedAt
+            }
+          }
+        }
+        refundLineItems(first: 10) {
+          edges {
+            node {
+              quantity
+              lineItem {
+                id
+              }
+              restockType
+            }
+          }
+        }
+      }
     }
   }
 `
