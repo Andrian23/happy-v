@@ -113,3 +113,22 @@ export interface OrderInput {
   }[]
   payment: Payment
 }
+
+interface OrderEdge {
+  node: Order
+  cursor: string
+}
+
+export interface CustomerOrdersResponse {
+  customer: {
+    orders: {
+      edges: OrderEdge[]
+      pageInfo: {
+        hasNextPage: boolean
+        hasPreviousPage: boolean
+        endCursor: string | null
+        startCursor: string | null
+      }
+    }
+  }
+}

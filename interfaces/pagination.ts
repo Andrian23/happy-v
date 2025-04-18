@@ -4,3 +4,8 @@ export interface Pagination {
   page: number
   limit: number
 }
+
+export interface CardPaginationData {
+  currentPage: number
+  totalPages: number
+}

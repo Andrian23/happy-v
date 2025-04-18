@@ -33,7 +33,7 @@ const PageTopic: React.FC<PageTopicProps> = ({ name, description, children, stic
   }, [fetchCart])
 
   return (
-    <div className={cn("bg-white pt-4 pb-3", sticky && "lg:sticky lg:top-0 lg:z-10")}>
+    <div className={cn("border-b border-blue-200 bg-white pt-1 pb-4 lg:pt-4", sticky && "lg:sticky lg:top-0 lg:z-10")}>
       <div className="flex items-center justify-between gap-4 max-lg:w-full">
         {name && <h2 className="text-primary-900 text-[28px] leading-9 font-bold lg:leading-none">{name}</h2>}
         {children}

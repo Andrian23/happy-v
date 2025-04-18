@@ -73,11 +73,14 @@ function formatShippingLine(line: {
   }
 }
 
+import { CardPaginationData } from "@/interfaces/pagination"
+
 import {
   mutationCreateCustomer,
   mutationCreateOrder,
   queryCustomerByEmail,
   queryCustomerOrders,
+  queryCustomerOrdersWithPagination,
   queryOrderById,
 } from "./graphqlQueries"
 
@@ -154,6 +157,57 @@ export async function getOrderByUserId(): Promise<Order[]> {
     .filter((order) => {
       return order.customAttributes?.some((attr) => attr.key === "source" && attr.value === "DEAP")
     })
+}
+
+export async function getOrdersByUserId(
+  page: number = 1,
+  pageSize: number = 10
+): Promise<{ orders: Order[]; pagination: CardPaginationData }> {
+  const session = await auth()
+  const { email } = session?.user ?? {}
+
+  if (!email) throw new Error("User not found")
+
+  const customer = await findCustomerByEmail(email)
+  if (!customer) return { orders: [] }
+
+  const result = await fetchGraphQL<{
+    customer: {
+      orders: {
+        edges: { node: Order }[]
+        pageInfo: {
+          hasNextPage: boolean
+          hasPreviousPage: boolean
+          startCursor: string
+          endCursor: string
+        }
+      }
+    }
+  }>(queryCustomerOrdersWithPagination, {
+    customerId: customer.id,
+    first: pageSize,
+    after: page > 1 ? btoa(`cursor-${(page - 1) * pageSize}`) : null,
+  })
+
+  const orders = result.customer.orders.edges
+    .map((edge) => edge.node)
+    .filter((order) => {
+      return order.customAttributes?.some((attr) => attr.key === "source" && attr.value === "DEAP")
+    })
+
+  const hasNextPage = result.customer.orders.pageInfo.hasNextPage
+
+  const totalPages = hasNextPage ? Math.max(page + 1, 5) : page
+
+  const pagination: CardPaginationData = {
+    currentPage: page,
+    totalPages,
+  }
+
+  return {
+    orders,
+    pagination,
+  }
 }
 
 export async function getTopOrderedProducts(): Promise<{ product: ShopifyProduct; quantity: number }[]> {

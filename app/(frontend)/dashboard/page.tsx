@@ -1,11 +1,10 @@
-import { getOrderByUserId, getTopOrderedProducts } from "@/actions/order"
-import { getRecommendationByUser } from "@/actions/recommendation"
+import { getOrdersByUserId, getTopOrderedProducts } from "@/actions/order"
 import { Dashboard } from "@/app/features/dashboard/Dashboard"
+import { defaultEarnings } from "@/mock-data/dashboardData"
 
 export default async function DashboardPage() {
-  const orders = await getOrderByUserId()
-  const recommendations = await getRecommendationByUser()
+  const orders = await getOrdersByUserId(1, 10)
   const topOrderedProducts = await getTopOrderedProducts()
 
-  return <Dashboard orders={orders} recommendations={recommendations} topOrderedProducts={topOrderedProducts} />
+  return <Dashboard orders={orders} topOrderedProducts={topOrderedProducts} earnings={defaultEarnings} />
 }
