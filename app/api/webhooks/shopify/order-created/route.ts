@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { db } from "@/lib/db"
-
-function verifyShopifyWebhook(req: NextRequest): boolean {
-  const hmacHeader = req.headers.get("x-shopify-hmac-sha256")
-  const shopifySecret = process.env.SHOPIFY_WEBHOOK_SECRET
-
-  return !(!hmacHeader || !shopifySecret)
-}
+import { verifyShopifyWebhook } from "@/lib/verifyShopifyWebhook"
 
 export async function POST(req: NextRequest) {
   try {
-    if (!verifyShopifyWebhook(req)) {
+    if (!(await verifyShopifyWebhook(req))) {
       return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 })
     }
 
@@ -19,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     const shopifyOrderId = order.id.toString()
     const customerEmail = order.email
-    const orderTotal = parseFloat(order.total_price)
+    const orderTotal = parseFloat(order.subtotal_price)
     const orderDate = new Date(order.created_at)
 
     let referralCode = null
@@ -107,25 +101,17 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    await db.user.update({
-      where: { id: doctor.id },
-      data: {
-        totalCommissionEarned: { increment: commissionAmount },
-        lastActiveAt: new Date(),
-      },
-    })
-
     return NextResponse.json(
       {
         status: "success",
-        message: "Commission recorded successfully",
+        message: "Commission record created with PENDING status",
         commission: commissionAmount,
         doctor: doctor.id,
       },
       { status: 200 }
     )
   } catch (error) {
-    console.error("Error processing order webhook:", error)
+    console.error("Error processing order creation webhook:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
