@@ -288,3 +288,44 @@ export const mutationCreateOrder = `
     }
   }
 `
+
+export const queryCustomerOrdersWithPagination = `
+query GetCustomerOrders($customerId: ID!, $first: Int!, $after: String) {
+  customer(id: $customerId) {
+    orders(first: $first, after: $after) {
+      edges {
+        node {
+          id
+          name
+          processedAt
+          totalPriceSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+          lineItems(first: 10) {
+            edges {
+              node {
+                title
+                quantity
+              }
+            }
+          }
+          customAttributes {
+            key
+            value
+          }
+          # Add any other order fields you need
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+}
+`

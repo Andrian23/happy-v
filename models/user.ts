@@ -32,4 +32,5 @@ export interface User {
   partnerStatusDate?: Date | null
   partnerNotes?: string
   partnerReviewedBy?: string
+  commissionRate: number
 }

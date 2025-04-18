@@ -33,7 +33,7 @@ const MenuMobile: React.FC<MenuMobileProps> = ({ isAdmin = false }) => {
   }, [pathname])
 
   return (
-    <div className={`relative top-0 ${isAdmin ? "h-25" : "h-17.5"} w-full border-b border-black/15 bg-white md:hidden`}>
+    <div className={`relative top-0 ${isAdmin ? "h-25" : "h-17.5"} w-full border-b border-blue-200 bg-white md:hidden`}>
       <div className="flex items-center justify-between p-4 max-md:p-[1.125rem]">
         {isOpen ? (
           <X onClick={() => setIsOpen(false)} className="cursor-pointer" />

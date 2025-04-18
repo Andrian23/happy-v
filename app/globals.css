@@ -54,12 +54,17 @@
   --color-grey-850: rgba(var(--grey-850));
 
   --color-light-grey: rgba(var(--light-grey));
+  --color-dark-grey: rgba(var(--dark-grey));
 
   --color-green-100: rgba(var(--green-100));
+  --color-status-green: rgba(var(--status-green));
 
   --color-notified: rgba(var(--notified));
 
   --color-blue-50: rgba(var(--blue-50));
+  --color-blue-200: rgba(var(--blue-200));
+  --color-blue-550: rgba(var(--blue-550));
+  --color-blue-600: rgba(var(--blue-600));
 
   --color-error-500: rgba(var(--error-500));
   
@@ -168,13 +173,19 @@
     --grey-850: 138 149 161;
 
     --light-grey: 231, 230, 230;
+    --dark-grey: 246, 241, 241;
 
     /* Green Colors */
     --green-100: 9 189 48; /* success color */
 
+    --status-green: 21 161 103;
+
     --notified: 255, 60, 60;
 
     --blue-50: 249, 251, 253;
+    --blue-200: 233, 236, 239;
+    --blue-550: 138, 149, 161;
+    --blue-600: 81, 104, 125;
 
     --red: 255, 60, 60;
 
