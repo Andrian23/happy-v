@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { getOrderByOrderId } from "@/actions/order"
 import { db } from "@/lib/db"
 import { verifyShopifyWebhook } from "@/lib/verifyShopifyWebhook"
+
+type CommissionStatus = "PAID" | "CREDITED" | "REFUNDED" | "PENDING" | "CANCELLED"
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,73 +20,46 @@ export async function POST(req: NextRequest) {
     })
 
     if (commissions.length === 0) {
-      return NextResponse.json(
-        {
-          status: "No commissions found for this order",
-        },
-        { status: 200 }
-      )
+      return NextResponse.json({ status: "No commissions found for this order" }, { status: 200 })
     }
 
-    let isFullRefund = false
+    const completeOrder = await getOrderByOrderId(shopifyOrderId)
 
-    if (refund.refund_line_items && refund.refund_line_items.length > 0) {
-      isFullRefund = refund.refund_line_items.some((item: { restock_type: string }) => item.restock_type === "cancel")
-    }
+    const refunds = completeOrder?.refunds || []
 
-    if (!isFullRefund && refund.transactions && refund.transactions.length > 0) {
-      const refundAmount = parseFloat(refund.transactions[0].amount || "0")
-      if (commissions[0] && commissions[0].orderTotal) {
-        const orderTotal = parseFloat(commissions[0].orderTotal.toString())
-        const diffPercentage = Math.abs(refundAmount - orderTotal) / orderTotal
-        if (diffPercentage < 0.01) {
-          isFullRefund = true
-        }
+    let totalRefundedAmount = 0
+    refunds.forEach((refundItem) => {
+      if (refundItem.totalRefunded && refundItem.totalRefunded.amount) {
+        totalRefundedAmount += parseFloat(refundItem.totalRefunded.amount)
       }
-    }
+    })
 
-    if (!isFullRefund && refund.order && refund.order.line_items && refund.refund_line_items) {
-      const totalOrderItems = refund.order.line_items.reduce(
-        (
-          sum: number,
-          item: {
-            quantity: number
-          }
-        ) => sum + (item.quantity || 0),
-        0
-      )
-      const totalRefundedItems = refund.refund_line_items.reduce(
-        (
-          sum: number,
-          item: {
-            quantity: number
-          }
-        ) => sum + (item.quantity || 0),
-        0
-      )
-      if (totalRefundedItems >= totalOrderItems) {
-        isFullRefund = true
-      }
-    }
+    const orderTotal = parseFloat(commissions[0].orderTotal.toString())
+
+    const isFullRefund = totalRefundedAmount / orderTotal > 0.99
 
     if (isFullRefund) {
       const updatedCommissions = []
-      for (const commission of commissions) {
-        if (commission.status === "CREDITED") {
+
+      for (const comm of commissions) {
+        if ((comm.status === "CREDITED" || comm.status === "PAID") && comm.amount > 0) {
           await db.user.update({
-            where: { id: commission.doctorId },
+            where: { id: comm.doctorId },
             data: {
-              totalCommissionEarned: { decrement: commission.amount },
+              totalCommissionEarned: { decrement: comm.amount },
             },
           })
         }
+
         await db.commission.update({
-          where: { id: commission.id },
+          where: { id: comm.id },
           data: {
             status: "REFUNDED",
+            amount: 0,
           },
         })
-        updatedCommissions.push(commission.id)
+
+        updatedCommissions.push(comm.id)
       }
 
       return NextResponse.json(
@@ -95,29 +71,42 @@ export async function POST(req: NextRequest) {
         { status: 200 }
       )
     } else {
-      const refundAmount = parseFloat(refund.transactions[0]?.amount || "0")
+      const currentRefundAmount =
+        refund.transactions && refund.transactions[0]?.amount ? parseFloat(refund.transactions[0].amount) : 0
+
+      const refundPercentage = currentRefundAmount / orderTotal
+
       const updatedCommissions = []
 
-      for (const commission of commissions) {
-        if (commission.status === "CREDITED") {
-          const refundPercentage = refundAmount / commission.orderTotal
-          const commissionToReverse = commission.amount * refundPercentage
+      for (const comm of commissions) {
+        if (comm.status === "CREDITED" || comm.status === "PAID") {
+          const commissionToReverse = comm.amount * refundPercentage
 
           await db.user.update({
-            where: { id: commission.doctorId },
+            where: { id: comm.doctorId },
             data: {
               totalCommissionEarned: { decrement: commissionToReverse },
             },
           })
 
+          const newAmount = Math.max(0, comm.amount - commissionToReverse)
+
+          let newStatus = comm.status as CommissionStatus
+          if (newAmount < 0.01) {
+            newStatus = "REFUNDED"
+          } else if (comm.status === "PAID") {
+            newStatus = "CREDITED"
+          }
+
           await db.commission.update({
-            where: { id: commission.id },
+            where: { id: comm.id },
             data: {
-              amount: commission.amount - commissionToReverse,
+              amount: newAmount,
+              status: newStatus,
             },
           })
 
-          updatedCommissions.push(commission.id)
+          updatedCommissions.push(comm.id)
         }
       }
 
@@ -131,17 +120,7 @@ export async function POST(req: NextRequest) {
       )
     }
   } catch (error) {
-    let errorMessage = "Unknown error"
-    if (error instanceof Error) {
-      errorMessage = error.message
-    }
-
-    return NextResponse.json(
-      {
-        error: "Internal server error",
-        details: errorMessage,
-      },
-      { status: 500 }
-    )
+    console.error("Error processing refund webhook:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

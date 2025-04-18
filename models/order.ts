@@ -66,6 +66,35 @@ interface ShippingLineDetails extends ShippingLine {
   originalPriceSet: PriceSet
 }
 
+export interface RefundTransaction {
+  id: string
+  amount: string
+  status: string
+  processedAt: string
+}
+
+export interface Refund {
+  id: string
+  createdAt: string
+  note: string | null
+  totalRefunded: {
+    amount: string
+    currencyCode: string
+  }
+  transactions: RefundTransaction[]
+  refundLineItems?: {
+    edges: {
+      node: {
+        quantity: number
+        lineItem: {
+          id: string
+        }
+        restockType: string
+      }
+    }[]
+  }
+}
+
 export interface Order {
   id: string
   name: string
@@ -93,6 +122,7 @@ export interface Order {
   shippingLines: ShippingLine[]
   shippingLine: ShippingLineDetails
   payment: Payment
+  refunds: Refund[]
 }
 
 export interface OrderInput {

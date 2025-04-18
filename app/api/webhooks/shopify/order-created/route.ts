@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "Order already processed" }, { status: 200 })
     }
 
-    const commissionRate = doctor.commissionRate || 0.15
+    const commissionRate = doctor.commissionRate || 0.3
     const commissionAmount = orderTotal * commissionRate
 
     await db.commission.create({

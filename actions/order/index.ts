@@ -82,7 +82,7 @@ import {
 } from "./graphqlQueries"
 
 async function fetchGraphQL<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
-  const response = await fetch(`https://happy-v.myshopify.com/admin/api/2024-10/graphql.json`, {
+  const response = await fetch(`https://${process.env.SHOPIFY_STORE}/admin/api/2024-10/graphql.json`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

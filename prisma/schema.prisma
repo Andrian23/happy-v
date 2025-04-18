@@ -26,7 +26,7 @@ model User {
   telephone                 String?
   defaultShippingAddress    Int?
   stripeCustomerId          String?
-  commissionRate            Float                 @default(0.15)
+  commissionRate            Float                 @default(0.30)
   isVerified                Boolean               @default(false)
   lastActiveAt              DateTime?
   npiNumber                 String?               @unique

@@ -38,7 +38,7 @@ export async function getDoctorCommissions(input: z.infer<typeof getDoctorCommis
         ...(Object.keys(dateFilter).length > 0 ? { createdAt: dateFilter } : {}),
       },
       include: {
-        patientReferral: true,
+        PatientReferral: true,
       },
       orderBy: {
         createdAt: "desc",
