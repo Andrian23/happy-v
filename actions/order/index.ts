@@ -162,7 +162,7 @@ export async function getOrderByUserId(): Promise<Order[]> {
 export async function getOrdersByUserId(
   page: number = 1,
   pageSize: number = 10
-): Promise<{ orders: Order[]; pagination: CardPaginationData }> {
+): Promise<{ orders: Order[]; pagination?: CardPaginationData }> {
   const session = await auth()
   const { email } = session?.user ?? {}
 

@@ -15,7 +15,7 @@ export interface ChartCardFormattedData {
   differenceFromPreviousPeriod: string
   differenceArrow: boolean
   tooltip: string
-  data: ChartData
+  data?: ChartData
 }
 
 interface ChartCardProps {
